@@ -1,0 +1,119 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_CREDENTIALS = 'dockerhub-credentials'
+        IMAGE_NAME = 'hgray1591/frontend-app'
+        REMOTE_USER = 'ubuntu'
+        REMOTE_HOST = '43.202.229.52'
+        CONTAINER_NAME = 'frontend-app'
+        PORT = '8282'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/YOUR_USERNAME/YOUR_REPO.git', branch: 'main'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                dir('devops3') {
+                    sh '''
+                        echo "Installing Node.js dependencies..."
+                        npm ci  # ci는 install보다 빠르고 안정적
+                    '''
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('devops3') {
+                    sh '''
+                        echo "Building React application..."
+                        npm run build
+                        
+                        echo "Build completed. Checking dist directory..."
+                        ls -la dist/
+                    '''
+                }
+            }
+            post {
+                success {
+                    echo 'Build artifacts created successfully'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('devops3') {
+                    script {
+                        docker.build("${IMAGE_NAME}:latest", ".")
+                    }
+                }
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                        docker.image("${IMAGE_NAME}:latest").push()
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Server') {
+            steps {
+                script {
+                    sshagent(credentials: ['admin']) {
+                        sh """
+                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} " \
+                            echo '--- Starting Frontend Deployment ---' && \
+                            docker stop ${CONTAINER_NAME} || true && \
+                            docker rm ${CONTAINER_NAME} || true && \
+                            echo '--- Pulling latest frontend image ---' && \
+                            docker pull ${IMAGE_NAME}:latest && \
+                            echo '--- Running new frontend container ---' && \
+                            docker run -d --name ${CONTAINER_NAME} -p ${PORT}:80 ${IMAGE_NAME}:latest && \
+                            echo '--- Pruning old images ---' && \
+                            docker image prune -f && \
+                            echo '--- Frontend deployment successful ---' && \
+                            echo '--- Frontend is now accessible at http://${REMOTE_HOST}:${PORT} ---' \
+                        "
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                sh '''
+                    echo "Waiting for server to be ready..."
+                    sleep 5
+                    
+                    echo "Checking if frontend is accessible..."
+                    curl -f http://${REMOTE_HOST}:${PORT} || exit 1
+                    echo "Frontend is running successfully!"
+                '''
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo "Pipeline completed successfully! Frontend is live at http://${REMOTE_HOST}:${PORT}"
+        }
+        failure {
+            echo 'Pipeline failed. Check the logs for details.'
+        }
+        always {
+            echo 'Pipeline execution finished.'
+        }
+    }
+}
