@@ -13,37 +13,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/YOUR_USERNAME/YOUR_REPO.git', branch: 'main'
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                dir('devops3') {
-                    sh '''
-                        echo "Installing Node.js dependencies..."
-                        npm ci  # ci는 install보다 빠르고 안정적
-                    '''
-                }
-            }
-        }
-
-        stage('Build') {
-            steps {
-                dir('devops3') {
-                    sh '''
-                        echo "Building React application..."
-                        npm run build
-                        
-                        echo "Build completed. Checking dist directory..."
-                        ls -la dist/
-                    '''
-                }
-            }
-            post {
-                success {
-                    echo 'Build artifacts created successfully'
-                }
+                git url: 'https://github.com/devops3sogang/Frontend.git', branch: 'master'
             }
         }
 
@@ -51,6 +21,7 @@ pipeline {
             steps {
                 dir('devops3') {
                     script {
+                        // Docker 내에서 빌드하므로 별도의 npm 단계 불필요
                         docker.build("${IMAGE_NAME}:latest", ".")
                     }
                 }
