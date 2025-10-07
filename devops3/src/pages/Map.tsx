@@ -57,8 +57,11 @@ function Map() {
           {/* 식당 마커들 */}
           {restaurantsData.map((restaurant) => (
             <Marker
-              key={restaurant.idx}
-              position={{ lat: restaurant.lat, lng: restaurant.lng }}
+              key={restaurant._id}
+              position={{
+                lat: restaurant.location.coordinates[1],
+                lng: restaurant.location.coordinates[0]
+              }}
               onClick={() => setSelectedRestaurant(restaurant)}
             />
           ))}
@@ -66,7 +69,10 @@ function Map() {
           {/* 간단한 정보 말풍선 (지도 위) */}
           {selectedRestaurant && (
             <InfoWindow
-              position={{ lat: selectedRestaurant.lat, lng: selectedRestaurant.lng }}
+              position={{
+                lat: selectedRestaurant.location.coordinates[1],
+                lng: selectedRestaurant.location.coordinates[0]
+              }}
               onCloseClick={() => setSelectedRestaurant(null)}
             >
               <div style={{ padding: '10px' }}>
@@ -76,7 +82,7 @@ function Map() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <span style={{ color: '#FFA500', fontSize: '18px' }}>★</span>
                   <span style={{ fontSize: '14px', color: '#666' }}>
-                    {getAverageRating(selectedRestaurant.idx).toFixed(1)}
+                    {getAverageRating(selectedRestaurant._id).toFixed(1)}
                   </span>
                 </div>
               </div>

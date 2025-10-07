@@ -7,9 +7,9 @@ interface RestaurantDetailProps {
 }
 
 function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
-  const reviews = reviewsData.filter(review => review.restaurantIdx === restaurant.idx);
-  const averageRating = getAverageRating(restaurant.idx);
-  const reviewCount = getReviewCount(restaurant.idx);
+  const reviews = reviewsData.filter(review => review.target.restaurantId === restaurant._id);
+  const averageRating = getAverageRating(restaurant._id);
+  const reviewCount = getReviewCount(restaurant._id);
 
   return (
     <div className="restaurant-detail">
@@ -24,46 +24,50 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
         <span className="review-count">({reviewCount}개 리뷰)</span>
       </div>
 
-      <div className="menu-section">
-        <h3>메뉴</h3>
-        <ul className="menu-list">
-          {Object.entries(restaurant.menu).map(([menuName, price]) => (
-            <li key={menuName}>
-              <span className="menu-name">{menuName}</span>
-              <span className="menu-price">{price.toLocaleString()}원</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {restaurant.menu && restaurant.menu.length > 0 && (
+        <div className="menu-section">
+          <h3>메뉴</h3>
+          <ul className="menu-list">
+            {restaurant.menu.map((item) => (
+              <li key={item.name}>
+                <span className="menu-name">{item.name}</span>
+                <span className="menu-price">{item.price.toLocaleString()}원</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="reviews-section">
         <h3>리뷰</h3>
         <div className="reviews-list">
           {reviews.length > 0 ? (
-            reviews.map(review => (
-              <div key={review.idx} className="review-item">
-                <div className="review-header">
-                  <div className="review-rating">
-                    <span className="star">★</span>
-                    <span>{review.rating.toFixed(1)}</span>
+            reviews.map(review => {
+              const avgRating = (review.ratings.taste + review.ratings.price + review.ratings.atmosphere) / 3;
+              return (
+                <div key={review._id} className="review-item">
+                  <div className="review-header">
+                    <div className="review-rating">
+                      <span className="star">★</span>
+                      <span>{avgRating.toFixed(1)}</span>
+                    </div>
+                    <span className="review-author">{review.nickname}</span>
                   </div>
-                  <span className="review-author">{review.author}</span>
-                </div>
-                {review.menuTag && (
-                  <div className="menu-tag">{review.menuTag}</div>
-                )}
-                <p className="review-content">{review.content}</p>
-                <div className="review-footer">
-                  <span className="review-date">
-                    {new Date(review.createdAt).toLocaleDateString('ko-KR')}
-                  </span>
-                  <div className="review-actions">
-                    <span>👍 {review.likes}</span>
-                    <span>👎 {review.dislikes}</span>
+                  {review.target.menuItems && (
+                    <div className="menu-tag">{review.target.menuItems}</div>
+                  )}
+                  <p className="review-content">{review.content}</p>
+                  <div className="review-footer">
+                    <span className="review-date">
+                      {new Date(review.createdAt).toLocaleDateString('ko-KR')}
+                    </span>
+                    <div className="review-actions">
+                      <span>👍 {review.likeCount}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <p className="no-reviews">아직 리뷰가 없습니다.</p>
           )}
