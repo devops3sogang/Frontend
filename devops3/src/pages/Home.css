@@ -6,8 +6,14 @@
 
 .home-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .section-container {
@@ -18,6 +24,11 @@
 
 .latest-reviews-section {
   background-color: #f9f9f9;
+}
+
+.roulette-section {
+  background-color: #fff8f0;
+  /* grid-column: 1 / -1; */
 }
 
 .sogang-menu-section {
@@ -99,4 +110,10 @@
 .menu-placeholder-subtext {
   font-size: 0.9rem;
   margin-top: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .roulette-section {
+    grid-column: auto;
+  }
 }

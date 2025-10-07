@@ -173,6 +173,131 @@ export const restaurantsData: Restaurant[] = [
     ],
     createdAt: "2025-01-01T00:00:00Z",
     updatedAt: "2025-01-01T00:00:00Z"
+  },
+  {
+    _id: "507f1f77bcf86cd799439015",
+    name: "중화요리 만리장성",
+    type: "OFF_CAMPUS",
+    category: "중식",
+    address: "서울특별시 마포구 백범로 5",
+    location: {
+      type: "Point",
+      coordinates: [126.9770, 37.5680]
+    },
+    imageUrl: "https://example.com/chinese.jpg",
+    isActive: true,
+    stats: {
+      averageRating: 4.4,
+      reviewCount: 2
+    },
+    menu: [
+      { name: "짜장면", price: 6000 },
+      { name: "짬뽕", price: 7000 },
+      { name: "탕수육", price: 15000 },
+      { name: "볶음밥", price: 7000 }
+    ],
+    createdAt: "2025-01-01T00:00:00Z",
+    updatedAt: "2025-01-01T00:00:00Z"
+  },
+  {
+    _id: "507f1f77bcf86cd799439016",
+    name: "치킨왕국",
+    type: "OFF_CAMPUS",
+    category: "치킨",
+    address: "서울특별시 마포구 백범로 6",
+    location: {
+      type: "Point",
+      coordinates: [126.9790, 37.5640]
+    },
+    imageUrl: "https://example.com/chicken.jpg",
+    isActive: true,
+    stats: {
+      averageRating: 4.6,
+      reviewCount: 2
+    },
+    menu: [
+      { name: "후라이드치킨", price: 16000 },
+      { name: "양념치킨", price: 17000 },
+      { name: "반반치킨", price: 17000 },
+      { name: "감자튀김", price: 3000 }
+    ],
+    createdAt: "2025-01-01T00:00:00Z",
+    updatedAt: "2025-01-01T00:00:00Z"
+  },
+  {
+    _id: "507f1f77bcf86cd799439017",
+    name: "라멘 가게 혼",
+    type: "OFF_CAMPUS",
+    category: "일식",
+    address: "서울특별시 마포구 백범로 7",
+    location: {
+      type: "Point",
+      coordinates: [126.9810, 37.5720]
+    },
+    imageUrl: "https://example.com/ramen.jpg",
+    isActive: true,
+    stats: {
+      averageRating: 4.9,
+      reviewCount: 2
+    },
+    menu: [
+      { name: "돈코츠라멘", price: 9000 },
+      { name: "미소라멘", price: 8500 },
+      { name: "차슈덮밥", price: 7000 },
+      { name: "교자", price: 5000 }
+    ],
+    createdAt: "2025-01-01T00:00:00Z",
+    updatedAt: "2025-01-01T00:00:00Z"
+  },
+  {
+    _id: "507f1f77bcf86cd799439018",
+    name: "타코 플라자",
+    type: "OFF_CAMPUS",
+    category: "멕시칸",
+    address: "서울특별시 마포구 백범로 8",
+    location: {
+      type: "Point",
+      coordinates: [126.9760, 37.5690]
+    },
+    imageUrl: "https://example.com/taco.jpg",
+    isActive: true,
+    stats: {
+      averageRating: 4.3,
+      reviewCount: 1
+    },
+    menu: [
+      { name: "비프타코", price: 8000 },
+      { name: "치킨타코", price: 7500 },
+      { name: "부리또", price: 9000 },
+      { name: "나초", price: 6000 }
+    ],
+    createdAt: "2025-01-01T00:00:00Z",
+    updatedAt: "2025-01-01T00:00:00Z"
+  },
+  {
+    _id: "507f1f77bcf86cd799439019",
+    name: "카페베이커리 샌드",
+    type: "OFF_CAMPUS",
+    category: "카페",
+    address: "서울특별시 마포구 백범로 9",
+    location: {
+      type: "Point",
+      coordinates: [126.9830, 37.5610]
+    },
+    imageUrl: "https://example.com/cafe.jpg",
+    isActive: true,
+    stats: {
+      averageRating: 4.5,
+      reviewCount: 2
+    },
+    menu: [
+      { name: "아메리카노", price: 4500 },
+      { name: "카페라떼", price: 5000 },
+      { name: "크로와상", price: 3500 },
+      { name: "샌드위치", price: 6500 }
+    ],
+    createdAt: "2025-01-01T00:00:00Z",
+    updatedAt: "2025-01-01T00:00:00Z"
   }
 ];
 
@@ -284,6 +409,199 @@ export const reviewsData: Review[] = [
     likeCount: 25,
     createdAt: "2025-01-01T19:30:00Z",
     updatedAt: "2025-01-01T19:30:00Z"
+  },
+  {
+    _id: "507f191e810c19729de860ef",
+    userId: "507f191e810c19729de860e6",
+    nickname: "강민지",
+    target: {
+      type: "RESTAURANT",
+      restaurantId: "507f1f77bcf86cd799439015",
+      restaurantName: "중화요리 만리장성",
+      menuItems: "짬뽕"
+    },
+    ratings: {
+      menuRatings: [
+        { menuName: "짬뽕", rating: 4 }
+      ],
+      restaurantRating: 4
+    },
+    content: "국물이 얼큰하고 해물이 신선해요. 양도 많아요!",
+    likeCount: 12,
+    createdAt: "2025-01-06T13:20:00Z",
+    updatedAt: "2025-01-06T13:20:00Z"
+  },
+  {
+    _id: "507f191e810c19729de860f0",
+    userId: "507f191e810c19729de860e7",
+    nickname: "윤성호",
+    target: {
+      type: "RESTAURANT",
+      restaurantId: "507f1f77bcf86cd799439015",
+      restaurantName: "중화요리 만리장성",
+      menuItems: "탕수육"
+    },
+    ratings: {
+      menuRatings: [
+        { menuName: "탕수육", rating: 5 }
+      ],
+      restaurantRating: 5
+    },
+    content: "탕수육 바삭하고 소스가 맛있습니다. 단골 될 것 같아요.",
+    imageUrl: "https://example.com/photo3.jpg",
+    likeCount: 20,
+    createdAt: "2025-01-07T18:45:00Z",
+    updatedAt: "2025-01-07T18:45:00Z"
+  },
+  {
+    _id: "507f191e810c19729de860f1",
+    userId: "507f191e810c19729de860e8",
+    nickname: "배지영",
+    target: {
+      type: "RESTAURANT",
+      restaurantId: "507f1f77bcf86cd799439016",
+      restaurantName: "치킨왕국",
+      menuItems: "양념치킨"
+    },
+    ratings: {
+      menuRatings: [
+        { menuName: "양념치킨", rating: 5 }
+      ],
+      restaurantRating: 5
+    },
+    content: "양념이 달콤하면서 매콤해요. 최고의 치킨!",
+    likeCount: 28,
+    createdAt: "2025-01-06T20:15:00Z",
+    updatedAt: "2025-01-06T20:15:00Z"
+  },
+  {
+    _id: "507f191e810c19729de860f2",
+    userId: "507f191e810c19729de860e9",
+    nickname: "임준혁",
+    target: {
+      type: "RESTAURANT",
+      restaurantId: "507f1f77bcf86cd799439016",
+      restaurantName: "치킨왕국",
+      menuItems: "후라이드치킨"
+    },
+    ratings: {
+      menuRatings: [
+        { menuName: "후라이드치킨", rating: 4 }
+      ],
+      restaurantRating: 4
+    },
+    content: "바삭함이 오래 유지돼요. 맥주 안주로 최고!",
+    imageUrl: "https://example.com/photo4.jpg",
+    likeCount: 16,
+    createdAt: "2025-01-05T21:30:00Z",
+    updatedAt: "2025-01-05T21:30:00Z"
+  },
+  {
+    _id: "507f191e810c19729de860f3",
+    userId: "507f191e810c19729de860ea",
+    nickname: "송하늘",
+    target: {
+      type: "RESTAURANT",
+      restaurantId: "507f1f77bcf86cd799439017",
+      restaurantName: "라멘 가게 혼",
+      menuItems: "돈코츠라멘"
+    },
+    ratings: {
+      menuRatings: [
+        { menuName: "돈코츠라멘", rating: 5 }
+      ],
+      restaurantRating: 5
+    },
+    content: "진한 국물이 일본에서 먹던 맛 그대로예요. 면발도 완벽!",
+    imageUrl: "https://example.com/photo5.jpg",
+    likeCount: 35,
+    createdAt: "2025-01-08T12:00:00Z",
+    updatedAt: "2025-01-08T12:00:00Z"
+  },
+  {
+    _id: "507f191e810c19729de860f4",
+    userId: "507f191e810c19729de860eb",
+    nickname: "한서준",
+    target: {
+      type: "RESTAURANT",
+      restaurantId: "507f1f77bcf86cd799439017",
+      restaurantName: "라멘 가게 혼",
+      menuItems: "차슈덮밥"
+    },
+    ratings: {
+      menuRatings: [
+        { menuName: "차슈덮밥", rating: 5 }
+      ],
+      restaurantRating: 5
+    },
+    content: "차슈가 입에서 녹아요. 가격 대비 양도 푸짐합니다.",
+    likeCount: 22,
+    createdAt: "2025-01-07T13:45:00Z",
+    updatedAt: "2025-01-07T13:45:00Z"
+  },
+  {
+    _id: "507f191e810c19729de860f5",
+    userId: "507f191e810c19729de860ec",
+    nickname: "오지훈",
+    target: {
+      type: "RESTAURANT",
+      restaurantId: "507f1f77bcf86cd799439018",
+      restaurantName: "타코 플라자",
+      menuItems: "부리또"
+    },
+    ratings: {
+      menuRatings: [
+        { menuName: "부리또", rating: 4 }
+      ],
+      restaurantRating: 4
+    },
+    content: "재료가 신선하고 양이 많아요. 배부르게 먹었습니다.",
+    likeCount: 14,
+    createdAt: "2025-01-08T17:25:00Z",
+    updatedAt: "2025-01-08T17:25:00Z"
+  },
+  {
+    _id: "507f191e810c19729de860f6",
+    userId: "507f191e810c19729de860ed",
+    nickname: "권민서",
+    target: {
+      type: "RESTAURANT",
+      restaurantId: "507f1f77bcf86cd799439019",
+      restaurantName: "카페베이커리 샌드",
+      menuItems: "샌드위치"
+    },
+    ratings: {
+      menuRatings: [
+        { menuName: "샌드위치", rating: 5 }
+      ],
+      restaurantRating: 5
+    },
+    content: "빵이 신선하고 샌드위치 재료가 푸짐해요. 커피도 맛있어요!",
+    imageUrl: "https://example.com/photo6.jpg",
+    likeCount: 19,
+    createdAt: "2025-01-08T09:30:00Z",
+    updatedAt: "2025-01-08T09:30:00Z"
+  },
+  {
+    _id: "507f191e810c19729de860f7",
+    userId: "507f191e810c19729de860ee",
+    nickname: "조은비",
+    target: {
+      type: "RESTAURANT",
+      restaurantId: "507f1f77bcf86cd799439019",
+      restaurantName: "카페베이커리 샌드",
+      menuItems: "크로와상"
+    },
+    ratings: {
+      menuRatings: [
+        { menuName: "크로와상", rating: 4 }
+      ],
+      restaurantRating: 4
+    },
+    content: "갓 구운 크로와상이 바삭해요. 아메리카노랑 잘 어울립니다.",
+    likeCount: 11,
+    createdAt: "2025-01-07T10:20:00Z",
+    updatedAt: "2025-01-07T10:20:00Z"
   }
 ];
 

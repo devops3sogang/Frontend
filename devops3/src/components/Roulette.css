@@ -1,0 +1,172 @@
+.roulette-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+}
+
+.roulette-wheel-wrapper {
+  position: relative;
+  width: 400px;
+  height: 400px;
+}
+
+.roulette-pointer {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 30px solid #ff4444;
+  z-index: 10;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.roulette-canvas {
+  display: block;
+  border-radius: 50%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.spin-button {
+  padding: 15px 40px;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.spin-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.spin-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.spin-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #999 0%, #666 100%);
+}
+
+.spin-button.spinning {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(102, 126, 234, 0.8);
+  }
+}
+
+.selected-result {
+  margin-top: 20px;
+  padding: 20px;
+  background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(253, 203, 110, 0.4);
+  animation: slideIn 0.5s ease-out;
+}
+
+.selected-result h3 {
+  margin: 0;
+  font-size: 24px;
+  color: #2d3436;
+  text-align: center;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 모달 스타일 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 15px;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .roulette-wheel-wrapper {
+    width: 300px;
+    height: 300px;
+  }
+
+  .roulette-canvas {
+    width: 300px;
+    height: 300px;
+  }
+
+  .spin-button {
+    padding: 12px 30px;
+    font-size: 16px;
+  }
+
+  .selected-result h3 {
+    font-size: 20px;
+  }
+
+  .modal-content {
+    max-width: 95%;
+  }
+}

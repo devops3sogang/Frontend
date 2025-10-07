@@ -1,10 +1,14 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { reviewsData, type Review } from '../data/places'
+import { reviewsData, type Review, type Restaurant } from '../data/places'
+import Roulette from '../components/Roulette'
+import RestaurantDetail from '../components/RestaurantDetail'
 import '../App.css'
 import './Home.css'
 
 function Home() {
   const navigate = useNavigate();
+  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
 
   // 최신 리뷰 5개 가져오기 (날짜순 정렬)
   const latestReviews = [...reviewsData]
@@ -59,6 +63,12 @@ function Home() {
           </div>
         </div>
 
+        {/* 룰렛 컨테이너 */}
+        <div className="section-container roulette-section">
+          <h2 className="section-title">🎰오늘의 식당</h2>
+          <Roulette onRestaurantSelected={setSelectedRestaurant} />
+        </div>
+
         {/* 오늘의 우정원 메뉴 컨테이너 */}
         <div className="section-container sogang-menu-section">
           <h2 className="section-title">오늘의 우정원 메뉴</h2>
@@ -68,8 +78,20 @@ function Home() {
               <p className="menu-placeholder-subtext">데이터 양식이 정리되면 표시됩니다.</p>
             </div>
           </div>
-        </div>
+        </div>        
       </div>
+
+      {/* 선택된 식당 상세 정보 모달 */}
+      {selectedRestaurant && (
+        <div className="modal-overlay" onClick={() => setSelectedRestaurant(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <RestaurantDetail
+              restaurant={selectedRestaurant}
+              onClose={() => setSelectedRestaurant(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
