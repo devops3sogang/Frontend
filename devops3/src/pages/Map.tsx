@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { restaurantsData, getAverageRating } from '../data/places';
 import RestaurantDetail from '../components/RestaurantDetail';
@@ -16,8 +17,10 @@ const defaultCenter = {
 };
 
 function Map() {
+  const [searchParams] = useSearchParams();
   const [currentPosition, setCurrentPosition] = useState(defaultCenter);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
+  const [mapCenter, setMapCenter] = useState(defaultCenter);
 
   useEffect(() => {
     // 사용자의 현재 위치 가져오기
@@ -38,12 +41,27 @@ function Map() {
     }
   }, []);
 
+  // URL에서 restaurantId를 읽어 해당 레스토랑 선택
+  useEffect(() => {
+    const restaurantId = searchParams.get('restaurantId');
+    if (restaurantId) {
+      const restaurant = restaurantsData.find(r => r._id === restaurantId);
+      if (restaurant) {
+        setSelectedRestaurant(restaurant);
+        setMapCenter({
+          lat: restaurant.location.coordinates[1],
+          lng: restaurant.location.coordinates[0]
+        });
+      }
+    }
+  }, [searchParams]);
+
   return (
     <div style={{ position: 'relative' }}>
       <GoogleMap
         mapContainerStyle={containerStyle}
-        center={currentPosition}
-        zoom={13}
+        center={mapCenter}
+        zoom={15}
       >
         {/* 현재 위치 마커 */}
         <Marker

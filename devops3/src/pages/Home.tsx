@@ -1,8 +1,11 @@
+import { useNavigate } from 'react-router-dom'
 import { reviewsData, type Review } from '../data/places'
 import '../App.css'
 import './Home.css'
 
 function Home() {
+  const navigate = useNavigate();
+
   // 최신 리뷰 5개 가져오기 (날짜순 정렬)
   const latestReviews = [...reviewsData]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -10,6 +13,10 @@ function Home() {
 
   const getAverageRating = (ratings: Review['ratings']) => {
     return ((ratings.taste + ratings.price + ratings.atmosphere) / 3).toFixed(1);
+  };
+
+  const handleReviewClick = (restaurantId: string) => {
+    navigate(`/map?restaurantId=${restaurantId}`);
   };
 
   return (
@@ -20,7 +27,12 @@ function Home() {
           <h2 className="section-title">최신 리뷰</h2>
           <div className="reviews-list">
             {latestReviews.map((review) => (
-              <div key={review._id} className="review-card">
+              <div
+                key={review._id}
+                className="review-card"
+                onClick={() => handleReviewClick(review.target.restaurantId)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className="review-header">
                   <div>
                     <span className="restaurant-name">{review.target.restaurantName}</span>
