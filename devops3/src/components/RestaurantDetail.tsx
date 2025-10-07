@@ -111,7 +111,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
       {restaurant.menu && restaurant.menu.length > 0 && (
         <div className="menu-section">
           <h3>메뉴</h3>
-          <ul className="menu-list">
+          <ul className="restaurant-menu-list">
             {restaurant.menu.map((item) => (
               <li key={item.name}>
                 <span className="menu-name">{item.name}</span>

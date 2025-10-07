@@ -15,8 +15,8 @@ interface MenuRatingState {
 }
 
 function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewModalProps) {
-  const [selectedMenu, setSelectedMenu] = useState<string>(
-    existingReview?.target.menuItems ? existingReview.target.menuItems.split(', ')[0] : ''
+  const [selectedMenus, setSelectedMenus] = useState<string[]>(
+    existingReview?.ratings.menuRatings.map(mr => mr.menuName) || []
   );
   const [menuRatings, setMenuRatings] = useState<MenuRatingState[]>(
     existingReview?.ratings.menuRatings || []
@@ -27,8 +27,17 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
     existingReview?.imageUrls || (existingReview?.imageUrl ? [existingReview.imageUrl] : [])
   );
 
-  const handleMenuSelect = (menuName: string) => {
-    setSelectedMenu(menuName);
+  const handleMenuToggle = (menuName: string) => {
+    setSelectedMenus(prev => {
+      if (prev.includes(menuName)) {
+        // 메뉴 선택 해제 - 해당 메뉴의 별점도 제거
+        setMenuRatings(prevRatings => prevRatings.filter(mr => mr.menuName !== menuName));
+        return prev.filter(m => m !== menuName);
+      } else {
+        // 메뉴 선택
+        return [...prev, menuName];
+      }
+    });
   };
 
   const handleMenuRatingChange = (menuName: string, rating: number) => {
@@ -162,36 +171,6 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
             <input type="text" value={restaurant.name} disabled />
           </div>
 
-          {restaurant.menu && restaurant.menu.length > 0 && (
-            <div className="form-group">
-              <label>메뉴</label>
-              <div className="menu-list">
-                {restaurant.menu.map((item) => {
-                  const menuRating = menuRatings.find(mr => mr.menuName === item.name);
-                  return (
-                    <div key={item.name} className="menu-item">
-                      <div className="menu-info">
-                        <span className="menu-name">{item.name}</span>
-                        <span className="menu-price">{item.price.toLocaleString()}원</span>
-                      </div>
-                      <div className="menu-stars">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <span
-                            key={star}
-                            className={`star ${menuRating && menuRating.rating >= star ? 'active' : ''}`}
-                            onClick={() => handleMenuRatingChange(item.name, star)}
-                          >
-                            ★
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
           <div className="form-group">
             <StarRating
               label="가게 별점"
@@ -199,6 +178,42 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
               onChange={setRestaurantRating}
             />
           </div>
+
+          {restaurant.menu && restaurant.menu.length > 0 && (
+            <div className="form-group">
+              <label>메뉴</label>
+              <div className="menu-list">
+                {restaurant.menu.map((item) => {
+                  const isSelected = selectedMenus.includes(item.name);
+                  const menuRating = menuRatings.find(mr => mr.menuName === item.name);
+                  return (
+                    <div key={item.name} className={`menu-item ${isSelected ? 'selected' : ''}`}>
+                      <div
+                        className="menu-info"
+                        onClick={() => handleMenuToggle(item.name)}
+                      >
+                        <span className="menu-name">{item.name}</span>
+                        <span className="menu-price">{item.price.toLocaleString()}원</span>
+                      </div>
+                      {isSelected && (
+                        <div className="menu-stars">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span
+                              key={star}
+                              className={`star ${menuRating && menuRating.rating >= star ? 'active' : ''}`}
+                              onClick={() => handleMenuRatingChange(item.name, star)}
+                            >
+                              ★
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div className="form-group">
             <label>리뷰 내용</label>

@@ -17,8 +17,13 @@
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
+  overflow-x: hidden;
   overflow-y: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-content::-webkit-scrollbar {
+  display: none;
 }
 
 .modal-header {
@@ -56,7 +61,7 @@ form {
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .form-group label {
@@ -69,7 +74,7 @@ form {
 .form-group input,
 .form-group select,
 .form-group textarea {
-  width: 100%;
+  width: 90%;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -102,6 +107,13 @@ form {
   color: #333;
 }
 
+.rating-input .stars {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
 .stars {
   display: flex;
   gap: 8px;
@@ -115,11 +127,11 @@ form {
 }
 
 .stars .star.active {
-  color: #FFA500;
+  color: #ffa500;
 }
 
 .stars .star:hover {
-  color: #FFB84D;
+  color: #ffb84d;
 }
 
 .modal-actions {
@@ -164,7 +176,7 @@ form {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  padding: 15px;
+  padding: 8px;
   background-color: #f9f9f9;
   border-radius: 6px;
   max-height: 400px;
@@ -179,12 +191,24 @@ form {
   background-color: white;
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.menu-item.selected {
+  background-color: #f0f8ff;
+  border: 2px solid #007bff6c;
 }
 
 .menu-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.menu-info:hover {
+  opacity: 0.8;
 }
 
 .menu-name {
@@ -211,11 +235,11 @@ form {
 }
 
 .menu-stars .star.active {
-  color: #FFA500;
+  color: #ffa500;
 }
 
 .menu-stars .star:hover {
-  color: #FFB84D;
+  color: #ffb84d;
 }
 
 .image-input {
