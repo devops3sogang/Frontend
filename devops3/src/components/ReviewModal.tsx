@@ -198,7 +198,7 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
           </div>
 
           <div className="form-group">
-            <label>사진 첨부 (선택, 최대 6개)</label>
+            <label>사진 첨부</label>
             <input
               type="file"
               accept="image/*"
@@ -208,7 +208,7 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
               disabled={imageUrls.length >= 6}
             />
             <div className="image-count-info">
-              {imageUrls.length}/6개 첨부됨 (실제 배열: {JSON.stringify(imageUrls.length)})
+              {imageUrls.length}/6개 첨부됨
             </div>
             {imageUrls.length > 0 && (
               <div className="images-preview-grid">

@@ -32,7 +32,7 @@ function Map() {
       if (restaurant) {
         const restaurantLocation = {
           lat: restaurant.location.coordinates[1],
-          lng: restaurant.location.coordinates[0]
+          lng: restaurant.location.coordinates[0] + 0.008
         };
         setSelectedRestaurant(restaurant);
         setMapCenter(restaurantLocation);
