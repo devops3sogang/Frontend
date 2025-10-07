@@ -8,10 +8,34 @@ interface RestaurantDetailProps {
   onClose: () => void;
 }
 
+interface StarRatingDisplayProps {
+  label: string;
+  rating: number;
+}
+
+const StarRatingDisplay = ({ label, rating }: StarRatingDisplayProps) => {
+  return (
+    <div className="star-rating-display-row">
+      <span className="rating-label">{label}</span>
+      <div className="stars">
+        {[1, 2, 3, 4, 5].map((starValue) => (
+          <span
+            key={starValue}
+            className={`star ${rating >= starValue ? 'filled' : 'empty'}`}
+          >
+            ★
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | undefined>(undefined);
   const [refreshKey, setRefreshKey] = useState(0); // 리뷰 목록 강제 갱신용
+  const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null); // 리뷰 내용 확장용
   const [currentImageIndex, setCurrentImageIndex] = useState<{ [key: string]: number }>({}); // 리뷰별 현재 이미지 인덱스
 
   const reviews = reviewsData.filter(review => review.target.restaurantId === restaurant._id);
@@ -75,6 +99,10 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     }
   };
 
+  const handleToggleDetails = (reviewId: string) => {
+    setExpandedReviewId(prevId => (prevId === reviewId ? null : reviewId));
+  };
+
   return (
     <div className="restaurant-detail">
       <div className="detail-header">
@@ -116,9 +144,10 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
               return (
                 <div key={review._id} className="review-item">
                   <div className="review-header">
-                    <div className="review-rating">
+                    <div className="review-rating" onClick={() => handleToggleDetails(review._id)}>
                       <span className="star">★</span>
                       <span>{avgRating.toFixed(1)}</span>
+                      <span className={`material-symbols-outlined expand-icon ${expandedReviewId === review._id ? 'expanded' : ''}`}> expand_more </span>
                     </div>
                     <div className="review-author-actions">
                       <span className="review-author">{review.nickname}</span>
@@ -140,6 +169,13 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                       </div>
                     </div>
                   </div>
+                  {expandedReviewId === review._id && (
+                      <div className="review-ratings-detail">
+                        <StarRatingDisplay label="맛" rating={review.ratings.taste} />
+                        <StarRatingDisplay label="가격" rating={review.ratings.price} />
+                        <StarRatingDisplay label="분위기" rating={review.ratings.atmosphere} />
+                      </div>
+                    )}
                   {review.target.menuItems && (
                     <div className="menu-tag">{review.target.menuItems}</div>
                   )}

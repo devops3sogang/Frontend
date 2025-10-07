@@ -177,11 +177,68 @@
   gap: 4px;
   font-size: 14px;
   font-weight: 500;
+  cursor: pointer;
 }
 
 .review-rating .star {
   color: #ffa500;
   font-size: 16px;
+}
+
+/* StarRatingDisplay 헬퍼 컴포넌트 내부의 별 스타일 */
+.star-rating-display-row .stars .star.filled {
+  color: #ffc107;
+}
+
+.star-rating-display-row .stars .star.empty {
+  color: #e0e0e0;
+}
+
+.star-rating-display-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.star-rating-display-row .rating-label {
+  width: 45px;
+  font-size: 0.85em;
+  color: #555;
+  text-align: left;
+}
+
+.star-rating-display-row .stars {
+  display: flex;
+  font-size: 1.1em;
+  gap: 1px;
+}
+
+.star-rating-display-row .stars .star {
+  font-size: 22px;
+}
+
+/* 펼침/닫힘 아이콘 스타일 */
+.expand-icon {
+  font-size: 1.5em;
+  transition: transform 0.3s ease-in-out;
+  margin-left: 4px;
+}
+
+.expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.review-ratings-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: all 1s ease-in-out;
+  margin-top: 0;
+}
+
+.review-item .review-ratings-detail {
+  max-height: 100px;
+  margin-top: 10px;
+  margin-bottom: 20px;
 }
 
 .review-author-actions {
@@ -334,7 +391,7 @@
 
 .btn-like {
   background: none;
-  border: none;
+  border: 2px solid #007bff00;
   font-size: 14px;
   cursor: pointer;
   padding: 4px 8px;
@@ -348,11 +405,12 @@
 
 .btn-like:hover {
   background-color: #f0f0f0;
+  border: 2px solid #007bff37;
 }
 
 .btn-like.liked {
   background-color: #007bff15;
-  border: 1px solid #007bff7d;
+  border: 2px solid #007bff7d;
   color: #007bff;
   font-weight: 500;
 }
