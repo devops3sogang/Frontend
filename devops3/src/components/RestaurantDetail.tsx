@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { type Restaurant, type Review, reviewsData, getAverageRating, getReviewCount, addReview, updateReview, deleteReview, toggleReviewLike, isReviewLiked } from '../data/places';
 import ReviewModal from './ReviewModal';
 import './RestaurantDetail.css';
@@ -37,6 +37,9 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
   const [refreshKey, setRefreshKey] = useState(0); // 리뷰 목록 강제 갱신용
   const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null); // 리뷰 내용 확장용
   const [currentImageIndex, setCurrentImageIndex] = useState<{ [key: string]: number }>({}); // 리뷰별 현재 이미지 인덱스
+  const [expandedImage, setExpandedImage] = useState<string | null>(null); // 확대된 이미지 URL
+  const [expandedImageList, setExpandedImageList] = useState<string[]>([]); // 확대된 이미지 리스트
+  const [expandedImageIndex, setExpandedImageIndex] = useState(0); // 확대된 이미지의 인덱스
 
   const reviews = reviewsData.filter(review => review.target.restaurantId === restaurant._id);
   const averageRating = getAverageRating(restaurant._id);
@@ -95,12 +98,72 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     setExpandedReviewId(prevId => (prevId === reviewId ? null : reviewId));
   };
 
+  const handleImageClick = (images: string[], index: number) => {
+    setExpandedImageList(images);
+    setExpandedImageIndex(index);
+    setExpandedImage(images[index]);
+  };
+
+  const handleNextModalImage = () => {
+    if (expandedImageList.length > 0) {
+      const newIndex = (expandedImageIndex + 1) % expandedImageList.length;
+      setExpandedImageIndex(newIndex);
+      setExpandedImage(expandedImageList[newIndex]);
+    }
+  };
+
+  const handlePrevModalImage = () => {
+    if (expandedImageList.length > 0) {
+      const newIndex = (expandedImageIndex - 1 + expandedImageList.length) % expandedImageList.length;
+      setExpandedImageIndex(newIndex);
+      setExpandedImage(expandedImageList[newIndex]);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setExpandedImage(null);
+    setExpandedImageList([]);
+    setExpandedImageIndex(0);
+  };
+
+  // 키보드 이벤트 핸들러
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!expandedImage) return;
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        handlePrevModalImage();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        handleNextModalImage();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        handleCloseModal();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [expandedImage, expandedImageList, expandedImageIndex]);
+
   return (
     <div className="restaurant-detail">
       <div className="detail-header">
         <h2>{restaurant.name}</h2>
         <button className="close-btn" onClick={onClose}>×</button>
       </div>
+
+      {restaurant.imageUrl && (
+        <div className="restaurant-image-container">
+          <img
+            src={restaurant.imageUrl}
+            alt={restaurant.name}
+            className="restaurant-main-image"
+            onClick={() => handleImageClick([restaurant.imageUrl!], 0)}
+          />
+        </div>
+      )}
 
       <div className="rating-section">
         <span className="star">★</span>
@@ -215,6 +278,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                             src={images[currentIndex]}
                             alt={`리뷰 사진 ${currentIndex + 1}`}
                             className="review-image"
+                            onClick={() => handleImageClick(images, currentIndex)}
                           />
                           {images.length > 1 && (
                             <>
@@ -278,6 +342,61 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
           }}
           onSubmit={handleSubmitReview}
         />
+      )}
+
+      {expandedImage && (
+        <div
+          className="image-modal-overlay"
+          onClick={handleCloseModal}
+          onTouchStart={(e) => {
+            const touch = e.touches[0];
+            (e.currentTarget as any).touchStartX = touch.clientX;
+          }}
+          onTouchMove={(e) => {
+            const touch = e.touches[0];
+            (e.currentTarget as any).touchEndX = touch.clientX;
+          }}
+          onTouchEnd={(e) => {
+            const target = e.currentTarget as any;
+            const touchStartX = target.touchStartX || 0;
+            const touchEndX = target.touchEndX || touchStartX;
+
+            if (touchStartX - touchEndX > 50) {
+              // 왼쪽으로 스와이프 - 다음 이미지
+              handleNextModalImage();
+            } else if (touchEndX - touchStartX > 50) {
+              // 오른쪽으로 스와이프 - 이전 이미지
+              handlePrevModalImage();
+            }
+          }}
+        >
+          <div className="image-modal-content" onClick={(e) => e.stopPropagation()}>
+            <img src={expandedImage} alt="확대 이미지" />
+            <button className="image-modal-close" onClick={handleCloseModal}>×</button>
+            {expandedImageList.length > 1 && (
+              <>
+                <button className="image-nav-btn prev" onClick={handlePrevModalImage}>
+                  <span className="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button className="image-nav-btn next" onClick={handleNextModalImage}>
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+                <div className="image-indicators">
+                  {expandedImageList.map((_, idx) => (
+                    <span
+                      key={idx}
+                      className={`indicator ${idx === expandedImageIndex ? 'active' : ''}`}
+                      onClick={() => {
+                        setExpandedImageIndex(idx);
+                        setExpandedImage(expandedImageList[idx]);
+                      }}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

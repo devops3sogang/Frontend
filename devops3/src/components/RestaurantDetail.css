@@ -225,6 +225,10 @@
   margin-left: 4px;
 }
 
+.expand-icon:focus {
+  outline: none;
+}
+
 .expand-icon.expanded {
   transform: rotate(180deg);
 }
@@ -246,6 +250,7 @@
   padding: 5px;
   border: 1px solid #ddd;
   border-radius: 6px;
+  pointer-events: none;
 }
 
 .menu-ratings-section h4 {
@@ -442,9 +447,168 @@
   padding: 20px;
 }
 
+/* 이미지 확대 모달 */
+.image-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  cursor: pointer;
+}
+
+.image-modal-content {
+  position: relative;
+  max-width: 85vw;
+  max-height: 85vh;
+  cursor: default;
+}
+
+.image-modal-content img {
+  max-width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+}
+
+.image-modal-close {
+  position: absolute;
+  top: -43px;
+  right: -13px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 40px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.image-modal-close:hover {
+  opacity: 1;
+}
+
+.image-modal-close:focus {
+  outline: none;
+}
+
+.image-modal-content .image-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 28px;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 2;
+}
+
+.image-modal-content .image-nav-btn:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.image-nav-btn:focus {
+  outline: none;
+}
+
+.image-modal-content .image-nav-btn.prev {
+  left: -70px;
+}
+
+.image-modal-content .image-nav-btn.next {
+  right: -70px;
+}
+
+.image-modal-content .image-indicators {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+}
+
+.image-modal-content .image-indicators .indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.image-modal-content .image-indicators .indicator:hover {
+  background-color: rgba(255, 255, 255, 0.8);
+  transform: scale(1.2);
+}
+
+.image-modal-content .image-indicators .indicator.active {
+  background-color: white;
+  width: 28px;
+  border-radius: 5px;
+}
+
+.restaurant-image-container {
+  padding: 0 20px;
+  margin-bottom: 15px;
+}
+
+.restaurant-main-image {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.restaurant-main-image:hover {
+  opacity: 0.9;
+}
+
 /* 모바일 대응 */
 @media (max-width: 768px) {
   .restaurant-detail {
     width: 100%;
+  }
+
+  .image-modal-content .image-nav-btn.prev {
+    left: 10px;
+  }
+
+  .image-modal-content .image-nav-btn.next {
+    right: 10px;
+  }
+
+  .image-modal-content .image-indicators {
+    bottom: 10px;
+  }
+
+  .image-modal-close {
+    top: 10px;
+    right: 10px;
   }
 }
