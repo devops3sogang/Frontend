@@ -65,7 +65,7 @@
 }
 
 .rating-section .star {
-  color: #FFA500;
+  color: #ffa500;
   font-size: 24px;
 }
 
@@ -180,7 +180,7 @@
 }
 
 .review-rating .star {
-  color: #FFA500;
+  color: #ffa500;
   font-size: 16px;
 }
 
@@ -247,12 +247,29 @@
   gap: 10px;
 }
 
-.review-actions span {
+.btn-like {
+  background: none;
+  border: none;
+  font-size: 14px;
   cursor: pointer;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #666;
+  transition: all 0.2s;
+  border-radius: 4px;
 }
 
-.review-actions span:hover {
-  opacity: 0.7;
+.btn-like:hover {
+  background-color: #f0f0f0;
+}
+
+.btn-like.liked {
+  background-color: #007bff15;
+  border: 1px solid #007bff7d;
+  color: #007bff;
+  font-weight: 500;
 }
 
 .no-reviews {

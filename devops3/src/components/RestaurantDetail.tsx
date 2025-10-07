@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { type Restaurant, type Review, reviewsData, getAverageRating, getReviewCount, addReview, updateReview, deleteReview } from '../data/places';
+import { type Restaurant, type Review, reviewsData, getAverageRating, getReviewCount, addReview, updateReview, deleteReview, toggleReviewLike, isReviewLiked } from '../data/places';
 import ReviewModal from './ReviewModal';
 import './RestaurantDetail.css';
 
@@ -44,6 +44,11 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     }
     setShowReviewModal(false);
     setEditingReview(undefined);
+    setRefreshKey(prev => prev + 1); // 강제 갱신
+  };
+
+  const handleToggleLike = (reviewId: string) => {
+    toggleReviewLike(reviewId);
     setRefreshKey(prev => prev + 1); // 강제 갱신
   };
 
@@ -121,7 +126,13 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                       {new Date(review.createdAt).toLocaleDateString('ko-KR')}
                     </span>
                     <div className="review-actions">
-                      <span>👍 {review.likeCount}</span>
+                      <button
+                        className={`btn-like ${isReviewLiked(review._id) ? 'liked' : ''}`}
+                        onClick={() => handleToggleLike(review._id)}
+                        title={isReviewLiked(review._id) ? '좋아요 취소' : '좋아요'}
+                      >
+                        👍 {review.likeCount}
+                      </button>
                     </div>
                   </div>
                 </div>

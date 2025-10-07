@@ -307,7 +307,7 @@ export function addReview(reviewData: Partial<Review>): Review {
   const newReview: Review = {
     _id: `review_${Date.now()}`, // 임시 ID 생성 (실제로는 백엔드에서 생성)
     userId: "temp_user_id", // 실제로는 로그인한 사용자 ID
-    nickname: "익명 사용자", // 실제로는 로그인한 사용자 닉네임
+    nickname: "익명", // 실제로는 로그인한 사용자 닉네임
     target: reviewData.target!,
     ratings: reviewData.ratings!,
     content: reviewData.content!,
@@ -342,4 +342,34 @@ export function deleteReview(reviewId: string): boolean {
 
   reviewsData.splice(index, 1);
   return true;
+}
+
+// 리뷰 좋아요 토글 함수
+export function toggleReviewLike(reviewId: string): boolean {
+  const index = reviewsData.findIndex(review => review._id === reviewId);
+  if (index === -1) return false;
+
+  // localStorage에서 사용자의 좋아요 상태 확인
+  const likedReviews = JSON.parse(localStorage.getItem('likedReviews') || '[]');
+  const isLiked = likedReviews.includes(reviewId);
+
+  if (isLiked) {
+    // 이미 좋아요를 누른 경우 - 좋아요 취소
+    reviewsData[index].likeCount = Math.max(0, reviewsData[index].likeCount - 1);
+    const updatedLikes = likedReviews.filter((id: string) => id !== reviewId);
+    localStorage.setItem('likedReviews', JSON.stringify(updatedLikes));
+  } else {
+    // 좋아요 추가
+    reviewsData[index].likeCount += 1;
+    likedReviews.push(reviewId);
+    localStorage.setItem('likedReviews', JSON.stringify(likedReviews));
+  }
+
+  return true;
+}
+
+// 사용자가 특정 리뷰에 좋아요를 눌렀는지 확인
+export function isReviewLiked(reviewId: string): boolean {
+  const likedReviews = JSON.parse(localStorage.getItem('likedReviews') || '[]');
+  return likedReviews.includes(reviewId);
 }
