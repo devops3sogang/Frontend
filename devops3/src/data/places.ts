@@ -301,3 +301,45 @@ export function getReviewCount(restaurantId: string): number {
     review => review.target.restaurantId === restaurantId
   ).length;
 }
+
+// 리뷰 추가 함수
+export function addReview(reviewData: Partial<Review>): Review {
+  const newReview: Review = {
+    _id: `review_${Date.now()}`, // 임시 ID 생성 (실제로는 백엔드에서 생성)
+    userId: "temp_user_id", // 실제로는 로그인한 사용자 ID
+    nickname: "익명 사용자", // 실제로는 로그인한 사용자 닉네임
+    target: reviewData.target!,
+    ratings: reviewData.ratings!,
+    content: reviewData.content!,
+    imageUrl: reviewData.imageUrl,
+    likeCount: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  reviewsData.push(newReview);
+  return newReview;
+}
+
+// 리뷰 수정 함수
+export function updateReview(reviewId: string, reviewData: Partial<Review>): Review | null {
+  const index = reviewsData.findIndex(review => review._id === reviewId);
+  if (index === -1) return null;
+
+  reviewsData[index] = {
+    ...reviewsData[index],
+    ...reviewData,
+    updatedAt: new Date().toISOString()
+  };
+
+  return reviewsData[index];
+}
+
+// 리뷰 삭제 함수
+export function deleteReview(reviewId: string): boolean {
+  const index = reviewsData.findIndex(review => review._id === reviewId);
+  if (index === -1) return false;
+
+  reviewsData.splice(index, 1);
+  return true;
+}

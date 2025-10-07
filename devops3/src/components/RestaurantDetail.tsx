@@ -1,4 +1,6 @@
-import { type Restaurant, reviewsData, getAverageRating, getReviewCount } from '../data/places';
+import { useState } from 'react';
+import { type Restaurant, type Review, reviewsData, getAverageRating, getReviewCount, addReview, updateReview, deleteReview } from '../data/places';
+import ReviewModal from './ReviewModal';
 import './RestaurantDetail.css';
 
 interface RestaurantDetailProps {
@@ -7,9 +9,43 @@ interface RestaurantDetailProps {
 }
 
 function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [editingReview, setEditingReview] = useState<Review | undefined>(undefined);
+  const [refreshKey, setRefreshKey] = useState(0); // 리뷰 목록 강제 갱신용
+
   const reviews = reviewsData.filter(review => review.target.restaurantId === restaurant._id);
   const averageRating = getAverageRating(restaurant._id);
   const reviewCount = getReviewCount(restaurant._id);
+
+  const handleAddReview = () => {
+    setEditingReview(undefined);
+    setShowReviewModal(true);
+  };
+
+  const handleEditReview = (review: Review) => {
+    setEditingReview(review);
+    setShowReviewModal(true);
+  };
+
+  const handleDeleteReview = (reviewId: string) => {
+    if (window.confirm('리뷰를 삭제하시겠습니까?')) {
+      deleteReview(reviewId);
+      setRefreshKey(prev => prev + 1); // 강제 갱신
+    }
+  };
+
+  const handleSubmitReview = (reviewData: Partial<Review>) => {
+    if (editingReview) {
+      // 수정
+      updateReview(editingReview._id, reviewData);
+    } else {
+      // 추가
+      addReview(reviewData);
+    }
+    setShowReviewModal(false);
+    setEditingReview(undefined);
+    setRefreshKey(prev => prev + 1); // 강제 갱신
+  };
 
   return (
     <div className="restaurant-detail">
@@ -39,8 +75,13 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
       )}
 
       <div className="reviews-section">
-        <h3>리뷰</h3>
-        <div className="reviews-list">
+        <div className="reviews-header">
+          <h3>리뷰</h3>
+          <button className="btn-add-review" onClick={handleAddReview}>
+            리뷰 작성
+          </button>
+        </div>
+        <div className="reviews-list" key={refreshKey}>
           {reviews.length > 0 ? (
             reviews.map(review => {
               const avgRating = (review.ratings.taste + review.ratings.price + review.ratings.atmosphere) / 3;
@@ -51,7 +92,25 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                       <span className="star">★</span>
                       <span>{avgRating.toFixed(1)}</span>
                     </div>
-                    <span className="review-author">{review.nickname}</span>
+                    <div className="review-author-actions">
+                      <span className="review-author">{review.nickname}</span>
+                      <div className="review-edit-actions">
+                        <button
+                          className="btn-edit"
+                          onClick={() => handleEditReview(review)}
+                          title="수정"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          className="btn-delete"
+                          onClick={() => handleDeleteReview(review._id)}
+                          title="삭제"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
                   </div>
                   {review.target.menuItems && (
                     <div className="menu-tag">{review.target.menuItems}</div>
@@ -73,6 +132,18 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
           )}
         </div>
       </div>
+
+      {showReviewModal && (
+        <ReviewModal
+          restaurant={restaurant}
+          existingReview={editingReview}
+          onClose={() => {
+            setShowReviewModal(false);
+            setEditingReview(undefined);
+          }}
+          onSubmit={handleSubmitReview}
+        />
+      )}
     </div>
   );
 }
