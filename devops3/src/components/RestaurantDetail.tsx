@@ -91,14 +91,6 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     }));
   };
 
-  const handleSwipe = (reviewId: string, totalImages: number, direction: 'left' | 'right') => {
-    if (direction === 'left') {
-      handleNextImage(reviewId, totalImages);
-    } else {
-      handlePrevImage(reviewId, totalImages);
-    }
-  };
-
   const handleToggleDetails = (reviewId: string) => {
     setExpandedReviewId(prevId => (prevId === reviewId ? null : reviewId));
   };
