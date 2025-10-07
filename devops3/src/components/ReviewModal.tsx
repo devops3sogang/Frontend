@@ -9,24 +9,39 @@ interface ReviewModalProps {
   onSubmit: (reviewData: Partial<Review>) => void;
 }
 
+interface MenuRatingState {
+  menuName: string;
+  rating: number;
+}
+
 function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewModalProps) {
-  const [selectedMenus, setSelectedMenus] = useState<string[]>(
-    existingReview?.target.menuItems ? existingReview.target.menuItems.split(', ') : []
+  const [selectedMenu, setSelectedMenu] = useState<string>(
+    existingReview?.target.menuItems ? existingReview.target.menuItems.split(', ')[0] : ''
   );
-  const [tasteRating, setTasteRating] = useState(existingReview?.ratings.taste || 0);
-  const [priceRating, setPriceRating] = useState(existingReview?.ratings.price || 0);
-  const [atmosphereRating, setAtmosphereRating] = useState(existingReview?.ratings.atmosphere || 0);
+  const [menuRatings, setMenuRatings] = useState<MenuRatingState[]>(
+    existingReview?.ratings.menuRatings || []
+  );
+  const [restaurantRating, setRestaurantRating] = useState(existingReview?.ratings.restaurantRating || 0);
   const [content, setContent] = useState(existingReview?.content || '');
   const [imageUrls, setImageUrls] = useState<string[]>(
     existingReview?.imageUrls || (existingReview?.imageUrl ? [existingReview.imageUrl] : [])
   );
 
-  const toggleMenu = (menuName: string) => {
-    setSelectedMenus(prev =>
-      prev.includes(menuName)
-        ? prev.filter(m => m !== menuName)
-        : [...prev, menuName]
-    );
+  const handleMenuSelect = (menuName: string) => {
+    setSelectedMenu(menuName);
+  };
+
+  const handleMenuRatingChange = (menuName: string, rating: number) => {
+    setMenuRatings(prev => {
+      const existing = prev.find(mr => mr.menuName === menuName);
+      if (existing) {
+        return prev.map(mr =>
+          mr.menuName === menuName ? { ...mr, rating } : mr
+        );
+      } else {
+        return [...prev, { menuName, rating }];
+      }
+    });
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,27 +94,26 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (tasteRating === 0 || priceRating === 0 || atmosphereRating === 0) {
-      alert('모든 항목에 별점을 매겨주세요.');
+    if (menuRatings.length === 0) {
+      alert('최소 하나의 메뉴에 별점을 매겨주세요.');
       return;
     }
 
-    // if (!content.trim()) {
-    //   alert('리뷰 내용을 작성해주세요.');
-    //   return;
-    // }
+    if (restaurantRating === 0) {
+      alert('가게 별점을 매겨주세요.');
+      return;
+    }
 
     const reviewData: Partial<Review> = {
       target: {
         type: 'RESTAURANT',
         restaurantId: restaurant._id,
         restaurantName: restaurant.name,
-        menuItems: selectedMenus.length > 0 ? selectedMenus.join(', ') : undefined
+        menuItems: menuRatings.map(mr => mr.menuName).join(', ')
       },
       ratings: {
-        taste: tasteRating,
-        price: priceRating,
-        atmosphere: atmosphereRating
+        menuRatings: menuRatings,
+        restaurantRating: restaurantRating
       },
       content: content.trim(),
       imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
@@ -151,38 +165,38 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
           {restaurant.menu && restaurant.menu.length > 0 && (
             <div className="form-group">
               <label>메뉴</label>
-              <div className="menu-checkboxes">
-                {restaurant.menu.map((item) => (
-                  <label key={item.name} className="menu-checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={selectedMenus.includes(item.name)}
-                      onChange={() => toggleMenu(item.name)}
-                    />
-                    <span className="menu-checkbox-label">
-                      {item.name} - {item.price.toLocaleString()}원
-                    </span>
-                  </label>
-                ))}
+              <div className="menu-list">
+                {restaurant.menu.map((item) => {
+                  const menuRating = menuRatings.find(mr => mr.menuName === item.name);
+                  return (
+                    <div key={item.name} className="menu-item">
+                      <div className="menu-info">
+                        <span className="menu-name">{item.name}</span>
+                        <span className="menu-price">{item.price.toLocaleString()}원</span>
+                      </div>
+                      <div className="menu-stars">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span
+                            key={star}
+                            className={`star ${menuRating && menuRating.rating >= star ? 'active' : ''}`}
+                            onClick={() => handleMenuRatingChange(item.name, star)}
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
 
           <div className="form-group">
             <StarRating
-              label="맛"
-              value={tasteRating}
-              onChange={setTasteRating}
-            />
-            <StarRating
-              label="가격"
-              value={priceRating}
-              onChange={setPriceRating}
-            />
-            <StarRating
-              label="분위기"
-              value={atmosphereRating}
-              onChange={setAtmosphereRating}
+              label="가게 별점"
+              value={restaurantRating}
+              onChange={setRestaurantRating}
             />
           </div>
 

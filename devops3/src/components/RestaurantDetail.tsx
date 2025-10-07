@@ -132,13 +132,12 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
         <div className="reviews-list" key={refreshKey}>
           {reviews.length > 0 ? (
             reviews.map(review => {
-              const avgRating = (review.ratings.taste + review.ratings.price + review.ratings.atmosphere) / 3;
               return (
                 <div key={review._id} className="review-item">
                   <div className="review-header">
                     <div className="review-rating" onClick={() => handleToggleDetails(review._id)}>
                       <span className="star">★</span>
-                      <span>{avgRating.toFixed(1)}</span>
+                      <span>{review.ratings.restaurantRating.toFixed(1)}</span>
                       <span className={`material-symbols-outlined expand-icon ${expandedReviewId === review._id ? 'expanded' : ''}`}> expand_more </span>
                     </div>
                     <div className="review-author-actions">
@@ -163,13 +162,19 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                   </div>
                   {expandedReviewId === review._id && (
                       <div className="review-ratings-detail">
-                        <StarRatingDisplay label="맛" rating={review.ratings.taste} />
-                        <StarRatingDisplay label="가격" rating={review.ratings.price} />
-                        <StarRatingDisplay label="분위기" rating={review.ratings.atmosphere} />
+                        <div className="menu-ratings-section">
+                          {review.ratings.menuRatings.map(mr => (
+                            <StarRatingDisplay key={mr.menuName} label={mr.menuName} rating={mr.rating} />
+                          ))}
+                        </div>
                       </div>
                     )}
                   {review.target.menuItems && (
-                    <div className="menu-tag">{review.target.menuItems}</div>
+                    <div className="menu-tags">
+                      {review.target.menuItems.split(', ').map((menuItem, index) => (
+                        <div key={index} className="menu-tag">{menuItem}</div>
+                      ))}
+                    </div>
                   )}
                   <p className="review-content">{review.content}</p>
                   {(() => {

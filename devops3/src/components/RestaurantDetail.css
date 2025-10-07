@@ -201,7 +201,7 @@
 }
 
 .star-rating-display-row .rating-label {
-  width: 45px;
+  width: 70px;
   font-size: 0.85em;
   color: #555;
   text-align: left;
@@ -215,6 +215,7 @@
 
 .star-rating-display-row .stars .star {
   font-size: 22px;
+  margin-top: -5px;
 }
 
 /* 펼침/닫힘 아이콘 스타일 */
@@ -236,9 +237,20 @@
 }
 
 .review-item .review-ratings-detail {
-  max-height: 100px;
+  max-height: 300px;
   margin-top: 10px;
   margin-bottom: 20px;
+}
+
+.menu-ratings-section {
+  margin-bottom: 15px;
+}
+
+.menu-ratings-section h4 {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 10px 0;
+  font-weight: 500;
 }
 
 .review-author-actions {
@@ -273,6 +285,13 @@
   opacity: 1;
 }
 
+.menu-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
 .menu-tag {
   display: inline-block;
   padding: 4px 8px;
@@ -280,7 +299,6 @@
   color: #1976d2;
   font-size: 12px;
   border-radius: 4px;
-  margin-bottom: 8px;
 }
 
 .review-content {
@@ -288,6 +306,7 @@
   font-size: 14px;
   line-height: 1.6;
   color: #333;
+  text-align: left;
 }
 
 .review-images-container {

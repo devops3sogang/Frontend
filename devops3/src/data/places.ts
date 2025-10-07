@@ -46,11 +46,16 @@ export interface ReviewTarget {
   menuItems?: string; // 리뷰 대상 메뉴 (선택 사항)
 }
 
+// 메뉴별 평점 정보
+export interface MenuRating {
+  menuName: string;
+  rating: number;
+}
+
 // 리뷰 평점 정보
 export interface ReviewRatings {
-  taste: number;
-  price: number;
-  atmosphere: number;
+  menuRatings: MenuRating[]; // 메뉴별 별점
+  restaurantRating: number; // 가게 전체 별점
 }
 
 // 리뷰 데이터 구조
@@ -184,9 +189,10 @@ export const reviewsData: Review[] = [
       menuItems: "참치김밥"
     },
     ratings: {
-      taste: 5,
-      price: 4,
-      atmosphere: 4
+      menuRatings: [
+        { menuName: "참치김밥", rating: 5 }
+      ],
+      restaurantRating: 4
     },
     content: "김밥이 정말 맛있어요! 참치가 많이 들어있습니다.",
     likeCount: 15,
@@ -204,9 +210,10 @@ export const reviewsData: Review[] = [
       menuItems: "돈까스"
     },
     ratings: {
-      taste: 5,
-      price: 5,
-      atmosphere: 5
+      menuRatings: [
+        { menuName: "돈까스", rating: 5 }
+      ],
+      restaurantRating: 5
     },
     content: "가성비 최고! 양도 푸짐해요.",
     imageUrl: "https://example.com/photo1.jpg",
@@ -225,9 +232,10 @@ export const reviewsData: Review[] = [
       menuItems: "등심돈까스"
     },
     ratings: {
-      taste: 5,
-      price: 4,
-      atmosphere: 5
+      menuRatings: [
+        { menuName: "등심돈까스", rating: 5 }
+      ],
+      restaurantRating: 4
     },
     content: "돈까스가 바삭하고 소스가 맛있어요.",
     likeCount: 30,
@@ -245,9 +253,10 @@ export const reviewsData: Review[] = [
       menuItems: "김치찌개"
     },
     ratings: {
-      taste: 4,
-      price: 4,
-      atmosphere: 4
+      menuRatings: [
+        { menuName: "김치찌개", rating: 4 }
+      ],
+      restaurantRating: 4
     },
     content: "집밥 같은 맛이에요. 반찬도 잘 나옵니다.",
     likeCount: 18,
@@ -265,9 +274,10 @@ export const reviewsData: Review[] = [
       menuItems: "까르보나라"
     },
     ratings: {
-      taste: 5,
-      price: 4,
-      atmosphere: 5
+      menuRatings: [
+        { menuName: "까르보나라", rating: 5 }
+      ],
+      restaurantRating: 4
     },
     content: "파스타 면발이 쫄깃하고 크림소스가 진해요.",
     imageUrl: "https://example.com/photo2.jpg",
@@ -277,7 +287,7 @@ export const reviewsData: Review[] = [
   }
 ];
 
-// 식당의 평균 별점 계산 헬퍼 함수 (맛, 가격, 분위기 평균)
+// 식당의 평균 별점 계산 헬퍼 함수 (가게 별점 평균)
 export function getAverageRating(restaurantId: string): number {
   const restaurantReviews = reviewsData.filter(
     review => review.target.restaurantId === restaurantId
@@ -286,10 +296,7 @@ export function getAverageRating(restaurantId: string): number {
   if (restaurantReviews.length === 0) return 0;
 
   const totalRating = restaurantReviews.reduce(
-    (sum, review) => {
-      const avgRating = (review.ratings.taste + review.ratings.price + review.ratings.atmosphere) / 3;
-      return sum + avgRating;
-    },
+    (sum, review) => sum + review.ratings.restaurantRating,
     0
   );
 

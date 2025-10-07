@@ -160,42 +160,62 @@ form {
   background-color: #0056b3;
 }
 
-.menu-checkboxes {
+.menu-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 10px;
+  gap: 15px;
+  padding: 15px;
   background-color: #f9f9f9;
   border-radius: 6px;
-  max-height: 200px;
+  max-height: 400px;
   overflow-y: auto;
 }
 
-.menu-checkbox-item {
+.menu-item {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
   background-color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.menu-checkbox-item:hover {
-  background-color: #f0f0f0;
+.menu-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.menu-checkbox-item input[type="checkbox"] {
-  width: auto;
-  cursor: pointer;
-  margin: 0;
-}
-
-.menu-checkbox-label {
-  font-size: 14px;
+.menu-name {
+  font-size: 15px;
+  font-weight: 500;
   color: #333;
-  user-select: none;
+}
+
+.menu-price {
+  font-size: 14px;
+  color: #666;
+}
+
+.menu-stars {
+  display: flex;
+  gap: 8px;
+}
+
+.menu-stars .star {
+  font-size: 28px;
+  color: #ddd;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.menu-stars .star.active {
+  color: #FFA500;
+}
+
+.menu-stars .star:hover {
+  color: #FFB84D;
 }
 
 .image-input {

@@ -12,7 +12,8 @@ function Home() {
     .slice(0, 5);
 
   const getAverageRating = (ratings: Review['ratings']) => {
-    return ((ratings.taste + ratings.price + ratings.atmosphere) / 3).toFixed(1);
+    // 가게 별점을 표시
+    return ratings.restaurantRating.toFixed(1);
   };
 
   const handleReviewClick = (restaurantId: string) => {
