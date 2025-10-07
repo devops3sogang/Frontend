@@ -61,7 +61,8 @@ export interface Review {
   target: ReviewTarget;
   ratings: ReviewRatings;
   content: string;
-  imageUrl?: string;
+  imageUrl?: string; // 하위 호환성을 위해 유지
+  imageUrls?: string[]; // 여러 이미지 지원
   likeCount: number;
   createdAt: string;
   updatedAt: string;
@@ -312,6 +313,7 @@ export function addReview(reviewData: Partial<Review>): Review {
     ratings: reviewData.ratings!,
     content: reviewData.content!,
     imageUrl: reviewData.imageUrl,
+    imageUrls: reviewData.imageUrls || [],
     likeCount: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()

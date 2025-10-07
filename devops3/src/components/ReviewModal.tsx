@@ -17,6 +17,9 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
   const [priceRating, setPriceRating] = useState(existingReview?.ratings.price || 0);
   const [atmosphereRating, setAtmosphereRating] = useState(existingReview?.ratings.atmosphere || 0);
   const [content, setContent] = useState(existingReview?.content || '');
+  const [imageUrls, setImageUrls] = useState<string[]>(
+    existingReview?.imageUrls || (existingReview?.imageUrl ? [existingReview.imageUrl] : [])
+  );
 
   const toggleMenu = (menuName: string) => {
     setSelectedMenus(prev =>
@@ -24,6 +27,53 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
         ? prev.filter(m => m !== menuName)
         : [...prev, menuName]
     );
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const maxImages = 6;
+    const remainingSlots = maxImages - imageUrls.length;
+
+    console.log('Selected files:', files.length);
+    console.log('Current images:', imageUrls.length);
+    console.log('Remaining slots:', remainingSlots);
+
+    if (remainingSlots <= 0) {
+      alert('최대 6개의 이미지만 첨부할 수 있습니다.');
+      return;
+    }
+
+    const filesToProcess = Array.from(files).slice(0, remainingSlots);
+    console.log('Files to process:', filesToProcess.length);
+
+    // 모든 파일을 Promise로 변환
+    const filePromises = filesToProcess.map(file => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    // 모든 파일 읽기가 완료될 때까지 기다린 후 한 번에 추가
+    const base64Strings = await Promise.all(filePromises);
+    console.log('Base64 strings loaded:', base64Strings.length);
+    setImageUrls(prev => {
+      const newUrls = [...prev, ...base64Strings];
+      console.log('New image URLs count:', newUrls.length);
+      return newUrls;
+    });
+
+    // input 초기화
+    e.target.value = '';
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImageUrls(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -34,10 +84,10 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
       return;
     }
 
-    if (!content.trim()) {
-      alert('리뷰 내용을 작성해주세요.');
-      return;
-    }
+    // if (!content.trim()) {
+    //   alert('리뷰 내용을 작성해주세요.');
+    //   return;
+    // }
 
     const reviewData: Partial<Review> = {
       target: {
@@ -51,7 +101,9 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
         price: priceRating,
         atmosphere: atmosphereRating
       },
-      content: content.trim()
+      content: content.trim(),
+      imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
+      imageUrl: imageUrls.length > 0 ? imageUrls[0] : undefined // 하위 호환성
     };
 
     onSubmit(reviewData);
@@ -139,10 +191,44 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="식당에 대한 솔직한 리뷰를 남겨주세요..."
+              placeholder="식당에 대한 솔직한 리뷰를 남겨주세요."
               rows={5}
-              required
+              // required
             />
+          </div>
+
+          <div className="form-group">
+            <label>사진 첨부 (선택, 최대 6개)</label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
+              className="image-input"
+              disabled={imageUrls.length >= 6}
+            />
+            <div className="image-count-info">
+              {imageUrls.length}/6개 첨부됨 (실제 배열: {JSON.stringify(imageUrls.length)})
+            </div>
+            {imageUrls.length > 0 && (
+              <div className="images-preview-grid">
+                {imageUrls.map((url, index) => {
+                  console.log('Rendering image', index, 'URL length:', url.length);
+                  return (
+                    <div key={index} className="image-preview-container">
+                      <img src={url} alt={`미리보기 ${index + 1}`} className="image-preview" />
+                      <button
+                        type="button"
+                        className="btn-remove-image"
+                        onClick={() => handleRemoveImage(index)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="modal-actions">

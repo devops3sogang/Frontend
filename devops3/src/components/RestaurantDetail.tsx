@@ -12,6 +12,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | undefined>(undefined);
   const [refreshKey, setRefreshKey] = useState(0); // 리뷰 목록 강제 갱신용
+  const [currentImageIndex, setCurrentImageIndex] = useState<{ [key: string]: number }>({}); // 리뷰별 현재 이미지 인덱스
 
   const reviews = reviewsData.filter(review => review.target.restaurantId === restaurant._id);
   const averageRating = getAverageRating(restaurant._id);
@@ -50,6 +51,28 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
   const handleToggleLike = (reviewId: string) => {
     toggleReviewLike(reviewId);
     setRefreshKey(prev => prev + 1); // 강제 갱신
+  };
+
+  const handleNextImage = (reviewId: string, totalImages: number) => {
+    setCurrentImageIndex(prev => ({
+      ...prev,
+      [reviewId]: ((prev[reviewId] || 0) + 1) % totalImages
+    }));
+  };
+
+  const handlePrevImage = (reviewId: string, totalImages: number) => {
+    setCurrentImageIndex(prev => ({
+      ...prev,
+      [reviewId]: ((prev[reviewId] || 0) - 1 + totalImages) % totalImages
+    }));
+  };
+
+  const handleSwipe = (reviewId: string, totalImages: number, direction: 'left' | 'right') => {
+    if (direction === 'left') {
+      handleNextImage(reviewId, totalImages);
+    } else {
+      handlePrevImage(reviewId, totalImages);
+    }
   };
 
   return (
@@ -121,6 +144,74 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                     <div className="menu-tag">{review.target.menuItems}</div>
                   )}
                   <p className="review-content">{review.content}</p>
+                  {(() => {
+                    const images = review.imageUrls || (review.imageUrl ? [review.imageUrl] : []);
+                    if (images.length === 0) return null;
+
+                    const currentIndex = currentImageIndex[review._id] || 0;
+                    let touchStartX = 0;
+                    let touchEndX = 0;
+
+                    const handleTouchStart = (e: React.TouchEvent) => {
+                      touchStartX = e.touches[0].clientX;
+                    };
+
+                    const handleTouchMove = (e: React.TouchEvent) => {
+                      touchEndX = e.touches[0].clientX;
+                    };
+
+                    const handleTouchEnd = () => {
+                      if (touchStartX - touchEndX > 50) {
+                        // 왼쪽으로 스와이프
+                        handleNextImage(review._id, images.length);
+                      } else if (touchEndX - touchStartX > 50) {
+                        // 오른쪽으로 스와이프
+                        handlePrevImage(review._id, images.length);
+                      }
+                    };
+
+                    return (
+                      <div className="review-images-container">
+                        <div
+                          className="review-image-slider"
+                          onTouchStart={handleTouchStart}
+                          onTouchMove={handleTouchMove}
+                          onTouchEnd={handleTouchEnd}
+                        >
+                          <img
+                            src={images[currentIndex]}
+                            alt={`리뷰 사진 ${currentIndex + 1}`}
+                            className="review-image"
+                          />
+                          {images.length > 1 && (
+                            <>
+                              <button
+                                className="image-nav-btn prev"
+                                onClick={() => handlePrevImage(review._id, images.length)}
+                              >
+                                <span className="material-symbols-outlined">chevron_left</span>
+                              </button>
+                              <button
+                                className="image-nav-btn next"
+                                onClick={() => handleNextImage(review._id, images.length)}
+                              >
+                                <span className="material-symbols-outlined">chevron_right</span>
+                              </button>
+                              <div className="image-indicators">
+                                {images.map((_, idx) => (
+                                  <span
+                                    key={idx}
+                                    className={`indicator ${idx === currentIndex ? 'active' : ''}`}
+                                    onClick={() => setCurrentImageIndex(prev => ({ ...prev, [review._id]: idx }))}
+                                  />
+                                ))}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
                   <div className="review-footer">
                     <span className="review-date">
                       {new Date(review.createdAt).toLocaleDateString('ko-KR')}
