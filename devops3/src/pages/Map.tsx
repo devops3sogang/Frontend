@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { restaurantsData, getAverageRating } from '../data/places';
 import RestaurantDetail from '../components/RestaurantDetail';
 import type { Restaurant } from '../data/places';
@@ -40,56 +40,54 @@ function Map() {
 
   return (
     <div style={{ position: 'relative' }}>
-      <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={currentPosition}
-          zoom={13}
-        >
-          {/* 현재 위치 마커 */}
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={currentPosition}
+        zoom={13}
+      >
+        {/* 현재 위치 마커 */}
+        <Marker
+          position={currentPosition}
+          icon={{
+            url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+          }}
+        />
+
+        {/* 식당 마커들 */}
+        {restaurantsData.map((restaurant) => (
           <Marker
-            position={currentPosition}
-            icon={{
-              url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+            key={restaurant._id}
+            position={{
+              lat: restaurant.location.coordinates[1],
+              lng: restaurant.location.coordinates[0]
             }}
+            onClick={() => setSelectedRestaurant(restaurant)}
           />
+        ))}
 
-          {/* 식당 마커들 */}
-          {restaurantsData.map((restaurant) => (
-            <Marker
-              key={restaurant._id}
-              position={{
-                lat: restaurant.location.coordinates[1],
-                lng: restaurant.location.coordinates[0]
-              }}
-              onClick={() => setSelectedRestaurant(restaurant)}
-            />
-          ))}
-
-          {/* 간단한 정보 말풍선 (지도 위) */}
-          {selectedRestaurant && (
-            <InfoWindow
-              position={{
-                lat: selectedRestaurant.location.coordinates[1],
-                lng: selectedRestaurant.location.coordinates[0]
-              }}
-              onCloseClick={() => setSelectedRestaurant(null)}
-            >
-              <div style={{ padding: '10px' }}>
-                <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#333' }}>
-                  {selectedRestaurant.name}
-                </h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <span style={{ color: '#FFA500', fontSize: '18px' }}>★</span>
-                  <span style={{ fontSize: '14px', color: '#666' }}>
-                    {getAverageRating(selectedRestaurant._id).toFixed(1)}
-                  </span>
-                </div>
+        {/* 간단한 정보 말풍선 (지도 위) */}
+        {selectedRestaurant && (
+          <InfoWindow
+            position={{
+              lat: selectedRestaurant.location.coordinates[1],
+              lng: selectedRestaurant.location.coordinates[0]
+            }}
+            onCloseClick={() => setSelectedRestaurant(null)}
+          >
+            <div style={{ padding: '10px' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#333' }}>
+                {selectedRestaurant.name}
+              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <span style={{ color: '#FFA500', fontSize: '18px' }}>★</span>
+                <span style={{ fontSize: '14px', color: '#666' }}>
+                  {getAverageRating(selectedRestaurant._id).toFixed(1)}
+                </span>
               </div>
-            </InfoWindow>
-          )}
-        </GoogleMap>
-      </LoadScript>
+            </div>
+          </InfoWindow>
+        )}
+      </GoogleMap>
 
       {/* 우측 상세 정보 패널 */}
       {selectedRestaurant && (
