@@ -21,40 +21,57 @@ function Map() {
   const [currentPosition, setCurrentPosition] = useState(defaultCenter);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [mapCenter, setMapCenter] = useState(defaultCenter);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
 
   useEffect(() => {
-    // 사용자의 현재 위치 가져오기
+    const restaurantId = searchParams.get('restaurantId');
+
+    // 1. URL에 restaurantId가 있는지 먼저 확인
+    if (restaurantId) {
+      const restaurant = restaurantsData.find(r => r._id === restaurantId);
+      if (restaurant) {
+        const restaurantLocation = {
+          lat: restaurant.location.coordinates[1],
+          lng: restaurant.location.coordinates[0]
+        };
+        setSelectedRestaurant(restaurant);
+        setMapCenter(restaurantLocation);
+        // restaurantId가 있으면 사용자 위치는 가져오지 않고 여기서 종료
+        return;
+      }
+    }
+
+    // 2. restaurantId가 없을 경우에만 사용자 현재 위치를 가져옴
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setCurrentPosition({
+          const newPosition = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
-          });
+          };
+          setCurrentPosition(newPosition);
+          setMapCenter(newPosition);
         },
         (error) => {
           console.error('위치 정보를 가져올 수 없습니다:', error);
+          // 위치 정보 가져오기 실패 시 기본 위치(서울)를 중심으로 설정
+          setMapCenter(defaultCenter);
         }
       );
     } else {
       console.error('이 브라우저는 위치 정보를 지원하지 않습니다.');
-    }
-  }, []);
-
-  // URL에서 restaurantId를 읽어 해당 레스토랑 선택
-  useEffect(() => {
-    const restaurantId = searchParams.get('restaurantId');
-    if (restaurantId) {
-      const restaurant = restaurantsData.find(r => r._id === restaurantId);
-      if (restaurant) {
-        setSelectedRestaurant(restaurant);
-        setMapCenter({
-          lat: restaurant.location.coordinates[1],
-          lng: restaurant.location.coordinates[0]
-        });
-      }
+      setMapCenter(defaultCenter);
     }
   }, [searchParams]);
+
+  // mapCenter가 변경되면 지도를 해당 위치로 이동
+  useEffect(() => {
+    if (map) {
+      map.panTo(mapCenter);
+      // 우측 패널 너비만큼 왼쪽으로 이동 (픽셀 기반)
+        map.panBy(150, 0);
+    }
+  }, [mapCenter, map]);
 
   return (
     <div style={{ position: 'relative' }}>
@@ -62,6 +79,7 @@ function Map() {
         mapContainerStyle={containerStyle}
         center={mapCenter}
         zoom={15}
+        onLoad={(map) => setMap(map)}
       >
         {/* 현재 위치 마커 */}
         <Marker
@@ -79,7 +97,14 @@ function Map() {
               lat: restaurant.location.coordinates[1],
               lng: restaurant.location.coordinates[0]
             }}
-            onClick={() => setSelectedRestaurant(restaurant)}
+            onClick={() => {
+              const newCenter = {
+                lat: restaurant.location.coordinates[1],
+                lng: restaurant.location.coordinates[0]
+              };
+              setSelectedRestaurant(restaurant);
+              setMapCenter(newCenter); // 마커를 클릭했을 때도 mapCenter를 업데이트
+            }}
           />
         ))}
 

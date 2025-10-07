@@ -59,7 +59,7 @@ function Home() {
         </div>
 
         {/* 오늘의 우정원 메뉴 컨테이너 */}
-        <div className="section-container menu-section">
+        <div className="section-container sogang-menu-section">
           <h2 className="section-title">오늘의 우정원 메뉴</h2>
           <div className="menu-placeholder">
             <div>
