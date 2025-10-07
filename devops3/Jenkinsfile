@@ -8,6 +8,7 @@ pipeline {
         REMOTE_HOST = '43.202.229.52'
         CONTAINER_NAME = 'frontend-app'
         PORT = '8282'
+        VITE_GOOGLE_MAPS_API_KEY = credentials('google-maps-api-key')
     }
 
     stages {
@@ -21,8 +22,8 @@ pipeline {
             steps {
                 dir('devops3') {
                     script {
-                        // Docker 내에서 빌드하므로 별도의 npm 단계 불필요
-                        docker.build("${IMAGE_NAME}:latest", ".")
+                        // Docker 빌드 시 API 키를 build argument로 전달
+                        docker.build("${IMAGE_NAME}:latest", "--build-arg VITE_GOOGLE_MAPS_API_KEY=${VITE_GOOGLE_MAPS_API_KEY} .")
                     }
                 }
             }
