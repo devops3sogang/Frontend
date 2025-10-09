@@ -61,7 +61,7 @@ function Map() {
       if (restaurant) {
         const restaurantLocation = {
           lat: restaurant.location.coordinates[1],
-          lng: restaurant.location.coordinates[0] + 0.008
+          lng: restaurant.location.coordinates[0]
         };
         setSelectedRestaurant(restaurant);
         setMapCenter(restaurantLocation);
@@ -79,8 +79,8 @@ function Map() {
   useEffect(() => {
     if (map) {
       map.panTo(mapCenter);
-      // 우측 패널 너비만큼 왼쪽으로 이동 (픽셀 기반)
-        map.panBy(150, 0);
+      // 우측 패널(400px)을 고려해 오른쪽으로 이동
+        map.panBy(+150, 0);
     }
   }, [mapCenter, map]);
 
@@ -124,6 +124,7 @@ function Map() {
         {/* 간단한 정보 말풍선 (지도 위) */}
         {selectedRestaurant && (
           <InfoWindow
+            key={selectedRestaurant._id}
             position={{
               lat: selectedRestaurant.location.coordinates[1],
               lng: selectedRestaurant.location.coordinates[0]

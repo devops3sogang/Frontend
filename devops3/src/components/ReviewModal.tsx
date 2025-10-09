@@ -1,3 +1,5 @@
+// 리뷰 쓸 때 뜨는 모달
+
 import { useState } from 'react';
 import type { Restaurant, Review } from '../data/places';
 import './ReviewModal.css';

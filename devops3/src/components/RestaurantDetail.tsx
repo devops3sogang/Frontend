@@ -1,3 +1,5 @@
+// 맵에서 레스토랑 상세 정보
+
 import { useState, useEffect } from 'react';
 import { type Restaurant, type Review, reviewsData, getAverageRating, getReviewCount, addReview, updateReview, deleteReview, toggleReviewLike, isReviewLiked } from '../data/places';
 import ReviewModal from './ReviewModal';
