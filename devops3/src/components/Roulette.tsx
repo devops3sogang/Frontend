@@ -1,3 +1,5 @@
+// 메인에 보이는 룰렛 컴포넌트
+
 import { useState, useRef, useEffect } from 'react';
 import { restaurantsData, type Restaurant, getAverageRating } from '../data/places';
 import './Roulette.css';

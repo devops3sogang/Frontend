@@ -12,7 +12,7 @@ export interface User {
   updatedAt: string;
 }
 
-// Mock 사용자 데이터 (실제로는 백엔드에서 관리)
+// Mock 사용자 데이터 (초기값)
 export const usersData: User[] = [
   {
     _id: "507f191e810c19729de860e1",

@@ -1,3 +1,5 @@
+import { hasUserLikedReview, toggleLike } from './likes';
+
 // 식당 타입
 export type RestaurantType = 'ON_CAMPUS' | 'OFF_CAMPUS';
 
@@ -672,31 +674,24 @@ export function deleteReview(reviewId: string): boolean {
 }
 
 // 리뷰 좋아요 토글 함수
-export function toggleReviewLike(reviewId: string): boolean {
+export function toggleReviewLike(reviewId: string, userId: string): boolean {
   const index = reviewsData.findIndex(review => review._id === reviewId);
   if (index === -1) return false;
 
-  // localStorage에서 사용자의 좋아요 상태 확인
-  const likedReviews = JSON.parse(localStorage.getItem('likedReviews') || '[]');
-  const isLiked = likedReviews.includes(reviewId);
+  // likes 컬렉션에서 토글
+  const isNowLiked = toggleLike(userId, reviewId);
 
-  if (isLiked) {
-    // 이미 좋아요를 누른 경우 - 좋아요 취소
-    reviewsData[index].likeCount = Math.max(0, reviewsData[index].likeCount - 1);
-    const updatedLikes = likedReviews.filter((id: string) => id !== reviewId);
-    localStorage.setItem('likedReviews', JSON.stringify(updatedLikes));
-  } else {
-    // 좋아요 추가
+  // likeCount 업데이트 (캐시 동기화)
+  if (isNowLiked) {
     reviewsData[index].likeCount += 1;
-    likedReviews.push(reviewId);
-    localStorage.setItem('likedReviews', JSON.stringify(likedReviews));
+  } else {
+    reviewsData[index].likeCount = Math.max(0, reviewsData[index].likeCount - 1);
   }
-
+  
   return true;
 }
 
 // 사용자가 특정 리뷰에 좋아요를 눌렀는지 확인
-export function isReviewLiked(reviewId: string): boolean {
-  const likedReviews = JSON.parse(localStorage.getItem('likedReviews') || '[]');
-  return likedReviews.includes(reviewId);
+export function isReviewLiked(reviewId: string, userId: string): boolean {
+  return hasUserLikedReview(userId, reviewId);
 }

@@ -41,14 +41,15 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
 
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | undefined>(undefined);
-  const [refreshKey, setRefreshKey] = useState(0); // 리뷰 목록 강제 갱신용
   const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null); // 리뷰 내용 확장용
   const [currentImageIndex, setCurrentImageIndex] = useState<{ [key: string]: number }>({}); // 리뷰별 현재 이미지 인덱스
   const [expandedImage, setExpandedImage] = useState<string | null>(null); // 확대된 이미지 URL
   const [expandedImageList, setExpandedImageList] = useState<string[]>([]); // 확대된 이미지 리스트
   const [expandedImageIndex, setExpandedImageIndex] = useState(0); // 확대된 이미지의 인덱스
 
-  const reviews = reviewsData.filter(review => review.target.restaurantId === restaurant._id);
+  const [reviews, setReviews] = useState(
+  () => reviewsData.filter(review => review.target.restaurantId === restaurant._id)
+);
   const averageRating = getAverageRating(restaurant._id);
   const reviewCount = getReviewCount(restaurant._id);
 
@@ -89,7 +90,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     }
     if (window.confirm('리뷰를 삭제하시겠습니까?')) {
       deleteReview(reviewId);
-      setRefreshKey(prev => prev + 1); // 강제 갱신
+      setReviews(reviewsData.filter(review => review.target.restaurantId === restaurant._id));
     }
   };
 
@@ -105,18 +106,21 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     }
     setShowReviewModal(false);
     setEditingReview(undefined);
-    setRefreshKey(prev => prev + 1); // 강제 갱신
+    setReviews(reviewsData.filter(review => review.target.restaurantId === restaurant._id));
   };
 
   const handleToggleLike = (reviewId: string) => {
-    if (!isAuthenticated) {
-      alert('로그인이 필요합니다.');
-      navigate('/login');
-      return;
-    }
-    toggleReviewLike(reviewId);
-    setRefreshKey(prev => prev + 1); // 강제 갱신
-  };
+  if (!isAuthenticated || !user) {
+    alert('로그인이 필요합니다.');
+    navigate('/login');
+    return;
+  }
+  // 데이터 변경
+  toggleReviewLike(reviewId, user._id);
+
+  // 변경된 최신 데이터로 reviews 상태를 업데이트
+  setReviews(reviewsData.filter(review => review.target.restaurantId === restaurant._id));
+};
 
   const handleNextImage = (reviewId: string, totalImages: number) => {
     setCurrentImageIndex(prev => ({
@@ -230,7 +234,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
             리뷰 작성
           </button>
         </div>
-        <div className="reviews-list" key={refreshKey}>
+        <div className="reviews-list">
           {reviews.length > 0 ? (
             reviews.map(review => {
               return (
@@ -355,9 +359,9 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                     </span>
                     <div className="review-actions">
                       <button
-                        className={`btn-like ${isReviewLiked(review._id) ? 'liked' : ''}`}
+                        className={`btn-like ${user && isReviewLiked(review._id, user._id) ? 'liked' : ''}`}
                         onClick={() => handleToggleLike(review._id)}
-                        title={isReviewLiked(review._id) ? '좋아요 취소' : '좋아요'}
+                        title={user && isReviewLiked(review._id, user._id) ? '좋아요 취소' : '좋아요'}
                       >
                         👍 {review.likeCount}
                       </button>

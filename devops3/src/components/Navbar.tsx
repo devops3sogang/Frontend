@@ -1,3 +1,5 @@
+// 늘 보이는 네비게이션 바
+
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import './Navbar.css'

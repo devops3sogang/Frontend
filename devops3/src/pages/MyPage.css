@@ -188,6 +188,16 @@
   color: #ffd700;
 }
 
+.review-author-info {
+  margin: 8px 0;
+}
+
+.review-author {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
 .menu-tags {
   display: flex;
   flex-wrap: wrap;

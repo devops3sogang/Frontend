@@ -1,8 +1,11 @@
+// 마이페이지
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { reviewsData, type Review } from '../data/places';
 import { updateUserNickname, updateUserPassword } from '../data/users';
+import { getLikesByUser } from '../data/likes';
 import './MyPage.css';
 
 function MyPage() {
@@ -16,6 +19,7 @@ function MyPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [myReviews, setMyReviews] = useState<Review[]>([]);
+  const [likedReviews, setLikedReviews] = useState<Review[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -28,6 +32,11 @@ function MyPage() {
       // 내가 작성한 리뷰 가져오기
       const userReviews = reviewsData.filter(review => review.userId === user._id);
       setMyReviews(userReviews);
+
+      // 내가 좋아요한 리뷰 가져오기
+      const likedReviewIds = getLikesByUser(user._id);
+      const likedReviewsList = reviewsData.filter(review => likedReviewIds.includes(review._id));
+      setLikedReviews(likedReviewsList);
     }
   }, [user, isAuthenticated, navigate]);
 
@@ -212,6 +221,44 @@ function MyPage() {
               ))
             ) : (
               <p className="no-reviews">아직 작성한 리뷰가 없습니다.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="reviews-section">
+          <h2>내가 좋아요한 리뷰 ({likedReviews.length}개)</h2>
+          <div className="reviews-list">
+            {likedReviews.length > 0 ? (
+              likedReviews.map(review => (
+                <div key={review._id} className="review-card">
+                  <div className="review-header">
+                    <h3>{review.target.restaurantName}</h3>
+                    <div className="review-rating">
+                      <span className="star">★</span>
+                      <span>{review.ratings.restaurantRating.toFixed(1)}</span>
+                    </div>
+                  </div>
+                  <div className="review-author-info">
+                    <span className="review-author">작성자: {review.nickname}</span>
+                  </div>
+                  {review.target.menuItems && (
+                    <div className="menu-tags">
+                      {review.target.menuItems.split(', ').map((menuItem, index) => (
+                        <span key={index} className="menu-tag">{menuItem}</span>
+                      ))}
+                    </div>
+                  )}
+                  <p className="review-content">{review.content}</p>
+                  <div className="review-footer">
+                    <span className="review-date">
+                      {new Date(review.createdAt).toLocaleDateString('ko-KR')}
+                    </span>
+                    <span className="review-likes">👍 {review.likeCount}</span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="no-reviews">아직 좋아요한 리뷰가 없습니다.</p>
             )}
           </div>
         </div>
