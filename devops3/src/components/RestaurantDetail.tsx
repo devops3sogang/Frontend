@@ -1,7 +1,9 @@
 // 맵에서 레스토랑 상세 정보
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { type Restaurant, type Review, reviewsData, getAverageRating, getReviewCount, addReview, updateReview, deleteReview, toggleReviewLike, isReviewLiked } from '../data/places';
+import { useAuth } from '../contexts/AuthContext';
 import ReviewModal from './ReviewModal';
 import './RestaurantDetail.css';
 
@@ -34,6 +36,9 @@ const StarRatingDisplay = ({ label, rating }: StarRatingDisplayProps) => {
 };
 
 function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | undefined>(undefined);
   const [refreshKey, setRefreshKey] = useState(0); // 리뷰 목록 강제 갱신용
@@ -48,16 +53,40 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
   const reviewCount = getReviewCount(restaurant._id);
 
   const handleAddReview = () => {
+    if (!isAuthenticated) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
     setEditingReview(undefined);
     setShowReviewModal(true);
   };
 
   const handleEditReview = (review: Review) => {
+    if (!isAuthenticated || !user) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+    if (review.userId !== user._id) {
+      alert('본인이 작성한 리뷰만 수정할 수 있습니다.');
+      return;
+    }
     setEditingReview(review);
     setShowReviewModal(true);
   };
 
   const handleDeleteReview = (reviewId: string) => {
+    if (!isAuthenticated || !user) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+    const review = reviewsData.find(r => r._id === reviewId);
+    if (review && review.userId !== user._id) {
+      alert('본인이 작성한 리뷰만 삭제할 수 있습니다.');
+      return;
+    }
     if (window.confirm('리뷰를 삭제하시겠습니까?')) {
       deleteReview(reviewId);
       setRefreshKey(prev => prev + 1); // 강제 갱신
@@ -70,7 +99,9 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
       updateReview(editingReview._id, reviewData);
     } else {
       // 추가
-      addReview(reviewData);
+      if (user) {
+        addReview(reviewData, user._id, user.nickname);
+      }
     }
     setShowReviewModal(false);
     setEditingReview(undefined);
@@ -78,6 +109,11 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
   };
 
   const handleToggleLike = (reviewId: string) => {
+    if (!isAuthenticated) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
     toggleReviewLike(reviewId);
     setRefreshKey(prev => prev + 1); // 강제 갱신
   };
@@ -207,22 +243,24 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                     </div>
                     <div className="review-author-actions">
                       <span className="review-author">{review.nickname}</span>
-                      <div className="review-edit-actions">
-                        <button
-                          className="btn-edit"
-                          onClick={() => handleEditReview(review)}
-                          title="수정"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          className="btn-delete"
-                          onClick={() => handleDeleteReview(review._id)}
-                          title="삭제"
-                        >
-                          🗑️
-                        </button>
-                      </div>
+                      {user && review.userId === user._id && (
+                        <div className="review-edit-actions">
+                          <button
+                            className="btn-edit"
+                            onClick={() => handleEditReview(review)}
+                            title="수정"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            className="btn-delete"
+                            onClick={() => handleDeleteReview(review._id)}
+                            title="삭제"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                   {expandedReviewId === review._id && (

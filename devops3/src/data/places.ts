@@ -629,11 +629,11 @@ export function getReviewCount(restaurantId: string): number {
 }
 
 // 리뷰 추가 함수
-export function addReview(reviewData: Partial<Review>): Review {
+export function addReview(reviewData: Partial<Review>, userId?: string, nickname?: string): Review {
   const newReview: Review = {
     _id: `review_${Date.now()}`, // 임시 ID 생성 (실제로는 백엔드에서 생성)
-    userId: "temp_user_id", // 실제로는 로그인한 사용자 ID
-    nickname: "익명", // 실제로는 로그인한 사용자 닉네임
+    userId: userId || reviewData.userId || "temp_user_id", // 로그인한 사용자 ID
+    nickname: nickname || reviewData.nickname || "익명", // 로그인한 사용자 닉네임
     target: reviewData.target!,
     ratings: reviewData.ratings!,
     content: reviewData.content!,
