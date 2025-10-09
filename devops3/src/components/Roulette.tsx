@@ -1,19 +1,21 @@
 import { useState, useRef, useEffect } from 'react';
-import { restaurantsData, type Restaurant } from '../data/places';
+import { restaurantsData, type Restaurant, getAverageRating } from '../data/places';
 import './Roulette.css';
 
 interface RouletteProps {
   onRestaurantSelected: (restaurant: Restaurant) => void;
+  onNavigateToMap: (restaurantId: string) => void;
 }
 
-function Roulette({ onRestaurantSelected }: RouletteProps) {
+function Roulette({ onRestaurantSelected, onNavigateToMap }: RouletteProps) {
   const [isSpinning, setIsSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
+  const [showResultModal, setShowResultModal] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const restaurants = restaurantsData.filter(r => r.isActive);
-  const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3', '#A8D8EA'];
+  const colors = ['#cddafd', '#eae4e9', '#f4e1d6', '#d1e6d3', '#f0efeb', '#f3d9de', '#fff1e6', '#e2ece9', '#f1ddff', '#dfe7fd','#fde2e4'];
 
   // 캔버스에 룰렛 그리기
   useEffect(() => {
@@ -120,9 +122,9 @@ function Roulette({ onRestaurantSelected }: RouletteProps) {
         const selected = restaurants[selectedIndex];
         setSelectedRestaurant(selected);
 
-        // 1초 후 상세 정보 표시
+        // 1초 후 결과 모달 표시
         setTimeout(() => {
-          onRestaurantSelected(selected);
+          setShowResultModal(true);
         }, 1000);
       }
     };
@@ -150,9 +152,55 @@ function Roulette({ onRestaurantSelected }: RouletteProps) {
         {isSpinning ? '돌리는 중...' : '룰렛 돌리기'}
       </button>
 
-      {selectedRestaurant && !isSpinning && (
-        <div className="selected-result">
-          <h3>🎉 {selectedRestaurant.name} 🎉</h3>
+      {/* 룰렛 결과 모달 */}
+      {showResultModal && selectedRestaurant && (
+        <div className="roulette-result-overlay" onClick={() => setShowResultModal(false)}>
+          <div className="roulette-result-container" onClick={(e) => e.stopPropagation()}>
+            <h2>{selectedRestaurant.name}</h2>
+
+            {selectedRestaurant.imageUrl && (
+              <div className="result-image-wrapper">
+                <img src={selectedRestaurant.imageUrl} alt={selectedRestaurant.name} />
+              </div>
+            )}
+
+            <div className="result-rating">
+              <span className="star">★</span>
+              <span className="rating-value">{getAverageRating(selectedRestaurant._id).toFixed(1)}</span>
+            </div>
+
+            {selectedRestaurant.menu && selectedRestaurant.menu.length > 0 && (
+              <div className="result-menu">
+                <h3>메뉴</h3>
+                <ul>
+                  {selectedRestaurant.menu.slice(0, 5).map((item) => (
+                    <li key={item.name}>
+                      <span className="menu-name">{item.name}</span>
+                      <span className="menu-price">{item.price.toLocaleString()}원</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="result-actions">
+              <button
+                className="btn-navigate"
+                onClick={() => {
+                  setShowResultModal(false);
+                  onNavigateToMap(selectedRestaurant._id);
+                }}
+              >
+                이동
+              </button>
+              <button
+                className="btn-cancel"
+                onClick={() => setShowResultModal(false)}
+              >
+                취소
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
