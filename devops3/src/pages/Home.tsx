@@ -66,10 +66,7 @@ function Home() {
         {/* 룰렛 컨테이너 */}
         <div className="section-container roulette-section">
           <h2 className="section-title">🎰오늘의 식당</h2>
-          <Roulette
-            onRestaurantSelected={setSelectedRestaurant}
-            onNavigateToMap={handleReviewClick}
-          />
+          <Roulette onNavigateToMap={handleReviewClick} />
         </div>
 
         {/* 오늘의 우정원 메뉴 컨테이너 */}

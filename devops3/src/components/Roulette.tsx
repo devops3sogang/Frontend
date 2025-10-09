@@ -3,11 +3,10 @@ import { restaurantsData, type Restaurant, getAverageRating } from '../data/plac
 import './Roulette.css';
 
 interface RouletteProps {
-  onRestaurantSelected: (restaurant: Restaurant) => void;
   onNavigateToMap: (restaurantId: string) => void;
 }
 
-function Roulette({ onRestaurantSelected, onNavigateToMap }: RouletteProps) {
+function Roulette({ onNavigateToMap }: RouletteProps) {
   const [isSpinning, setIsSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);

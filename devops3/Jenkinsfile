@@ -51,7 +51,7 @@ pipeline {
                             echo '--- Pulling latest frontend image ---' && \
                             docker pull ${IMAGE_NAME}:latest && \
                             echo '--- Running new frontend container ---' && \
-                            docker run -d --name ${CONTAINER_NAME} -p ${PORT}:80 -p 8443:443 -v /etc/nginx/ssl:/etc/nginx/ssl:ro ${IMAGE_NAME}:latest && \
+                            docker run -d --name ${CONTAINER_NAME} --restart unless-stopped -p ${PORT}:80 -p 8443:443 -v /etc/nginx/ssl:/etc/nginx/ssl:ro ${IMAGE_NAME}:latest && \
                             echo '--- Pruning old images ---' && \
                             docker image prune -f && \
                             echo '--- Frontend deployment successful ---' && \

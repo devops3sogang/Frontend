@@ -18,15 +18,44 @@ const defaultCenter = {
 
 function Map() {
   const [searchParams] = useSearchParams();
-  const [currentPosition, setCurrentPosition] = useState(defaultCenter);
+  const [currentPosition, setCurrentPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [mapCenter, setMapCenter] = useState(defaultCenter);
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
+  // 사용자 위치 가져오기 (항상 실행)
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const newPosition = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          console.log('현재 위치:', newPosition);
+          console.log('정확도:', position.coords.accuracy, '미터');
+          setCurrentPosition(newPosition);
+        },
+        (error) => {
+          console.error('위치 정보를 가져올 수 없습니다:', error);
+          console.error('에러 코드:', error.code);
+          console.error('에러 메시지:', error.message);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    } else {
+      console.error('이 브라우저는 위치 정보를 지원하지 않습니다.');
+    }
+  }, []);
+
+  // URL 파라미터에 따라 지도 중심 설정
   useEffect(() => {
     const restaurantId = searchParams.get('restaurantId');
 
-    // 1. URL에 restaurantId가 있는지 먼저 확인
     if (restaurantId) {
       const restaurant = restaurantsData.find(r => r._id === restaurantId);
       if (restaurant) {
@@ -36,33 +65,15 @@ function Map() {
         };
         setSelectedRestaurant(restaurant);
         setMapCenter(restaurantLocation);
-        // restaurantId가 있으면 사용자 위치는 가져오지 않고 여기서 종료
         return;
       }
     }
 
-    // 2. restaurantId가 없을 경우에만 사용자 현재 위치를 가져옴
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const newPosition = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-          setCurrentPosition(newPosition);
-          setMapCenter(newPosition);
-        },
-        (error) => {
-          console.error('위치 정보를 가져올 수 없습니다:', error);
-          // 위치 정보 가져오기 실패 시 기본 위치(서울)를 중심으로 설정
-          setMapCenter(defaultCenter);
-        }
-      );
-    } else {
-      console.error('이 브라우저는 위치 정보를 지원하지 않습니다.');
-      setMapCenter(defaultCenter);
+    // restaurantId가 없으면 사용자 위치를 중심으로
+    if (currentPosition) {
+      setMapCenter(currentPosition);
     }
-  }, [searchParams]);
+  }, [searchParams, currentPosition]);
 
   // mapCenter가 변경되면 지도를 해당 위치로 이동
   useEffect(() => {
@@ -81,13 +92,15 @@ function Map() {
         zoom={15}
         onLoad={(map) => setMap(map)}
       >
-        {/* 현재 위치 마커 */}
-        <Marker
-          position={currentPosition}
-          icon={{
-            url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
-          }}
-        />
+        {/* 현재 위치 마커 (위치를 가져온 경우에만 표시) */}
+        {currentPosition && (
+          <Marker
+            position={currentPosition}
+            icon={{
+              url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+            }}
+          />
+        )}
 
         {/* 식당 마커들 */}
         {restaurantsData.map((restaurant) => (
