@@ -1,8 +1,12 @@
 // 메인에 보이는 룰렛 컴포넌트
 
-import { useState, useRef, useEffect } from 'react';
-import { restaurantsData, type Restaurant, getAverageRating } from '../data/places';
-import './Roulette.css';
+import { useState, useRef, useEffect } from "react";
+import {
+  restaurantsData,
+  type Restaurant,
+  getAverageRating,
+} from "../data/places";
+import "./Roulette.css";
 
 interface RouletteProps {
   onNavigateToMap: (restaurantId: string) => void;
@@ -11,19 +15,32 @@ interface RouletteProps {
 function Roulette({ onNavigateToMap }: RouletteProps) {
   const [isSpinning, setIsSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
-  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
+  const [selectedRestaurant, setSelectedRestaurant] =
+    useState<Restaurant | null>(null);
   const [showResultModal, setShowResultModal] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const restaurants = restaurantsData.filter(r => r.isActive);
-  const colors = ['#cddafd', '#eae4e9', '#f4e1d6', '#d1e6d3', '#f0efeb', '#f3d9de', '#fff1e6', '#e2ece9', '#f1ddff', '#dfe7fd','#fde2e4'];
+  const restaurants = restaurantsData.filter((r) => r.isActive);
+  const colors = [
+    "#cddafd",
+    "#eae4e9",
+    "#f4e1d6",
+    "#d1e6d3",
+    "#f0efeb",
+    "#f3d9de",
+    "#fff1e6",
+    "#e2ece9",
+    "#f1ddff",
+    "#dfe7fd",
+    "#fde2e4",
+  ];
 
   // 캔버스에 룰렛 그리기
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     const centerX = canvas.width / 2;
@@ -53,7 +70,7 @@ function Roulette({ onNavigateToMap }: RouletteProps) {
       ctx.closePath();
       ctx.fillStyle = color;
       ctx.fill();
-      ctx.strokeStyle = '#fff';
+      ctx.strokeStyle = "#fff";
       ctx.lineWidth = 3;
       ctx.stroke();
 
@@ -61,9 +78,9 @@ function Roulette({ onNavigateToMap }: RouletteProps) {
       ctx.save();
       ctx.translate(centerX, centerY);
       ctx.rotate(startAngle + anglePerSlice / 2);
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#000';
-      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#000";
+      ctx.font = "bold 14px Arial";
       ctx.fillText(restaurant.name, radius * 0.65, 5);
       ctx.restore();
     });
@@ -73,9 +90,9 @@ function Roulette({ onNavigateToMap }: RouletteProps) {
     // 중앙 원 그리기
     ctx.beginPath();
     ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = "#fff";
     ctx.fill();
-    ctx.strokeStyle = '#333';
+    ctx.strokeStyle = "#333";
     ctx.lineWidth = 2;
     ctx.stroke();
   }, [rotation, restaurants]);
@@ -146,28 +163,39 @@ function Roulette({ onNavigateToMap }: RouletteProps) {
       </div>
 
       <button
-        className={`spin-button ${isSpinning ? 'spinning' : ''}`}
+        className={`spin-button ${isSpinning ? "spinning" : ""}`}
         onClick={spinRoulette}
         disabled={isSpinning}
       >
-        {isSpinning ? '돌리는 중...' : '룰렛 돌리기'}
+        {isSpinning ? "돌리는 중..." : "룰렛 돌리기"}
       </button>
 
       {/* 룰렛 결과 모달 */}
       {showResultModal && selectedRestaurant && (
-        <div className="roulette-result-overlay" onClick={() => setShowResultModal(false)}>
-          <div className="roulette-result-container" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="roulette-result-overlay"
+          onClick={() => setShowResultModal(false)}
+        >
+          <div
+            className="roulette-result-container"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2>{selectedRestaurant.name}</h2>
 
             {selectedRestaurant.imageUrl && (
               <div className="result-image-wrapper">
-                <img src={selectedRestaurant.imageUrl} alt={selectedRestaurant.name} />
+                <img
+                  src={selectedRestaurant.imageUrl}
+                  alt={selectedRestaurant.name}
+                />
               </div>
             )}
 
             <div className="result-rating">
               <span className="star">★</span>
-              <span className="rating-value">{getAverageRating(selectedRestaurant._id).toFixed(1)}</span>
+              <span className="rating-value">
+                {getAverageRating(selectedRestaurant._id).toFixed(1)}
+              </span>
             </div>
 
             {selectedRestaurant.menu && selectedRestaurant.menu.length > 0 && (
@@ -177,7 +205,9 @@ function Roulette({ onNavigateToMap }: RouletteProps) {
                   {selectedRestaurant.menu.slice(0, 5).map((item) => (
                     <li key={item.name}>
                       <span className="menu-name">{item.name}</span>
-                      <span className="menu-price">{item.price.toLocaleString()}원</span>
+                      <span className="menu-price">
+                        {item.price.toLocaleString()}원
+                      </span>
                     </li>
                   ))}
                 </ul>

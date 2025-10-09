@@ -1,21 +1,25 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { reviewsData, type Review, type Restaurant } from '../data/places'
-import Roulette from '../components/Roulette'
-import RestaurantDetail from '../components/RestaurantDetail'
-import '../App.css'
-import './Home.css'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { reviewsData, type Review, type Restaurant } from "../data/places";
+import Roulette from "../components/Roulette";
+import RestaurantDetail from "../components/RestaurantDetail";
+import "../App.css";
+import "./Home.css";
 
 function Home() {
   const navigate = useNavigate();
-  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
+  const [selectedRestaurant, setSelectedRestaurant] =
+    useState<Restaurant | null>(null);
 
   // 최신 리뷰 5개 가져오기 (날짜순 정렬)
   const latestReviews = [...reviewsData]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
     .slice(0, 5);
 
-  const getAverageRating = (ratings: Review['ratings']) => {
+  const getAverageRating = (ratings: Review["ratings"]) => {
     // 가게 별점을 표시
     return ratings.restaurantRating.toFixed(1);
   };
@@ -36,11 +40,13 @@ function Home() {
                 key={review._id}
                 className="review-card"
                 onClick={() => handleReviewClick(review.target.restaurantId)}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
               >
                 <div className="review-header">
                   <div>
-                    <span className="restaurant-name">{review.target.restaurantName}</span>
+                    <span className="restaurant-name">
+                      {review.target.restaurantName}
+                    </span>
                     {review.target.menuItems && (
                       <span className="menu-items">
                         ({review.target.menuItems})
@@ -51,9 +57,7 @@ function Home() {
                     ⭐ {getAverageRating(review.ratings)}
                   </span>
                 </div>
-                <p className="review-content">
-                  {review.content}
-                </p>
+                <p className="review-content">{review.content}</p>
                 <div className="review-footer">
                   <span>{review.nickname}</span>
                   <span>👍 {review.likeCount}</span>
@@ -75,15 +79,20 @@ function Home() {
           <div className="menu-placeholder">
             <div>
               <p>메뉴 정보를 준비 중입니다...</p>
-              <p className="menu-placeholder-subtext">데이터 양식이 정리되면 표시됩니다.</p>
+              <p className="menu-placeholder-subtext">
+                데이터 양식이 정리되면 표시됩니다.
+              </p>
             </div>
           </div>
-        </div>        
+        </div>
       </div>
 
       {/* 선택된 식당 상세 정보 모달 */}
       {selectedRestaurant && (
-        <div className="modal-overlay" onClick={() => setSelectedRestaurant(null)}>
+        <div
+          className="modal-overlay"
+          onClick={() => setSelectedRestaurant(null)}
+        >
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <RestaurantDetail
               restaurant={selectedRestaurant}
@@ -93,7 +102,7 @@ function Home() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;

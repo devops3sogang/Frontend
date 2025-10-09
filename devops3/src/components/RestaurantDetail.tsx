@@ -1,11 +1,22 @@
 // 맵에서 레스토랑 상세 정보
 
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { type Restaurant, type Review, reviewsData, getAverageRating, getReviewCount, addReview, updateReview, deleteReview, toggleReviewLike, isReviewLiked } from '../data/places';
-import { useAuth } from '../contexts/AuthContext';
-import ReviewModal from './ReviewModal';
-import './RestaurantDetail.css';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  type Restaurant,
+  type Review,
+  reviewsData,
+  getAverageRating,
+  getReviewCount,
+  addReview,
+  updateReview,
+  deleteReview,
+  toggleReviewLike,
+  isReviewLiked,
+} from "../data/places";
+import { useAuth } from "../contexts/AuthContext";
+import ReviewModal from "./ReviewModal";
+import "./RestaurantDetail.css";
 
 interface RestaurantDetailProps {
   restaurant: Restaurant;
@@ -25,7 +36,7 @@ const StarRatingDisplay = ({ label, rating }: StarRatingDisplayProps) => {
         {[1, 2, 3, 4, 5].map((starValue) => (
           <span
             key={starValue}
-            className={`star ${rating >= starValue ? 'filled' : 'empty'}`}
+            className={`star ${rating >= starValue ? "filled" : "empty"}`}
           >
             ★
           </span>
@@ -40,23 +51,29 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
   const navigate = useNavigate();
 
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const [editingReview, setEditingReview] = useState<Review | undefined>(undefined);
+  const [editingReview, setEditingReview] = useState<Review | undefined>(
+    undefined
+  );
   const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null); // 리뷰 내용 확장용
-  const [currentImageIndex, setCurrentImageIndex] = useState<{ [key: string]: number }>({}); // 리뷰별 현재 이미지 인덱스
+  const [currentImageIndex, setCurrentImageIndex] = useState<{
+    [key: string]: number;
+  }>({}); // 리뷰별 현재 이미지 인덱스
   const [expandedImage, setExpandedImage] = useState<string | null>(null); // 확대된 이미지 URL
   const [expandedImageList, setExpandedImageList] = useState<string[]>([]); // 확대된 이미지 리스트
   const [expandedImageIndex, setExpandedImageIndex] = useState(0); // 확대된 이미지의 인덱스
 
-  const [reviews, setReviews] = useState(
-  () => reviewsData.filter(review => review.target.restaurantId === restaurant._id)
-);
+  const [reviews, setReviews] = useState(() =>
+    reviewsData.filter(
+      (review) => review.target.restaurantId === restaurant._id
+    )
+  );
   const averageRating = getAverageRating(restaurant._id);
   const reviewCount = getReviewCount(restaurant._id);
 
   const handleAddReview = () => {
     if (!isAuthenticated) {
-      alert('로그인이 필요합니다.');
-      navigate('/login');
+      alert("로그인이 필요합니다.");
+      navigate("/login");
       return;
     }
     setEditingReview(undefined);
@@ -65,12 +82,12 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
 
   const handleEditReview = (review: Review) => {
     if (!isAuthenticated || !user) {
-      alert('로그인이 필요합니다.');
-      navigate('/login');
+      alert("로그인이 필요합니다.");
+      navigate("/login");
       return;
     }
     if (review.userId !== user._id) {
-      alert('본인이 작성한 리뷰만 수정할 수 있습니다.');
+      alert("본인이 작성한 리뷰만 수정할 수 있습니다.");
       return;
     }
     setEditingReview(review);
@@ -79,18 +96,22 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
 
   const handleDeleteReview = (reviewId: string) => {
     if (!isAuthenticated || !user) {
-      alert('로그인이 필요합니다.');
-      navigate('/login');
+      alert("로그인이 필요합니다.");
+      navigate("/login");
       return;
     }
-    const review = reviewsData.find(r => r._id === reviewId);
+    const review = reviewsData.find((r) => r._id === reviewId);
     if (review && review.userId !== user._id) {
-      alert('본인이 작성한 리뷰만 삭제할 수 있습니다.');
+      alert("본인이 작성한 리뷰만 삭제할 수 있습니다.");
       return;
     }
-    if (window.confirm('리뷰를 삭제하시겠습니까?')) {
+    if (window.confirm("리뷰를 삭제하시겠습니까?")) {
       deleteReview(reviewId);
-      setReviews(reviewsData.filter(review => review.target.restaurantId === restaurant._id));
+      setReviews(
+        reviewsData.filter(
+          (review) => review.target.restaurantId === restaurant._id
+        )
+      );
     }
   };
 
@@ -106,38 +127,46 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     }
     setShowReviewModal(false);
     setEditingReview(undefined);
-    setReviews(reviewsData.filter(review => review.target.restaurantId === restaurant._id));
+    setReviews(
+      reviewsData.filter(
+        (review) => review.target.restaurantId === restaurant._id
+      )
+    );
   };
 
   const handleToggleLike = (reviewId: string) => {
-  if (!isAuthenticated || !user) {
-    alert('로그인이 필요합니다.');
-    navigate('/login');
-    return;
-  }
-  // 데이터 변경
-  toggleReviewLike(reviewId, user._id);
+    if (!isAuthenticated || !user) {
+      alert("로그인이 필요합니다.");
+      navigate("/login");
+      return;
+    }
+    // 데이터 변경
+    toggleReviewLike(reviewId, user._id);
 
-  // 변경된 최신 데이터로 reviews 상태를 업데이트
-  setReviews(reviewsData.filter(review => review.target.restaurantId === restaurant._id));
-};
+    // 변경된 최신 데이터로 reviews 상태를 업데이트
+    setReviews(
+      reviewsData.filter(
+        (review) => review.target.restaurantId === restaurant._id
+      )
+    );
+  };
 
   const handleNextImage = (reviewId: string, totalImages: number) => {
-    setCurrentImageIndex(prev => ({
+    setCurrentImageIndex((prev) => ({
       ...prev,
-      [reviewId]: ((prev[reviewId] || 0) + 1) % totalImages
+      [reviewId]: ((prev[reviewId] || 0) + 1) % totalImages,
     }));
   };
 
   const handlePrevImage = (reviewId: string, totalImages: number) => {
-    setCurrentImageIndex(prev => ({
+    setCurrentImageIndex((prev) => ({
       ...prev,
-      [reviewId]: ((prev[reviewId] || 0) - 1 + totalImages) % totalImages
+      [reviewId]: ((prev[reviewId] || 0) - 1 + totalImages) % totalImages,
     }));
   };
 
   const handleToggleDetails = (reviewId: string) => {
-    setExpandedReviewId(prevId => (prevId === reviewId ? null : reviewId));
+    setExpandedReviewId((prevId) => (prevId === reviewId ? null : reviewId));
   };
 
   const handleImageClick = (images: string[], index: number) => {
@@ -156,7 +185,9 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
 
   const handlePrevModalImage = () => {
     if (expandedImageList.length > 0) {
-      const newIndex = (expandedImageIndex - 1 + expandedImageList.length) % expandedImageList.length;
+      const newIndex =
+        (expandedImageIndex - 1 + expandedImageList.length) %
+        expandedImageList.length;
       setExpandedImageIndex(newIndex);
       setExpandedImage(expandedImageList[newIndex]);
     }
@@ -173,27 +204,29 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!expandedImage) return;
 
-      if (e.key === 'ArrowLeft') {
+      if (e.key === "ArrowLeft") {
         e.preventDefault();
         handlePrevModalImage();
-      } else if (e.key === 'ArrowRight') {
+      } else if (e.key === "ArrowRight") {
         e.preventDefault();
         handleNextModalImage();
-      } else if (e.key === 'Escape') {
+      } else if (e.key === "Escape") {
         e.preventDefault();
         handleCloseModal();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [expandedImage, expandedImageList, expandedImageIndex]);
 
   return (
     <div className="restaurant-detail">
       <div className="detail-header">
         <h2>{restaurant.name}</h2>
-        <button className="close-btn" onClick={onClose}>×</button>
+        <button className="close-btn" onClick={onClose}>
+          ×
+        </button>
       </div>
 
       {restaurant.imageUrl && (
@@ -220,7 +253,9 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
             {restaurant.menu.map((item) => (
               <li key={item.name}>
                 <span className="menu-name">{item.name}</span>
-                <span className="menu-price">{item.price.toLocaleString()}원</span>
+                <span className="menu-price">
+                  {item.price.toLocaleString()}원
+                </span>
               </li>
             ))}
           </ul>
@@ -236,14 +271,24 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
         </div>
         <div className="reviews-list">
           {reviews.length > 0 ? (
-            reviews.map(review => {
+            reviews.map((review) => {
               return (
                 <div key={review._id} className="review-item">
                   <div className="review-header">
-                    <div className="review-rating" onClick={() => handleToggleDetails(review._id)}>
+                    <div
+                      className="review-rating"
+                      onClick={() => handleToggleDetails(review._id)}
+                    >
                       <span className="star">★</span>
                       <span>{review.ratings.restaurantRating.toFixed(1)}</span>
-                      <span className={`material-symbols-outlined expand-icon ${expandedReviewId === review._id ? 'expanded' : ''}`}> expand_more </span>
+                      <span
+                        className={`material-symbols-outlined expand-icon ${
+                          expandedReviewId === review._id ? "expanded" : ""
+                        }`}
+                      >
+                        {" "}
+                        expand_more{" "}
+                      </span>
                     </div>
                     <div className="review-author-actions">
                       <span className="review-author">{review.nickname}</span>
@@ -268,24 +313,34 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                     </div>
                   </div>
                   {expandedReviewId === review._id && (
-                      <div className="review-ratings-detail">
-                        <div className="menu-ratings-section">
-                          {review.ratings.menuRatings.map(mr => (
-                            <StarRatingDisplay key={mr.menuName} label={mr.menuName} rating={mr.rating} />
-                          ))}
-                        </div>
+                    <div className="review-ratings-detail">
+                      <div className="menu-ratings-section">
+                        {review.ratings.menuRatings.map((mr) => (
+                          <StarRatingDisplay
+                            key={mr.menuName}
+                            label={mr.menuName}
+                            rating={mr.rating}
+                          />
+                        ))}
                       </div>
-                    )}
+                    </div>
+                  )}
                   {review.target.menuItems && (
                     <div className="menu-tags">
-                      {review.target.menuItems.split(', ').map((menuItem, index) => (
-                        <div key={index} className="menu-tag">{menuItem}</div>
-                      ))}
+                      {review.target.menuItems
+                        .split(", ")
+                        .map((menuItem, index) => (
+                          <div key={index} className="menu-tag">
+                            {menuItem}
+                          </div>
+                        ))}
                     </div>
                   )}
                   <p className="review-content">{review.content}</p>
                   {(() => {
-                    const images = review.imageUrls || (review.imageUrl ? [review.imageUrl] : []);
+                    const images =
+                      review.imageUrls ||
+                      (review.imageUrl ? [review.imageUrl] : []);
                     if (images.length === 0) return null;
 
                     const currentIndex = currentImageIndex[review._id] || 0;
@@ -322,28 +377,45 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                             src={images[currentIndex]}
                             alt={`리뷰 사진 ${currentIndex + 1}`}
                             className="review-image"
-                            onClick={() => handleImageClick(images, currentIndex)}
+                            onClick={() =>
+                              handleImageClick(images, currentIndex)
+                            }
                           />
                           {images.length > 1 && (
                             <>
                               <button
                                 className="image-nav-btn prev"
-                                onClick={() => handlePrevImage(review._id, images.length)}
+                                onClick={() =>
+                                  handlePrevImage(review._id, images.length)
+                                }
                               >
-                                <span className="material-symbols-outlined">chevron_left</span>
+                                <span className="material-symbols-outlined">
+                                  chevron_left
+                                </span>
                               </button>
                               <button
                                 className="image-nav-btn next"
-                                onClick={() => handleNextImage(review._id, images.length)}
+                                onClick={() =>
+                                  handleNextImage(review._id, images.length)
+                                }
                               >
-                                <span className="material-symbols-outlined">chevron_right</span>
+                                <span className="material-symbols-outlined">
+                                  chevron_right
+                                </span>
                               </button>
                               <div className="image-indicators">
                                 {images.map((_, idx) => (
                                   <span
                                     key={idx}
-                                    className={`indicator ${idx === currentIndex ? 'active' : ''}`}
-                                    onClick={() => setCurrentImageIndex(prev => ({ ...prev, [review._id]: idx }))}
+                                    className={`indicator ${
+                                      idx === currentIndex ? "active" : ""
+                                    }`}
+                                    onClick={() =>
+                                      setCurrentImageIndex((prev) => ({
+                                        ...prev,
+                                        [review._id]: idx,
+                                      }))
+                                    }
                                   />
                                 ))}
                               </div>
@@ -355,13 +427,21 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                   })()}
                   <div className="review-footer">
                     <span className="review-date">
-                      {new Date(review.createdAt).toLocaleDateString('ko-KR')}
+                      {new Date(review.createdAt).toLocaleDateString("ko-KR")}
                     </span>
                     <div className="review-actions">
                       <button
-                        className={`btn-like ${user && isReviewLiked(review._id, user._id) ? 'liked' : ''}`}
+                        className={`btn-like ${
+                          user && isReviewLiked(review._id, user._id)
+                            ? "liked"
+                            : ""
+                        }`}
                         onClick={() => handleToggleLike(review._id)}
-                        title={user && isReviewLiked(review._id, user._id) ? '좋아요 취소' : '좋아요'}
+                        title={
+                          user && isReviewLiked(review._id, user._id)
+                            ? "좋아요 취소"
+                            : "좋아요"
+                        }
                       >
                         👍 {review.likeCount}
                       </button>
@@ -414,22 +494,39 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
             }
           }}
         >
-          <div className="image-modal-content" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="image-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
             <img src={expandedImage} alt="확대 이미지" />
-            <button className="image-modal-close" onClick={handleCloseModal}>×</button>
+            <button className="image-modal-close" onClick={handleCloseModal}>
+              ×
+            </button>
             {expandedImageList.length > 1 && (
               <>
-                <button className="image-nav-btn prev" onClick={handlePrevModalImage}>
-                  <span className="material-symbols-outlined">chevron_left</span>
+                <button
+                  className="image-nav-btn prev"
+                  onClick={handlePrevModalImage}
+                >
+                  <span className="material-symbols-outlined">
+                    chevron_left
+                  </span>
                 </button>
-                <button className="image-nav-btn next" onClick={handleNextModalImage}>
-                  <span className="material-symbols-outlined">chevron_right</span>
+                <button
+                  className="image-nav-btn next"
+                  onClick={handleNextModalImage}
+                >
+                  <span className="material-symbols-outlined">
+                    chevron_right
+                  </span>
                 </button>
                 <div className="image-indicators">
                   {expandedImageList.map((_, idx) => (
                     <span
                       key={idx}
-                      className={`indicator ${idx === expandedImageIndex ? 'active' : ''}`}
+                      className={`indicator ${
+                        idx === expandedImageIndex ? "active" : ""
+                      }`}
                       onClick={() => {
                         setExpandedImageIndex(idx);
                         setExpandedImage(expandedImageList[idx]);

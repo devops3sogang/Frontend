@@ -1,8 +1,8 @@
 // 리뷰 쓸 때 뜨는 모달
 
-import { useState } from 'react';
-import type { Restaurant, Review } from '../data/places';
-import './ReviewModal.css';
+import { useState } from "react";
+import type { Restaurant, Review } from "../data/places";
+import "./ReviewModal.css";
 
 interface ReviewModalProps {
   restaurant: Restaurant;
@@ -16,25 +16,35 @@ interface MenuRatingState {
   rating: number;
 }
 
-function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewModalProps) {
+function ReviewModal({
+  restaurant,
+  existingReview,
+  onClose,
+  onSubmit,
+}: ReviewModalProps) {
   const [selectedMenus, setSelectedMenus] = useState<string[]>(
-    existingReview?.ratings.menuRatings.map(mr => mr.menuName) || []
+    existingReview?.ratings.menuRatings.map((mr) => mr.menuName) || []
   );
   const [menuRatings, setMenuRatings] = useState<MenuRatingState[]>(
     existingReview?.ratings.menuRatings || []
   );
-  const [restaurantRating, setRestaurantRating] = useState(existingReview?.ratings.restaurantRating || 0);
-  const [content, setContent] = useState(existingReview?.content || '');
+  const [restaurantRating, setRestaurantRating] = useState(
+    existingReview?.ratings.restaurantRating || 0
+  );
+  const [content, setContent] = useState(existingReview?.content || "");
   const [imageUrls, setImageUrls] = useState<string[]>(
-    existingReview?.imageUrls || (existingReview?.imageUrl ? [existingReview.imageUrl] : [])
+    existingReview?.imageUrls ||
+      (existingReview?.imageUrl ? [existingReview.imageUrl] : [])
   );
 
   const handleMenuToggle = (menuName: string) => {
-    setSelectedMenus(prev => {
+    setSelectedMenus((prev) => {
       if (prev.includes(menuName)) {
         // 메뉴 선택 해제 - 해당 메뉴의 별점도 제거
-        setMenuRatings(prevRatings => prevRatings.filter(mr => mr.menuName !== menuName));
-        return prev.filter(m => m !== menuName);
+        setMenuRatings((prevRatings) =>
+          prevRatings.filter((mr) => mr.menuName !== menuName)
+        );
+        return prev.filter((m) => m !== menuName);
       } else {
         // 메뉴 선택
         return [...prev, menuName];
@@ -43,10 +53,10 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
   };
 
   const handleMenuRatingChange = (menuName: string, rating: number) => {
-    setMenuRatings(prev => {
-      const existing = prev.find(mr => mr.menuName === menuName);
+    setMenuRatings((prev) => {
+      const existing = prev.find((mr) => mr.menuName === menuName);
       if (existing) {
-        return prev.map(mr =>
+        return prev.map((mr) =>
           mr.menuName === menuName ? { ...mr, rating } : mr
         );
       } else {
@@ -62,20 +72,20 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
     const maxImages = 6;
     const remainingSlots = maxImages - imageUrls.length;
 
-    console.log('Selected files:', files.length);
-    console.log('Current images:', imageUrls.length);
-    console.log('Remaining slots:', remainingSlots);
+    console.log("Selected files:", files.length);
+    console.log("Current images:", imageUrls.length);
+    console.log("Remaining slots:", remainingSlots);
 
     if (remainingSlots <= 0) {
-      alert('최대 6개의 이미지만 첨부할 수 있습니다.');
+      alert("최대 6개의 이미지만 첨부할 수 있습니다.");
       return;
     }
 
     const filesToProcess = Array.from(files).slice(0, remainingSlots);
-    console.log('Files to process:', filesToProcess.length);
+    console.log("Files to process:", filesToProcess.length);
 
     // 모든 파일을 Promise로 변환
-    const filePromises = filesToProcess.map(file => {
+    const filePromises = filesToProcess.map((file) => {
       return new Promise<string>((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -87,48 +97,48 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
 
     // 모든 파일 읽기가 완료될 때까지 기다린 후 한 번에 추가
     const base64Strings = await Promise.all(filePromises);
-    console.log('Base64 strings loaded:', base64Strings.length);
-    setImageUrls(prev => {
+    console.log("Base64 strings loaded:", base64Strings.length);
+    setImageUrls((prev) => {
       const newUrls = [...prev, ...base64Strings];
-      console.log('New image URLs count:', newUrls.length);
+      console.log("New image URLs count:", newUrls.length);
       return newUrls;
     });
 
     // input 초기화
-    e.target.value = '';
+    e.target.value = "";
   };
 
   const handleRemoveImage = (index: number) => {
-    setImageUrls(prev => prev.filter((_, i) => i !== index));
+    setImageUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (menuRatings.length === 0) {
-      alert('최소 하나의 메뉴에 별점을 매겨주세요.');
+      alert("최소 하나의 메뉴에 별점을 매겨주세요.");
       return;
     }
 
     if (restaurantRating === 0) {
-      alert('가게 별점을 매겨주세요.');
+      alert("가게 별점을 매겨주세요.");
       return;
     }
 
     const reviewData: Partial<Review> = {
       target: {
-        type: 'RESTAURANT',
+        type: "RESTAURANT",
         restaurantId: restaurant._id,
         restaurantName: restaurant.name,
-        menuItems: menuRatings.map(mr => mr.menuName).join(', ')
+        menuItems: menuRatings.map((mr) => mr.menuName).join(", "),
       },
       ratings: {
         menuRatings: menuRatings,
-        restaurantRating: restaurantRating
+        restaurantRating: restaurantRating,
       },
       content: content.trim(),
       imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
-      imageUrl: imageUrls.length > 0 ? imageUrls[0] : undefined // 하위 호환성
+      imageUrl: imageUrls.length > 0 ? imageUrls[0] : undefined, // 하위 호환성
     };
 
     onSubmit(reviewData);
@@ -137,11 +147,11 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
   const StarRating = ({
     value,
     onChange,
-    label
+    label,
   }: {
     value: number;
     onChange: (rating: number) => void;
-    label: string
+    label: string;
   }) => (
     <div className="rating-input">
       <label>{label}</label>
@@ -149,7 +159,7 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
         {[1, 2, 3, 4, 5].map((star) => (
           <span
             key={star}
-            className={`star ${value >= star ? 'active' : ''}`}
+            className={`star ${value >= star ? "active" : ""}`}
             onClick={() => onChange(star)}
           >
             ★
@@ -163,8 +173,10 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{existingReview ? '리뷰 수정' : '리뷰 작성'}</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <h2>{existingReview ? "리뷰 수정" : "리뷰 작성"}</h2>
+          <button className="close-btn" onClick={onClose}>
+            ×
+          </button>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -187,23 +199,36 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
               <div className="menu-list">
                 {restaurant.menu.map((item) => {
                   const isSelected = selectedMenus.includes(item.name);
-                  const menuRating = menuRatings.find(mr => mr.menuName === item.name);
+                  const menuRating = menuRatings.find(
+                    (mr) => mr.menuName === item.name
+                  );
                   return (
-                    <div key={item.name} className={`menu-item ${isSelected ? 'selected' : ''}`}>
+                    <div
+                      key={item.name}
+                      className={`menu-item ${isSelected ? "selected" : ""}`}
+                    >
                       <div
                         className="menu-info"
                         onClick={() => handleMenuToggle(item.name)}
                       >
                         <span className="menu-name">{item.name}</span>
-                        <span className="menu-price">{item.price.toLocaleString()}원</span>
+                        <span className="menu-price">
+                          {item.price.toLocaleString()}원
+                        </span>
                       </div>
                       {isSelected && (
                         <div className="menu-stars">
                           {[1, 2, 3, 4, 5].map((star) => (
                             <span
                               key={star}
-                              className={`star ${menuRating && menuRating.rating >= star ? 'active' : ''}`}
-                              onClick={() => handleMenuRatingChange(item.name, star)}
+                              className={`star ${
+                                menuRating && menuRating.rating >= star
+                                  ? "active"
+                                  : ""
+                              }`}
+                              onClick={() =>
+                                handleMenuRatingChange(item.name, star)
+                              }
                             >
                               ★
                             </span>
@@ -244,10 +269,19 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
             {imageUrls.length > 0 && (
               <div className="images-preview-grid">
                 {imageUrls.map((url, index) => {
-                  console.log('Rendering image', index, 'URL length:', url.length);
+                  console.log(
+                    "Rendering image",
+                    index,
+                    "URL length:",
+                    url.length
+                  );
                   return (
                     <div key={index} className="image-preview-container">
-                      <img src={url} alt={`미리보기 ${index + 1}`} className="image-preview" />
+                      <img
+                        src={url}
+                        alt={`미리보기 ${index + 1}`}
+                        className="image-preview"
+                      />
                       <button
                         type="button"
                         className="btn-remove-image"
@@ -267,7 +301,7 @@ function ReviewModal({ restaurant, existingReview, onClose, onSubmit }: ReviewMo
               취소
             </button>
             <button type="submit" className="btn-submit">
-              {existingReview ? '수정하기' : '작성하기'}
+              {existingReview ? "수정하기" : "작성하기"}
             </button>
           </div>
         </form>

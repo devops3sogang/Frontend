@@ -1,104 +1,108 @@
 // 마이페이지
 
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { reviewsData, type Review } from '../data/places';
-import { updateUserNickname, updateUserPassword } from '../data/users';
-import { getLikesByUser } from '../data/likes';
-import './MyPage.css';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { reviewsData, type Review } from "../data/places";
+import { updateUserNickname, updateUserPassword } from "../data/users";
+import { getLikesByUser } from "../data/likes";
+import "./MyPage.css";
 
 function MyPage() {
   const { user, logout, updateNickname, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const [nickname, setNickname] = useState('');
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [nickname, setNickname] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const [myReviews, setMyReviews] = useState<Review[]>([]);
   const [likedReviews, setLikedReviews] = useState<Review[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
     if (user) {
       setNickname(user.nickname);
       // 내가 작성한 리뷰 가져오기
-      const userReviews = reviewsData.filter(review => review.userId === user._id);
+      const userReviews = reviewsData.filter(
+        (review) => review.userId === user._id
+      );
       setMyReviews(userReviews);
 
       // 내가 좋아요한 리뷰 가져오기
       const likedReviewIds = getLikesByUser(user._id);
-      const likedReviewsList = reviewsData.filter(review => likedReviewIds.includes(review._id));
+      const likedReviewsList = reviewsData.filter((review) =>
+        likedReviewIds.includes(review._id)
+      );
       setLikedReviews(likedReviewsList);
     }
   }, [user, isAuthenticated, navigate]);
 
   const handleNicknameUpdate = (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
-    setError('');
+    setMessage("");
+    setError("");
 
     if (!user) return;
 
     if (nickname.trim().length < 2) {
-      setError('닉네임은 2자 이상이어야 합니다.');
+      setError("닉네임은 2자 이상이어야 합니다.");
       return;
     }
 
     const success = updateUserNickname(user._id, nickname);
     if (success) {
       updateNickname(nickname);
-      setMessage('닉네임이 성공적으로 변경되었습니다.');
+      setMessage("닉네임이 성공적으로 변경되었습니다.");
 
       // 내 리뷰의 닉네임도 업데이트
-      myReviews.forEach(review => {
+      myReviews.forEach((review) => {
         if (review.userId === user._id) {
           review.nickname = nickname;
         }
       });
     } else {
-      setError('닉네임 변경에 실패했습니다.');
+      setError("닉네임 변경에 실패했습니다.");
     }
   };
 
   const handlePasswordUpdate = (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
-    setError('');
+    setMessage("");
+    setError("");
 
     if (!user) return;
 
     if (newPassword.length < 6) {
-      setError('새 비밀번호는 6자 이상이어야 합니다.');
+      setError("새 비밀번호는 6자 이상이어야 합니다.");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError('새 비밀번호가 일치하지 않습니다.');
+      setError("새 비밀번호가 일치하지 않습니다.");
       return;
     }
 
     const success = updateUserPassword(user._id, currentPassword, newPassword);
     if (success) {
-      setMessage('비밀번호가 성공적으로 변경되었습니다.');
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+      setMessage("비밀번호가 성공적으로 변경되었습니다.");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
     } else {
-      setError('현재 비밀번호가 올바르지 않습니다.');
+      setError("현재 비밀번호가 올바르지 않습니다.");
     }
   };
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   if (!user) {
@@ -118,12 +122,14 @@ function MyPage() {
           </div>
           <div className="info-item">
             <span className="info-label">역할:</span>
-            <span className="info-value">{user.role === 'ADMIN' ? '관리자' : '사용자'}</span>
+            <span className="info-value">
+              {user.role === "ADMIN" ? "관리자" : "사용자"}
+            </span>
           </div>
         </div>
 
         {(message || error) && (
-          <div className={`message ${error ? 'error' : 'success'}`}>
+          <div className={`message ${error ? "error" : "success"}`}>
             {message || error}
           </div>
         )}
@@ -194,7 +200,7 @@ function MyPage() {
           <h2>내가 작성한 리뷰 ({myReviews.length}개)</h2>
           <div className="reviews-list">
             {myReviews.length > 0 ? (
-              myReviews.map(review => (
+              myReviews.map((review) => (
                 <div key={review._id} className="review-card">
                   <div className="review-header">
                     <h3>{review.target.restaurantName}</h3>
@@ -205,15 +211,19 @@ function MyPage() {
                   </div>
                   {review.target.menuItems && (
                     <div className="menu-tags">
-                      {review.target.menuItems.split(', ').map((menuItem, index) => (
-                        <span key={index} className="menu-tag">{menuItem}</span>
-                      ))}
+                      {review.target.menuItems
+                        .split(", ")
+                        .map((menuItem, index) => (
+                          <span key={index} className="menu-tag">
+                            {menuItem}
+                          </span>
+                        ))}
                     </div>
                   )}
                   <p className="review-content">{review.content}</p>
                   <div className="review-footer">
                     <span className="review-date">
-                      {new Date(review.createdAt).toLocaleDateString('ko-KR')}
+                      {new Date(review.createdAt).toLocaleDateString("ko-KR")}
                     </span>
                     <span className="review-likes">👍 {review.likeCount}</span>
                   </div>
@@ -229,7 +239,7 @@ function MyPage() {
           <h2>내가 좋아요한 리뷰 ({likedReviews.length}개)</h2>
           <div className="reviews-list">
             {likedReviews.length > 0 ? (
-              likedReviews.map(review => (
+              likedReviews.map((review) => (
                 <div key={review._id} className="review-card">
                   <div className="review-header">
                     <h3>{review.target.restaurantName}</h3>
@@ -239,19 +249,25 @@ function MyPage() {
                     </div>
                   </div>
                   <div className="review-author-info">
-                    <span className="review-author">작성자: {review.nickname}</span>
+                    <span className="review-author">
+                      작성자: {review.nickname}
+                    </span>
                   </div>
                   {review.target.menuItems && (
                     <div className="menu-tags">
-                      {review.target.menuItems.split(', ').map((menuItem, index) => (
-                        <span key={index} className="menu-tag">{menuItem}</span>
-                      ))}
+                      {review.target.menuItems
+                        .split(", ")
+                        .map((menuItem, index) => (
+                          <span key={index} className="menu-tag">
+                            {menuItem}
+                          </span>
+                        ))}
                     </div>
                   )}
                   <p className="review-content">{review.content}</p>
                   <div className="review-footer">
                     <span className="review-date">
-                      {new Date(review.createdAt).toLocaleDateString('ko-KR')}
+                      {new Date(review.createdAt).toLocaleDateString("ko-KR")}
                     </span>
                     <span className="review-likes">👍 {review.likeCount}</span>
                   </div>

@@ -1,5 +1,11 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { loginUser as mockLogin, type User } from '../data/users';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
+import { loginUser as mockLogin, type User } from "../data/users";
 
 interface AuthContextType {
   user: User | null;
@@ -16,7 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 초기화: localStorage에서 로그인 정보 복원
   useEffect(() => {
-    const savedUser = localStorage.getItem('currentUser');
+    const savedUser = localStorage.getItem("currentUser");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
@@ -31,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       delete (userToSave as any).passwordHash;
 
       setUser(userToSave);
-      localStorage.setItem('currentUser', JSON.stringify(userToSave));
+      localStorage.setItem("currentUser", JSON.stringify(userToSave));
       return true;
     }
     return false;
@@ -39,14 +45,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('currentUser');
+    localStorage.removeItem("currentUser");
   };
 
   const updateNickname = (newNickname: string) => {
     if (user) {
       const updatedUser = { ...user, nickname: newNickname };
       setUser(updatedUser);
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
     }
   };
 
@@ -57,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         updateNickname,
-        isAuthenticated: !!user
+        isAuthenticated: !!user,
       }}
     >
       {children}
@@ -68,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
