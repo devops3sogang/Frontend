@@ -3,6 +3,25 @@ import { hasUserLikedReview, toggleLike } from "./likes";
 // 식당 타입
 export type RestaurantType = "ON_CAMPUS" | "OFF_CAMPUS";
 
+// 식당 카테고리
+export type RestaurantCategory =
+  | "한식"
+  | "중식"
+  | "일식"
+  | "양식"
+  | "분식"
+  | "고깃집"
+  | "횟집"
+  | "패스트푸드"
+  | "치킨"
+  | "카페·디저트"
+  | "퓨전"
+  | "멕시칸"
+  | "베트남"
+  | "터키"
+  | "인도"
+  | "뷔페";
+
 // 메뉴 아이템 구조
 export interface MenuItem {
   name: string; // 메뉴 이름
@@ -25,8 +44,8 @@ export interface Location {
 export interface Restaurant {
   _id: string; // MongoDB ObjectId
   name: string; // 식당 이름
-  type: RestaurantType; // 식당 유형
-  category: string; // 식당 카테고리
+  type: RestaurantType; // 식당 유형 (OFF_CAMPUS, ON_CAMPUS)
+  category: RestaurantCategory; // 식당 카테고리 (한식, 중식, 일식, 양식, 분식 등)
   address: string; // 식당 주소
   location: Location; // 식당 위치 (GeoJSON Point)
   imageUrl?: string; // 식당 이미지 URL
@@ -280,7 +299,7 @@ export const restaurantsData: Restaurant[] = [
     _id: "507f1f77bcf86cd799439019",
     name: "카페베이커리 샌드",
     type: "OFF_CAMPUS",
-    category: "카페",
+    category: "카페·디저트",
     address: "서울특별시 마포구 백범로 9",
     location: {
       type: "Point",
