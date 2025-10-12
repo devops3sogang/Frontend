@@ -1,7 +1,7 @@
 // 로그인 페이지
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import "./Login.css";
 
@@ -79,6 +79,12 @@ function Login() {
           </p>
           <p>이메일: user1@sogang.ac.kr</p>
           <p>비밀번호: password</p>
+        </div>
+
+        <div className="signup-link">
+          <p>
+            계정이 없으신가요? <Link to="/signup">회원가입</Link>
+          </p>
         </div>
       </div>
     </div>

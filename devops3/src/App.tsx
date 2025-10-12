@@ -5,6 +5,7 @@ import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Map from './pages/Map'
 import Login from './pages/Login'
+import Signup from './pages/Signup'
 import MyPage from './pages/MyPage'
 import './App.css'
 
@@ -18,6 +19,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/map" element={<Map />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/mypage" element={<MyPage />} />
           </Routes>
         </LoadScript>

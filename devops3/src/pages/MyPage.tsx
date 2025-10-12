@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { reviewsData, type Review } from "../data/places";
-import { updateUserNickname, updateUserPassword } from "../data/users";
-import { getLikesByUser } from "../data/likes";
+import type { ReviewResponse } from "../api/types";
+import { updateUserPassword } from "../data/users";
+import { getMyLikedReviews } from "../api/reviews";
 import "./MyPage.css";
 
 function MyPage() {
@@ -18,8 +18,8 @@ function MyPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [myReviews, setMyReviews] = useState<Review[]>([]);
-  const [likedReviews, setLikedReviews] = useState<Review[]>([]);
+  const [myReviews, setMyReviews] = useState<ReviewResponse[]>([]);
+  const [likedReviews, setLikedReviews] = useState<ReviewResponse[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -29,22 +29,27 @@ function MyPage() {
 
     if (user) {
       setNickname(user.nickname);
+
       // 내가 작성한 리뷰 가져오기
-      const userReviews = reviewsData.filter(
-        (review) => review.userId === user._id
-      );
-      setMyReviews(userReviews);
+      // TODO: 백엔드에 GET /api/users/me/reviews API 추가 필요
+      setMyReviews([]);
 
       // 내가 좋아요한 리뷰 가져오기
-      const likedReviewIds = getLikesByUser(user._id);
-      const likedReviewsList = reviewsData.filter((review) =>
-        likedReviewIds.includes(review._id)
-      );
-      setLikedReviews(likedReviewsList);
+      const fetchLikedReviews = async () => {
+        try {
+          const data = await getMyLikedReviews();
+          setLikedReviews(data);
+        } catch (error) {
+          console.error("Failed to fetch liked reviews:", error);
+          setLikedReviews([]);
+        }
+      };
+
+      fetchLikedReviews();
     }
   }, [user, isAuthenticated, navigate]);
 
-  const handleNicknameUpdate = (e: React.FormEvent) => {
+  const handleNicknameUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
     setError("");
@@ -56,18 +61,11 @@ function MyPage() {
       return;
     }
 
-    const success = updateUserNickname(user._id, nickname);
-    if (success) {
-      updateNickname(nickname);
+    try {
+      await updateNickname(nickname);
       setMessage("닉네임이 성공적으로 변경되었습니다.");
-
-      // 내 리뷰의 닉네임도 업데이트
-      myReviews.forEach((review) => {
-        if (review.userId === user._id) {
-          review.nickname = nickname;
-        }
-      });
-    } else {
+    } catch (error) {
+      console.error("Failed to update nickname:", error);
       setError("닉네임 변경에 실패했습니다.");
     }
   };
@@ -203,21 +201,19 @@ function MyPage() {
               myReviews.map((review) => (
                 <div key={review._id} className="review-card">
                   <div className="review-header">
-                    <h3>{review.target.restaurantName}</h3>
+                    <h3>{review.restaurantName || "식당 정보 없음"}</h3>
                     <div className="review-rating">
                       <span className="star">★</span>
-                      <span>{review.ratings.restaurantRating.toFixed(1)}</span>
+                      <span>{review.ratings?.restaurantRating?.toFixed(1) ?? '0.0'}</span>
                     </div>
                   </div>
-                  {review.target.menuItems && (
+                  {review.ratings?.menuRatings && review.ratings.menuRatings.length > 0 && (
                     <div className="menu-tags">
-                      {review.target.menuItems
-                        .split(", ")
-                        .map((menuItem, index) => (
-                          <span key={index} className="menu-tag">
-                            {menuItem}
-                          </span>
-                        ))}
+                      {review.ratings.menuRatings.map((menuRating: { menuName: string; rating: number }, index: number) => (
+                        <span key={index} className="menu-tag">
+                          {menuRating.menuName}
+                        </span>
+                      ))}
                     </div>
                   )}
                   <p className="review-content">{review.content}</p>
@@ -242,10 +238,10 @@ function MyPage() {
               likedReviews.map((review) => (
                 <div key={review._id} className="review-card">
                   <div className="review-header">
-                    <h3>{review.target.restaurantName}</h3>
+                    <h3>{review.restaurantName || "식당 정보 없음"}</h3>
                     <div className="review-rating">
                       <span className="star">★</span>
-                      <span>{review.ratings.restaurantRating.toFixed(1)}</span>
+                      <span>{review.ratings?.restaurantRating?.toFixed(1) ?? '0.0'}</span>
                     </div>
                   </div>
                   <div className="review-author-info">
@@ -253,15 +249,13 @@ function MyPage() {
                       작성자: {review.nickname}
                     </span>
                   </div>
-                  {review.target.menuItems && (
+                  {review.ratings?.menuRatings && review.ratings.menuRatings.length > 0 && (
                     <div className="menu-tags">
-                      {review.target.menuItems
-                        .split(", ")
-                        .map((menuItem, index) => (
-                          <span key={index} className="menu-tag">
-                            {menuItem}
-                          </span>
-                        ))}
+                      {review.ratings.menuRatings.map((menuRating: { menuName: string; rating: number }, index: number) => (
+                        <span key={index} className="menu-tag">
+                          {menuRating.menuName}
+                        </span>
+                      ))}
                     </div>
                   )}
                   <p className="review-content">{review.content}</p>

@@ -1,14 +1,15 @@
 // 리뷰 쓸 때 뜨는 모달
 
 import { useState } from "react";
-import type { Restaurant, Review } from "../data/places";
+import type { Restaurant } from "../data/places";
+import type { ReviewResponse } from "../api/types";
 import "./ReviewModal.css";
 
 interface ReviewModalProps {
   restaurant: Restaurant;
-  existingReview?: Review; // 수정할 리뷰가 있으면 전달
+  existingReview?: ReviewResponse; // 수정할 리뷰가 있으면 전달
   onClose: () => void;
-  onSubmit: (reviewData: Partial<Review>) => void;
+  onSubmit: (reviewData: Partial<ReviewResponse>) => void;
 }
 
 interface MenuRatingState {
@@ -33,8 +34,7 @@ function ReviewModal({
   );
   const [content, setContent] = useState(existingReview?.content || "");
   const [imageUrls, setImageUrls] = useState<string[]>(
-    existingReview?.imageUrls ||
-      (existingReview?.imageUrl ? [existingReview.imageUrl] : [])
+    existingReview?.imageUrls || []
   );
 
   const handleMenuToggle = (menuName: string) => {
@@ -125,20 +125,15 @@ function ReviewModal({
       return;
     }
 
-    const reviewData: Partial<Review> = {
-      target: {
-        type: "RESTAURANT",
-        restaurantId: restaurant._id,
-        restaurantName: restaurant.name,
-        menuItems: menuRatings.map((mr) => mr.menuName).join(", "),
-      },
+    const reviewData: Partial<ReviewResponse> = {
+      restaurantId: restaurant._id,
+      restaurantName: restaurant.name,
       ratings: {
         menuRatings: menuRatings,
         restaurantRating: restaurantRating,
       },
       content: content.trim(),
       imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
-      imageUrl: imageUrls.length > 0 ? imageUrls[0] : undefined, // 하위 호환성
     };
 
     onSubmit(reviewData);

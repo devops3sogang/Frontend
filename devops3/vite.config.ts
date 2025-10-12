@@ -8,5 +8,12 @@ export default defineConfig({
     port: 8282,
     host: true, // 외부 접속 허용
     open: true, // 서버 시작 시 자동으로 브라우저 열기
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 })

@@ -27,3 +27,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+HOW_TO_USE_API.md
+README_BACKEND_INTEGRATION.md

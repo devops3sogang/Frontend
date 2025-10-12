@@ -1,11 +1,8 @@
 // 메인에 보이는 룰렛 컴포넌트
 
 import { useState, useRef, useEffect } from "react";
-import {
-  restaurantsData,
-  type Restaurant,
-  getAverageRating,
-} from "../data/places";
+import { type Restaurant } from "../data/places";
+import { getRestaurants } from "../api";
 import "./Roulette.css";
 
 interface RouletteProps {
@@ -18,9 +15,27 @@ function Roulette({ onNavigateToMap }: RouletteProps) {
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<Restaurant | null>(null);
   const [showResultModal, setShowResultModal] = useState(false);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [loading, setLoading] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const restaurants = restaurantsData.filter((r) => r.isActive);
+  // 맛집 목록 가져오기
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      try {
+        const data = await getRestaurants();
+        setRestaurants(data.filter((r) => r.isActive));
+      } catch (error) {
+        console.error("Failed to fetch restaurants:", error);
+        // 에러 발생 시 빈 배열 설정
+        setRestaurants([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRestaurants();
+  }, []);
   const colors = [
     "#cddafd",
     "#eae4e9",
@@ -150,6 +165,22 @@ function Roulette({ onNavigateToMap }: RouletteProps) {
     requestAnimationFrame(animate);
   };
 
+  if (loading) {
+    return (
+      <div className="roulette-container">
+        <p>맛집 정보를 불러오는 중...</p>
+      </div>
+    );
+  }
+
+  if (restaurants.length === 0) {
+    return (
+      <div className="roulette-container">
+        <p>등록된 맛집이 없습니다.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="roulette-container">
       <div className="roulette-wheel-wrapper">
@@ -194,7 +225,7 @@ function Roulette({ onNavigateToMap }: RouletteProps) {
             <div className="result-rating">
               <span className="star">★</span>
               <span className="rating-value">
-                {getAverageRating(selectedRestaurant._id).toFixed(1)}
+                {selectedRestaurant.stats?.averageRating?.toFixed(1) ?? '0.0'}
               </span>
             </div>
 

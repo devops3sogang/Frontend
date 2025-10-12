@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { reviewsData, type Review, type Restaurant } from "../data/places";
+import type { Restaurant } from "../data/places";
+import type { ReviewResponse, OnCampusMenuResponse } from "../api/types";
+import { getAllReviews } from "../api/reviews";
+import { getOnCampusMenus } from "../api/menus";
 import Roulette from "../components/Roulette";
 import RestaurantDetail from "../components/RestaurantDetail";
 import "../App.css";
@@ -10,18 +13,56 @@ function Home() {
   const navigate = useNavigate();
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<Restaurant | null>(null);
+  const [latestReviews, setLatestReviews] = useState<ReviewResponse[]>([]);
+  const [campusMenus, setCampusMenus] = useState<OnCampusMenuResponse | null>(
+    null
+  );
+  const [loading, setLoading] = useState(true);
 
-  // 최신 리뷰 5개 가져오기 (날짜순 정렬)
-  const latestReviews = [...reviewsData]
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    )
-    .slice(0, 5);
+  // 최신 리뷰 가져오기
+  useEffect(() => {
+    const fetchLatestReviews = async () => {
+      try {
+        const reviews = await getAllReviews();
+        // 날짜순 정렬 후 최신 5개
+        const sorted = [...reviews]
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+          .slice(0, 5);
+        setLatestReviews(sorted);
+      } catch (error) {
+        console.error("Failed to fetch reviews:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const getAverageRating = (ratings: Review["ratings"]) => {
+    fetchLatestReviews();
+  }, []);
+
+  // 교내 메뉴 가져오기
+  useEffect(() => {
+    const fetchCampusMenus = async () => {
+      try {
+        const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+        const menus = await getOnCampusMenus(today);
+        setCampusMenus(menus);
+      } catch (error) {
+        console.error("Failed to fetch campus menus:", error);
+      }
+    };
+
+    fetchCampusMenus();
+  }, []);
+
+  const getAverageRating = (ratings: ReviewResponse["ratings"]) => {
     // 가게 별점을 표시
-    return ratings.restaurantRating.toFixed(1);
+    if (ratings?.restaurantRating !== undefined && ratings?.restaurantRating !== null) {
+      return ratings.restaurantRating.toFixed(1);
+    }
+    return "0.0"; // 기본값
   };
 
   const handleReviewClick = (restaurantId: string) => {
@@ -35,21 +76,26 @@ function Home() {
         <div className="section-container latest-reviews-section">
           <h2 className="section-title">최신 리뷰</h2>
           <div className="reviews-list">
-            {latestReviews.map((review) => (
+            {loading ? (
+              <p>로딩 중...</p>
+            ) : latestReviews.length === 0 ? (
+              <p>아직 리뷰가 없습니다.</p>
+            ) : (
+              latestReviews.map((review) => (
               <div
                 key={review._id}
                 className="review-card"
-                onClick={() => handleReviewClick(review.target.restaurantId)}
-                style={{ cursor: "pointer" }}
+                onClick={() => review.restaurantId && handleReviewClick(review.restaurantId)}
+                style={{ cursor: review.restaurantId ? "pointer" : "default" }}
               >
                 <div className="review-header">
                   <div>
                     <span className="restaurant-name">
-                      {review.target.restaurantName}
+                      {review.restaurantName || "식당 정보 없음"}
                     </span>
-                    {review.target.menuItems && (
+                    {review.ratings.menuRatings.length > 0 && (
                       <span className="menu-items">
-                        ({review.target.menuItems})
+                        ({review.ratings.menuRatings.map(m => m.menuName).join(", ")})
                       </span>
                     )}
                   </div>
@@ -63,7 +109,8 @@ function Home() {
                   <span>👍 {review.likeCount}</span>
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -77,12 +124,27 @@ function Home() {
         <div className="section-container sogang-menu-section">
           <h2 className="section-title">오늘의 우정원 메뉴</h2>
           <div className="menu-placeholder">
-            <div>
-              <p>메뉴 정보를 준비 중입니다...</p>
-              <p className="menu-placeholder-subtext">
-                데이터 양식이 정리되면 표시됩니다.
-              </p>
-            </div>
+            {campusMenus && campusMenus.menus && campusMenus.menus.length > 0 ? (
+              <div>
+                {campusMenus.menus.map((menu, index) => (
+                  <div key={index} style={{ marginBottom: "10px" }}>
+                    <strong>{menu.restaurantName}</strong>
+                    <ul style={{ margin: "5px 0", paddingLeft: "20px" }}>
+                      {menu.items.map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div>
+                <p>메뉴 정보를 준비 중입니다...</p>
+                <p className="menu-placeholder-subtext">
+                  데이터 양식이 정리되면 표시됩니다.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -2,18 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { type Restaurant } from "../data/places";
+import type { ReviewResponse, ReviewDetailResponse } from "../api/types";
 import {
-  type Restaurant,
-  type Review,
-  reviewsData,
-  getAverageRating,
-  getReviewCount,
-  addReview,
-  updateReview,
-  deleteReview,
-  toggleReviewLike,
-  isReviewLiked,
-} from "../data/places";
+  getRestaurant,
+  createReview,
+  toggleReviewLike as apiToggleReviewLike,
+} from "../api";
 import { useAuth } from "../contexts/AuthContext";
 import ReviewModal from "./ReviewModal";
 import "./RestaurantDetail.css";
@@ -51,9 +46,9 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
   const navigate = useNavigate();
 
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const [editingReview, setEditingReview] = useState<Review | undefined>(
-    undefined
-  );
+  const [editingReview, setEditingReview] = useState<
+    ReviewDetailResponse | undefined
+  >(undefined);
   const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null); // 리뷰 내용 확장용
   const [currentImageIndex, setCurrentImageIndex] = useState<{
     [key: string]: number;
@@ -62,13 +57,39 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
   const [expandedImageList, setExpandedImageList] = useState<string[]>([]); // 확대된 이미지 리스트
   const [expandedImageIndex, setExpandedImageIndex] = useState(0); // 확대된 이미지의 인덱스
 
-  const [reviews, setReviews] = useState(() =>
-    reviewsData.filter(
-      (review) => review.target.restaurantId === restaurant._id
-    )
-  );
-  const averageRating = getAverageRating(restaurant._id);
-  const reviewCount = getReviewCount(restaurant._id);
+  const [reviews, setReviews] = useState<ReviewDetailResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // 리뷰들의 restaurantRating 평균 계산
+  const averageRating = reviews.length > 0
+    ? reviews.reduce((sum, review) => sum + (review.ratings?.restaurantRating || 0), 0) / reviews.length
+    : 0;
+  const reviewCount = reviews.length;
+
+  // 리뷰 목록 가져오기
+  useEffect(() => {
+    const fetchReviews = async () => {
+      // restaurant.id가 없으면 API 호출하지 않음
+      if (!restaurant.id) {
+        console.warn("Restaurant ID is undefined, skipping review fetch");
+        setReviews([]);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const data = await getRestaurant(restaurant.id);
+        setReviews(data.reviews || []);
+      } catch (error) {
+        console.error("Failed to fetch restaurant details:", error);
+        setReviews([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [restaurant.id]);
 
   const handleAddReview = () => {
     if (!isAuthenticated) {
@@ -80,7 +101,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     setShowReviewModal(true);
   };
 
-  const handleEditReview = (review: Review) => {
+  const handleEditReview = (review: ReviewDetailResponse) => {
     if (!isAuthenticated || !user) {
       alert("로그인이 필요합니다.");
       navigate("/login");
@@ -94,61 +115,69 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     setShowReviewModal(true);
   };
 
-  const handleDeleteReview = (reviewId: string) => {
+  const handleDeleteReview = async (reviewId: string) => {
     if (!isAuthenticated || !user) {
       alert("로그인이 필요합니다.");
       navigate("/login");
       return;
     }
-    const review = reviewsData.find((r) => r._id === reviewId);
+    const review = reviews.find((r) => r._id === reviewId);
     if (review && review.userId !== user._id) {
       alert("본인이 작성한 리뷰만 삭제할 수 있습니다.");
       return;
     }
     if (window.confirm("리뷰를 삭제하시겠습니까?")) {
-      deleteReview(reviewId);
-      setReviews(
-        reviewsData.filter(
-          (review) => review.target.restaurantId === restaurant._id
-        )
-      );
+      alert("리뷰 삭제 API가 아직 구현되지 않았습니다.");
+      // TODO: 백엔드에 DELETE /api/reviews/{id} API 추가 필요
+      // await deleteReview(reviewId);
+      // await fetchReviews();
     }
   };
 
-  const handleSubmitReview = (reviewData: Partial<Review>) => {
+  const handleSubmitReview = async (reviewData: Partial<ReviewResponse>) => {
     if (editingReview) {
       // 수정
-      updateReview(editingReview._id, reviewData);
+      alert("리뷰 수정 API가 아직 구현되지 않았습니다.");
+      // TODO: 백엔드에 PUT /api/reviews/{id} API 추가 필요
     } else {
       // 추가
-      if (user) {
-        addReview(reviewData, user._id, user.nickname);
+      try {
+        await createReview(restaurant.id, {
+          restaurantId: restaurant.id,
+          restaurantName: restaurant.name,
+          ratings: reviewData.ratings!,
+          content: reviewData.content!,
+          imageUrls: reviewData.imageUrls || [],
+        });
+        alert("리뷰가 작성되었습니다!");
+        // 리뷰 목록 새로고침
+        const data = await getRestaurant(restaurant.id);
+        setReviews(data.reviews || []);
+      } catch (error) {
+        console.error("Failed to create review:", error);
+        alert("리뷰 작성에 실패했습니다.");
       }
     }
     setShowReviewModal(false);
     setEditingReview(undefined);
-    setReviews(
-      reviewsData.filter(
-        (review) => review.target.restaurantId === restaurant._id
-      )
-    );
   };
 
-  const handleToggleLike = (reviewId: string) => {
+  const handleToggleLike = async (reviewId: string) => {
     if (!isAuthenticated || !user) {
       alert("로그인이 필요합니다.");
       navigate("/login");
       return;
     }
-    // 데이터 변경
-    toggleReviewLike(reviewId, user._id);
 
-    // 변경된 최신 데이터로 reviews 상태를 업데이트
-    setReviews(
-      reviewsData.filter(
-        (review) => review.target.restaurantId === restaurant._id
-      )
-    );
+    try {
+      await apiToggleReviewLike(reviewId);
+      // 리뷰 목록 새로고침
+      const data = await getRestaurant(restaurant.id);
+      setReviews(data.reviews || []);
+    } catch (error) {
+      console.error("Failed to toggle like:", error);
+      alert("좋아요 처리에 실패했습니다.");
+    }
   };
 
   const handleNextImage = (reviewId: string, totalImages: number) => {
@@ -242,7 +271,9 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
 
       <div className="rating-section">
         <span className="star">★</span>
-        <span className="rating-value">{averageRating.toFixed(1)}</span>
+        <span className="rating-value">
+          {averageRating?.toFixed(1) ?? "0.0"}
+        </span>
         <span className="review-count">({reviewCount}개 리뷰)</span>
       </div>
 
@@ -270,7 +301,11 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
           </button>
         </div>
         <div className="reviews-list">
-          {reviews.length > 0 ? (
+          {loading ? (
+            <div className="loading-spinner">
+              <p>리뷰를 불러오는 중...</p>
+            </div>
+          ) : reviews.length > 0 ? (
             reviews.map((review) => {
               return (
                 <div key={review._id} className="review-item">
@@ -280,7 +315,9 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                       onClick={() => handleToggleDetails(review._id)}
                     >
                       <span className="star">★</span>
-                      <span>{review.ratings.restaurantRating.toFixed(1)}</span>
+                      <span>
+                        {review.ratings?.restaurantRating?.toFixed(1) ?? "0.0"}
+                      </span>
                       <span
                         className={`material-symbols-outlined expand-icon ${
                           expandedReviewId === review._id ? "expanded" : ""
@@ -315,32 +352,36 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                   {expandedReviewId === review._id && (
                     <div className="review-ratings-detail">
                       <div className="menu-ratings-section">
-                        {review.ratings.menuRatings.map((mr) => (
-                          <StarRatingDisplay
-                            key={mr.menuName}
-                            label={mr.menuName}
-                            rating={mr.rating}
-                          />
-                        ))}
+                        {review.ratings.menuRatings.map(
+                          (mr: { menuName: string; rating: number }) => (
+                            <StarRatingDisplay
+                              key={mr.menuName}
+                              label={mr.menuName}
+                              rating={mr.rating}
+                            />
+                          )
+                        )}
                       </div>
                     </div>
                   )}
-                  {review.target.menuItems && (
-                    <div className="menu-tags">
-                      {review.target.menuItems
-                        .split(", ")
-                        .map((menuItem, index) => (
-                          <div key={index} className="menu-tag">
-                            {menuItem}
-                          </div>
-                        ))}
-                    </div>
-                  )}
+                  {review.ratings?.menuRatings &&
+                    review.ratings.menuRatings.length > 0 && (
+                      <div className="menu-tags">
+                        {review.ratings.menuRatings.map(
+                          (
+                            menuRating: { menuName: string; rating: number },
+                            index: number
+                          ) => (
+                            <div key={index} className="menu-tag">
+                              {menuRating.menuName}
+                            </div>
+                          )
+                        )}
+                      </div>
+                    )}
                   <p className="review-content">{review.content}</p>
                   {(() => {
-                    const images =
-                      review.imageUrls ||
-                      (review.imageUrl ? [review.imageUrl] : []);
+                    const images = review.imageUrls || [];
                     if (images.length === 0) return null;
 
                     const currentIndex = currentImageIndex[review._id] || 0;
@@ -404,7 +445,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                                 </span>
                               </button>
                               <div className="image-indicators">
-                                {images.map((_, idx) => (
+                                {images.map((_: string, idx: number) => (
                                   <span
                                     key={idx}
                                     className={`indicator ${
@@ -431,17 +472,9 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                     </span>
                     <div className="review-actions">
                       <button
-                        className={`btn-like ${
-                          user && isReviewLiked(review._id, user._id)
-                            ? "liked"
-                            : ""
-                        }`}
+                        className="btn-like"
                         onClick={() => handleToggleLike(review._id)}
-                        title={
-                          user && isReviewLiked(review._id, user._id)
-                            ? "좋아요 취소"
-                            : "좋아요"
-                        }
+                        title="좋아요"
                       >
                         👍 {review.likeCount}
                       </button>
@@ -459,7 +492,22 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
       {showReviewModal && (
         <ReviewModal
           restaurant={restaurant}
-          existingReview={editingReview}
+          existingReview={
+            editingReview
+              ? {
+                  _id: editingReview._id,
+                  userId: editingReview.userId,
+                  nickname: editingReview.nickname,
+                  restaurantId: restaurant.id,
+                  restaurantName: restaurant.name,
+                  ratings: editingReview.ratings,
+                  content: editingReview.content || "",
+                  imageUrls: editingReview.imageUrls,
+                  likeCount: editingReview.likeCount,
+                  createdAt: editingReview.createdAt,
+                }
+              : undefined
+          }
           onClose={() => {
             setShowReviewModal(false);
             setEditingReview(undefined);

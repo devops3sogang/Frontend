@@ -42,7 +42,7 @@ export interface Location {
 
 // 식당 데이터 구조
 export interface Restaurant {
-  _id: string; // MongoDB ObjectId
+  id: string; // 레스토랑 ID
   name: string; // 식당 이름
   type: RestaurantType; // 식당 유형 (OFF_CAMPUS, ON_CAMPUS)
   category: RestaurantCategory; // 식당 카테고리 (한식, 중식, 일식, 양식, 분식 등)
@@ -81,7 +81,7 @@ export interface ReviewRatings {
 
 // 리뷰 데이터 구조
 export interface Review {
-  _id: string; // MongoDB ObjectId
+  id: string; // 리뷰 ID
   userId: string; // 리뷰 작성자 (사용자 ID)
   nickname: string; // 리뷰 작성자 닉네임
   target: ReviewTarget; // 리뷰 대상 (식당 또는 메뉴)
@@ -97,7 +97,7 @@ export interface Review {
 // Mock 데이터 - 식당 (나중에 백엔드에서 가져올 예정)
 export const restaurantsData: Restaurant[] = [
   {
-    _id: "507f1f77bcf86cd799439011",
+    id: "507f1f77bcf86cd799439011",
     name: "맛있는 김밥",
     type: "OFF_CAMPUS",
     category: "분식",
@@ -122,7 +122,7 @@ export const restaurantsData: Restaurant[] = [
     updatedAt: "2025-01-01T00:00:00Z",
   },
   {
-    _id: "507f1f77bcf86cd799439012",
+    id: "507f1f77bcf86cd799439012",
     name: "행복한 돈까스",
     type: "OFF_CAMPUS",
     category: "일식",
@@ -146,7 +146,7 @@ export const restaurantsData: Restaurant[] = [
     updatedAt: "2025-01-01T00:00:00Z",
   },
   {
-    _id: "507f1f77bcf86cd799439013",
+    id: "507f1f77bcf86cd799439013",
     name: "정통 한식당",
     type: "OFF_CAMPUS",
     category: "한식",
@@ -171,7 +171,7 @@ export const restaurantsData: Restaurant[] = [
     updatedAt: "2025-01-01T00:00:00Z",
   },
   {
-    _id: "507f1f77bcf86cd799439014",
+    id: "507f1f77bcf86cd799439014",
     name: "파스타 하우스",
     type: "OFF_CAMPUS",
     category: "양식",
@@ -196,7 +196,7 @@ export const restaurantsData: Restaurant[] = [
     updatedAt: "2025-01-01T00:00:00Z",
   },
   {
-    _id: "507f1f77bcf86cd799439015",
+    id: "507f1f77bcf86cd799439015",
     name: "중화요리 만리장성",
     type: "OFF_CAMPUS",
     category: "중식",
@@ -221,7 +221,7 @@ export const restaurantsData: Restaurant[] = [
     updatedAt: "2025-01-01T00:00:00Z",
   },
   {
-    _id: "507f1f77bcf86cd799439016",
+    id: "507f1f77bcf86cd799439016",
     name: "치킨왕국",
     type: "OFF_CAMPUS",
     category: "치킨",
@@ -246,7 +246,7 @@ export const restaurantsData: Restaurant[] = [
     updatedAt: "2025-01-01T00:00:00Z",
   },
   {
-    _id: "507f1f77bcf86cd799439017",
+    id: "507f1f77bcf86cd799439017",
     name: "라멘 가게 혼",
     type: "OFF_CAMPUS",
     category: "일식",
@@ -271,7 +271,7 @@ export const restaurantsData: Restaurant[] = [
     updatedAt: "2025-01-01T00:00:00Z",
   },
   {
-    _id: "507f1f77bcf86cd799439018",
+    id: "507f1f77bcf86cd799439018",
     name: "타코 플라자",
     type: "OFF_CAMPUS",
     category: "멕시칸",
@@ -296,7 +296,7 @@ export const restaurantsData: Restaurant[] = [
     updatedAt: "2025-01-01T00:00:00Z",
   },
   {
-    _id: "507f1f77bcf86cd799439019",
+    id: "507f1f77bcf86cd799439019",
     name: "카페베이커리 샌드",
     type: "OFF_CAMPUS",
     category: "카페·디저트",
@@ -325,7 +325,7 @@ export const restaurantsData: Restaurant[] = [
 // 목 데이터 - 리뷰 (나중에 백엔드에서 가져올 예정)
 export const reviewsData: Review[] = [
   {
-    _id: "507f191e810c19729de860ea",
+    id: "507f191e810c19729de860ea",
     userId: "507f191e810c19729de860e1",
     nickname: "김철수",
     target: {
@@ -344,7 +344,7 @@ export const reviewsData: Review[] = [
     updatedAt: "2025-01-05T10:30:00Z",
   },
   {
-    _id: "507f191e810c19729de860eb",
+    id: "507f191e810c19729de860eb",
     userId: "507f191e810c19729de860e2",
     nickname: "이영희",
     target: {
@@ -364,7 +364,7 @@ export const reviewsData: Review[] = [
     updatedAt: "2025-01-04T14:20:00Z",
   },
   {
-    _id: "507f191e810c19729de860ec",
+    id: "507f191e810c19729de860ec",
     userId: "507f191e810c19729de860e3",
     nickname: "박민수",
     target: {
@@ -383,7 +383,7 @@ export const reviewsData: Review[] = [
     updatedAt: "2025-01-03T12:15:00Z",
   },
   {
-    _id: "507f191e810c19729de860ed",
+    id: "507f191e810c19729de860ed",
     userId: "507f191e810c19729de860e4",
     nickname: "최지훈",
     target: {
@@ -402,7 +402,7 @@ export const reviewsData: Review[] = [
     updatedAt: "2025-01-02T11:45:00Z",
   },
   {
-    _id: "507f191e810c19729de860ee",
+    id: "507f191e810c19729de860ee",
     userId: "507f191e810c19729de860e5",
     nickname: "정수진",
     target: {
@@ -422,7 +422,7 @@ export const reviewsData: Review[] = [
     updatedAt: "2025-01-01T19:30:00Z",
   },
   {
-    _id: "507f191e810c19729de860ef",
+    id: "507f191e810c19729de860ef",
     userId: "507f191e810c19729de860e6",
     nickname: "강민지",
     target: {
@@ -441,7 +441,7 @@ export const reviewsData: Review[] = [
     updatedAt: "2025-01-06T13:20:00Z",
   },
   {
-    _id: "507f191e810c19729de860f0",
+    id: "507f191e810c19729de860f0",
     userId: "507f191e810c19729de860e7",
     nickname: "윤성호",
     target: {
@@ -461,7 +461,7 @@ export const reviewsData: Review[] = [
     updatedAt: "2025-01-07T18:45:00Z",
   },
   {
-    _id: "507f191e810c19729de860f1",
+    id: "507f191e810c19729de860f1",
     userId: "507f191e810c19729de860e8",
     nickname: "배지영",
     target: {
@@ -480,7 +480,7 @@ export const reviewsData: Review[] = [
     updatedAt: "2025-01-06T20:15:00Z",
   },
   {
-    _id: "507f191e810c19729de860f2",
+    id: "507f191e810c19729de860f2",
     userId: "507f191e810c19729de860e9",
     nickname: "임준혁",
     target: {
@@ -500,7 +500,7 @@ export const reviewsData: Review[] = [
     updatedAt: "2025-01-05T21:30:00Z",
   },
   {
-    _id: "507f191e810c19729de860f3",
+    id: "507f191e810c19729de860f3",
     userId: "507f191e810c19729de860ea",
     nickname: "송하늘",
     target: {
@@ -520,7 +520,7 @@ export const reviewsData: Review[] = [
     updatedAt: "2025-01-08T12:00:00Z",
   },
   {
-    _id: "507f191e810c19729de860f4",
+    id: "507f191e810c19729de860f4",
     userId: "507f191e810c19729de860eb",
     nickname: "한서준",
     target: {
@@ -539,7 +539,7 @@ export const reviewsData: Review[] = [
     updatedAt: "2025-01-07T13:45:00Z",
   },
   {
-    _id: "507f191e810c19729de860f5",
+    id: "507f191e810c19729de860f5",
     userId: "507f191e810c19729de860ec",
     nickname: "오지훈",
     target: {
@@ -558,7 +558,7 @@ export const reviewsData: Review[] = [
     updatedAt: "2025-01-08T17:25:00Z",
   },
   {
-    _id: "507f191e810c19729de860f6",
+    id: "507f191e810c19729de860f6",
     userId: "507f191e810c19729de860ed",
     nickname: "권민서",
     target: {
@@ -578,7 +578,7 @@ export const reviewsData: Review[] = [
     updatedAt: "2025-01-08T09:30:00Z",
   },
   {
-    _id: "507f191e810c19729de860f7",
+    id: "507f191e810c19729de860f7",
     userId: "507f191e810c19729de860ee",
     nickname: "조은비",
     target: {
@@ -628,8 +628,8 @@ export function addReview(
   nickname?: string
 ): Review {
   const newReview: Review = {
-    _id: `review_${Date.now()}`, // 임시 ID 생성 (실제로는 백엔드에서 생성)
-    userId: userId || reviewData.userId || "temp_user_id", // 로그인한 사용자 ID
+    id: `review_${Date.now()}`, // 임시 ID 생성 (실제로는 백엔드에서 생성)
+    userId: userId || reviewData.userId || "temp_userid", // 로그인한 사용자 ID
     nickname: nickname || reviewData.nickname || "익명", // 로그인한 사용자 닉네임
     target: reviewData.target!,
     ratings: reviewData.ratings!,
@@ -650,7 +650,7 @@ export function updateReview(
   reviewId: string,
   reviewData: Partial<Review>
 ): Review | null {
-  const index = reviewsData.findIndex((review) => review._id === reviewId);
+  const index = reviewsData.findIndex((review) => review.id === reviewId);
   if (index === -1) return null;
 
   reviewsData[index] = {
@@ -664,7 +664,7 @@ export function updateReview(
 
 // 리뷰 삭제 함수
 export function deleteReview(reviewId: string): boolean {
-  const index = reviewsData.findIndex((review) => review._id === reviewId);
+  const index = reviewsData.findIndex((review) => review.id === reviewId);
   if (index === -1) return false;
 
   reviewsData.splice(index, 1);
@@ -673,7 +673,7 @@ export function deleteReview(reviewId: string): boolean {
 
 // 리뷰 좋아요 토글 함수
 export function toggleReviewLike(reviewId: string, userId: string): boolean {
-  const index = reviewsData.findIndex((review) => review._id === reviewId);
+  const index = reviewsData.findIndex((review) => review.id === reviewId);
   if (index === -1) return false;
 
   // likes 컬렉션에서 토글
