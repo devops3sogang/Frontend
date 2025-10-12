@@ -3,6 +3,5 @@ export * from "./auth";
 export * from "./restaurants";
 export * from "./reviews";
 export * from "./menus";
-export * from "./users";
 export * from "./types";
 export { default as apiClient } from "./client";
