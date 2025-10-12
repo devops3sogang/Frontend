@@ -65,14 +65,38 @@ pipeline {
 
         stage('Health Check') {
             steps {
-                sh '''
-                    echo "Waiting for server to be ready..."
-                    sleep 5
-                    
-                    echo "Checking if frontend is accessible..."
-                    curl -f http://${REMOTE_HOST}:${PORT} || exit 1
-                    echo "Frontend is running successfully!"
-                '''
+                script {
+                    sshagent(credentials: ['admin']) {
+                        sh """
+                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} " \
+                            echo '--- Waiting for container to start ---' && \
+                            sleep 10 && \
+                            echo '--- Checking container status ---' && \
+                            docker ps | grep ${CONTAINER_NAME} && \
+                            echo '--- Checking nginx process ---' && \
+                            docker exec ${CONTAINER_NAME} ps aux | grep nginx && \
+                            echo '--- Testing nginx configuration ---' && \
+                            docker exec ${CONTAINER_NAME} nginx -t && \
+                            echo '--- Container is running and nginx is healthy ---' \
+                        "
+                        """
+                    }
+
+                    // Test from Jenkins server
+                    sh """
+                        echo "Testing frontend accessibility from Jenkins..."
+                        for i in 1 2 3 4 5; do
+                            if curl -f -s -o /dev/null http://${REMOTE_HOST}:${PORT}; then
+                                echo "Frontend is accessible!"
+                                exit 0
+                            fi
+                            echo "Attempt \$i failed, retrying in 3 seconds..."
+                            sleep 3
+                        done
+                        echo "Frontend health check failed after 5 attempts"
+                        exit 1
+                    """
+                }
             }
         }
     }
