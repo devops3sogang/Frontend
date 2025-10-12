@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import type { ReviewResponse } from "../api/types";
 import { updateUserPassword } from "../data/users";
-import { getMyLikedReviews } from "../api/reviews";
+import { getMyProfile } from "../api/users";
 import "./MyPage.css";
 
 function MyPage() {
@@ -30,24 +30,23 @@ function MyPage() {
     if (user) {
       setNickname(user.nickname);
 
-      // 내가 작성한 리뷰 가져오기
-      // TODO: 백엔드에 GET /api/users/me/reviews API 추가 필요
-      setMyReviews([]);
-
-      // 내가 좋아요한 리뷰 가져오기
-      const fetchLikedReviews = async () => {
+      // 내가 작성한 리뷰와 좋아요한 리뷰 가져오기
+      const fetchUserProfile = async () => {
         try {
-          const data = await getMyLikedReviews();
-          setLikedReviews(data);
+          const data = await getMyProfile();
+          console.log("Fetched profile data:", data);
+          setMyReviews(data.myReviews || []);
+          setLikedReviews(data.likedReviews || []);
         } catch (error) {
-          console.error("Failed to fetch liked reviews:", error);
+          console.error("Failed to fetch user profile:", error);
+          setMyReviews([]);
           setLikedReviews([]);
         }
       };
 
-      fetchLikedReviews();
+      fetchUserProfile();
     }
-  }, [user, isAuthenticated, navigate]);
+  }, [user?.nickname, isAuthenticated, navigate]);
 
   const handleNicknameUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,6 +114,10 @@ function MyPage() {
         <div className="user-info-section">
           <h2>사용자 정보</h2>
           <div className="info-item">
+            <span className="info-label">닉네임:</span>
+            <span className="info-value">{user.nickname}</span>
+          </div>
+          <div className="info-item">
             <span className="info-label">이메일:</span>
             <span className="info-value">{user.email}</span>
           </div>
@@ -140,7 +143,7 @@ function MyPage() {
               <input
                 type="text"
                 id="nickname"
-                value={nickname}
+                value={nickname || ""}
                 onChange={(e) => setNickname(e.target.value)}
                 placeholder="새 닉네임을 입력하세요"
                 required
@@ -201,21 +204,33 @@ function MyPage() {
               myReviews.map((review) => (
                 <div key={review._id} className="review-card">
                   <div className="review-header">
-                    <h3>{review.restaurantName || "식당 정보 없음"}</h3>
+                    <h3>
+                      {review.target?.restaurantName ||
+                        review.restaurantName ||
+                        "식당 정보 없음"}
+                    </h3>
                     <div className="review-rating">
                       <span className="star">★</span>
-                      <span>{review.ratings?.restaurantRating?.toFixed(1) ?? '0.0'}</span>
+                      <span>
+                        {review.ratings?.restaurantRating?.toFixed(1) ?? "0.0"}
+                      </span>
                     </div>
                   </div>
-                  {review.ratings?.menuRatings && review.ratings.menuRatings.length > 0 && (
-                    <div className="menu-tags">
-                      {review.ratings.menuRatings.map((menuRating: { menuName: string; rating: number }, index: number) => (
-                        <span key={index} className="menu-tag">
-                          {menuRating.menuName}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  {review.ratings?.menuRatings &&
+                    review.ratings.menuRatings.length > 0 && (
+                      <div className="menu-tags">
+                        {review.ratings.menuRatings.map(
+                          (
+                            menuRating: { menuName: string; rating: number },
+                            index: number
+                          ) => (
+                            <span key={`my-review-${review._id}-menu-${index}`} className="menu-tag">
+                              {menuRating.menuName}
+                            </span>
+                          )
+                        )}
+                      </div>
+                    )}
                   <p className="review-content">{review.content}</p>
                   <div className="review-footer">
                     <span className="review-date">
@@ -238,10 +253,16 @@ function MyPage() {
               likedReviews.map((review) => (
                 <div key={review._id} className="review-card">
                   <div className="review-header">
-                    <h3>{review.restaurantName || "식당 정보 없음"}</h3>
+                    <h3>
+                      {review.target?.restaurantName ||
+                        review.restaurantName ||
+                        "식당 정보 없음"}
+                    </h3>
                     <div className="review-rating">
                       <span className="star">★</span>
-                      <span>{review.ratings?.restaurantRating?.toFixed(1) ?? '0.0'}</span>
+                      <span>
+                        {review.ratings?.restaurantRating?.toFixed(1) ?? "0.0"}
+                      </span>
                     </div>
                   </div>
                   <div className="review-author-info">
@@ -249,15 +270,21 @@ function MyPage() {
                       작성자: {review.nickname}
                     </span>
                   </div>
-                  {review.ratings?.menuRatings && review.ratings.menuRatings.length > 0 && (
-                    <div className="menu-tags">
-                      {review.ratings.menuRatings.map((menuRating: { menuName: string; rating: number }, index: number) => (
-                        <span key={index} className="menu-tag">
-                          {menuRating.menuName}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  {review.ratings?.menuRatings &&
+                    review.ratings.menuRatings.length > 0 && (
+                      <div className="menu-tags">
+                        {review.ratings.menuRatings.map(
+                          (
+                            menuRating: { menuName: string; rating: number },
+                            index: number
+                          ) => (
+                            <span key={`liked-review-${review._id}-menu-${index}`} className="menu-tag">
+                              {menuRating.menuName}
+                            </span>
+                          )
+                        )}
+                      </div>
+                    )}
                   <p className="review-content">{review.content}</p>
                   <div className="review-footer">
                     <span className="review-date">

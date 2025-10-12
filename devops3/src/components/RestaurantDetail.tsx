@@ -83,7 +83,21 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
 
       try {
         const data = await getRestaurant(restaurant.id);
-        setReviews(data.reviews || []);
+
+        console.log("--- API 응답 원본 데이터 ---", data);
+        if (data.reviews && data.reviews.length > 0) {
+          console.log("첫 번째 리뷰 데이터:", data.reviews[0]);
+          console.log("첫 번째 리뷰의 likedByCurrentUser:", data.reviews[0].likedByCurrentUser);
+          console.log("첫 번째 리뷰의 전체 필드:", Object.keys(data.reviews[0]));
+        }
+
+        // likedByCurrentUser가 undefined인 경우 false로 초기화
+        const reviewsWithLikedStatus = (data.reviews || []).map(review => ({
+          ...review,
+          likedByCurrentUser: review.likedByCurrentUser ?? false,
+        }));
+
+        setReviews(reviewsWithLikedStatus);
       } catch (error) {
         console.error("Failed to fetch restaurant details:", error);
         setReviews([]);
@@ -156,7 +170,11 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
         alert("리뷰가 작성되었습니다!");
         // 리뷰 목록 새로고침
         const data = await getRestaurant(restaurant.id);
-        setReviews(data.reviews || []);
+        const reviewsWithLikedStatus = (data.reviews || []).map(review => ({
+          ...review,
+          likedByCurrentUser: review.likedByCurrentUser ?? false,
+        }));
+        setReviews(reviewsWithLikedStatus);
       } catch (error) {
         console.error("Failed to create review:", error);
         alert("리뷰 작성에 실패했습니다.");
@@ -182,7 +200,11 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
           review._id === reviewId
-            ? { ...review, likeCount: response.likeCount ?? 0 }
+            ? {
+                ...review,
+                likedByCurrentUser: !review.likedByCurrentUser,
+                likeCount: response.likeCount ?? 0,
+              }
             : review
         )
       );
@@ -495,7 +517,9 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                     </span>
                     <div className="review-actions">
                       <button
-                        className="btn-like"
+                        className={`btn-like ${
+                          review.likedByCurrentUser ? "liked" : ""
+                        }`}
                         onClick={() => handleToggleLike(review._id)}
                         title="좋아요"
                       >
@@ -521,6 +545,10 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                   _id: editingReview._id,
                   userId: editingReview.userId,
                   nickname: editingReview.nickname,
+                  target: {
+                    restaurantId: restaurant.id,
+                    restaurantName: restaurant.name,
+                  },
                   restaurantId: restaurant.id,
                   restaurantName: restaurant.name,
                   ratings: editingReview.ratings,
@@ -528,6 +556,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                   imageUrls: editingReview.imageUrls,
                   likeCount: editingReview.likeCount,
                   createdAt: editingReview.createdAt,
+                  likedByCurrentUser: editingReview.likedByCurrentUser,
                 }
               : undefined
           }

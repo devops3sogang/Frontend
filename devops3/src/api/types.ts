@@ -13,25 +13,49 @@ export interface LoginRequest {
 }
 
 // 백엔드가 토큰 문자열만 반환하는 경우도 있고, 객체로 반환하는 경우도 있음
-export type LoginResponse = string | {
-  token: string;
-  user?: {
-    id: string;
-    email: string;
-    nickname: string;
-  };
-};
+export type LoginResponse =
+  | string
+  | {
+      token: string;
+      user?: {
+        id: string;
+        email: string;
+        nickname: string;
+      };
+    };
 
-// 사용자 프로필 타입
+// 사용자 프로필 타입 (GET /users/me 응답)
 export interface UserProfile {
-  id: string;
+  _id: string;
   email: string;
   nickname: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UpdateProfileRequest {
   nickname?: string;
   password?: string;
+}
+
+// 프로필 수정 응답 타입 (명세서 기준)
+export interface UpdateProfileResponse {
+  _id: string;
+  email: string;
+  nickname: string;
+  updatedAt: string;
+}
+
+// 사용자 통합 프로필 응답 타입
+export interface UserProfileResponse {
+  _id: string;
+  email: string;
+  nickname: string;
+  role: string;
+  createdAt: string;
+  myReviews: ReviewResponse[];
+  likedReviews: ReviewResponse[];
 }
 
 // 맛집 관련 타입
@@ -72,8 +96,13 @@ export interface ReviewResponse {
   _id: string;
   userId: string;
   nickname: string;
-  restaurantId: string;
-  restaurantName: string;
+  target: {
+    restaurantId: string;
+    restaurantName: string;
+  };
+  // 하위 호환성을 위해 최상위 레벨에도 유지
+  restaurantId?: string;
+  restaurantName?: string;
   ratings: {
     menuRatings: Array<{
       menuName: string;
@@ -85,6 +114,7 @@ export interface ReviewResponse {
   imageUrls?: string[];
   likeCount: number;
   createdAt: string;
+  likedByCurrentUser: boolean;
 }
 
 // 교내 메뉴 타입
@@ -112,7 +142,7 @@ export interface ReviewDetailResponse {
   imageUrls?: string[];
   likeCount: number;
   createdAt: string;
-  isLikedByCurrentUser: boolean;
+  likedByCurrentUser: boolean;
 }
 
 // 식당 상세 조회 응답 타입

@@ -54,13 +54,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log("User profile:", userProfile);
 
       const userToSave: User = {
-        _id: userProfile.id,
+        _id: userProfile._id,
         email: userProfile.email,
         nickname: userProfile.nickname,
         passwordHash: "", // 불필요하므로 빈 문자열
-        role: "USER",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        role: userProfile.role as "USER" | "ADMIN",
+        createdAt: userProfile.createdAt,
+        updatedAt: userProfile.updatedAt,
       };
 
       setUser(userToSave);
@@ -80,14 +80,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateNickname = async (newNickname: string) => {
     try {
-      const updatedProfile = await authAPI.updateMyProfile({
+      console.log("Before update, user:", user);
+
+      // 닉네임 업데이트 요청 (서버가 빈 응답을 보냄)
+      await authAPI.updateMyProfile({
         nickname: newNickname,
       });
 
+      // 서버가 빈 응답을 보내므로, 업데이트된 정보를 다시 조회
+      const updatedProfile = await authAPI.getMyProfile();
+      console.log("Fetched updated profile:", updatedProfile);
+
       if (user) {
-        const updatedUser = { ...user, nickname: updatedProfile.nickname };
+        const updatedUser: User = {
+          _id: updatedProfile._id,
+          email: updatedProfile.email,
+          nickname: updatedProfile.nickname,
+          passwordHash: "",
+          role: updatedProfile.role as "USER" | "ADMIN",
+          createdAt: updatedProfile.createdAt,
+          updatedAt: updatedProfile.updatedAt,
+        };
+        console.log("Updated user object:", updatedUser);
         setUser(updatedUser);
         localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+        console.log("After setUser");
       }
     } catch (error) {
       console.error("Failed to update nickname:", error);

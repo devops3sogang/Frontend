@@ -5,6 +5,7 @@ import type {
   LoginResponse,
   UserProfile,
   UpdateProfileRequest,
+  UpdateProfileResponse,
 } from "./types";
 
 // 회원가입
@@ -28,8 +29,10 @@ export const getMyProfile = async (): Promise<UserProfile> => {
 // 내 프로필 수정
 export const updateMyProfile = async (
   data: UpdateProfileRequest
-): Promise<UserProfile> => {
-  const response = await apiClient.put<UserProfile>("/users/me", data);
+): Promise<UpdateProfileResponse> => {
+  const response = await apiClient.put<UpdateProfileResponse>("/users/me", data);
+  console.log("updateMyProfile - Full response:", response);
+  console.log("updateMyProfile - Response data:", response.data);
   return response.data;
 };
 
