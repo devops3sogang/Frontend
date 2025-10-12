@@ -12,14 +12,15 @@ export interface LoginRequest {
   password: string;
 }
 
-export interface LoginResponse {
+// 백엔드가 토큰 문자열만 반환하는 경우도 있고, 객체로 반환하는 경우도 있음
+export type LoginResponse = string | {
   token: string;
-  user: {
+  user?: {
     id: string;
     email: string;
     nickname: string;
   };
-}
+};
 
 // 사용자 프로필 타입
 export interface UserProfile {
@@ -138,4 +139,15 @@ export interface RestaurantDetailResponse {
   reviews?: ReviewDetailResponse[];
   createdAt: string;
   updatedAt: string;
+}
+
+// 좋아요 토글 응답 타입
+export interface ToggleLikeResponse {
+  createdLike: {
+    _id: string;
+    userId: string;
+    reviewId: string;
+    createdAt: string;
+  };
+  likeCount: number;
 }

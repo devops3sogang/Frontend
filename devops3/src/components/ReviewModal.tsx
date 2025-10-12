@@ -126,7 +126,7 @@ function ReviewModal({
     }
 
     const reviewData: Partial<ReviewResponse> = {
-      restaurantId: restaurant._id,
+      restaurantId: restaurant.id,
       restaurantName: restaurant.name,
       ratings: {
         menuRatings: menuRatings,

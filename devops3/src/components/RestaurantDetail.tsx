@@ -61,9 +61,13 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
   const [loading, setLoading] = useState(true);
 
   // 리뷰들의 restaurantRating 평균 계산
-  const averageRating = reviews.length > 0
-    ? reviews.reduce((sum, review) => sum + (review.ratings?.restaurantRating || 0), 0) / reviews.length
-    : 0;
+  const averageRating =
+    reviews.length > 0
+      ? reviews.reduce(
+          (sum, review) => sum + (review.ratings?.restaurantRating || 0),
+          0
+        ) / reviews.length
+      : 0;
   const reviewCount = reviews.length;
 
   // 리뷰 목록 가져오기
@@ -170,13 +174,32 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     }
 
     try {
-      await apiToggleReviewLike(reviewId);
-      // 리뷰 목록 새로고침
-      const data = await getRestaurant(restaurant.id);
-      setReviews(data.reviews || []);
-    } catch (error) {
+      const response = await apiToggleReviewLike(reviewId);
+      console.log("Toggle like response:", response);
+      console.log("likeCount from response:", response.likeCount);
+
+      // API 응답의 likeCount를 사용하여 해당 리뷰만 업데이트
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review._id === reviewId
+            ? { ...review, likeCount: response.likeCount ?? 0 }
+            : review
+        )
+      );
+    } catch (error: any) {
       console.error("Failed to toggle like:", error);
-      alert("좋아요 처리에 실패했습니다.");
+
+      // 에러 메시지 상세화
+      if (error.response?.status === 403) {
+        alert("좋아요 권한이 없습니다. 다시 로그인해주세요.");
+        navigate("/login");
+      } else if (error.response?.status === 409) {
+        alert("이미 좋아요를 누른 리뷰입니다.");
+      } else if (error.response?.status === 404) {
+        alert("리뷰를 찾을 수 없습니다.");
+      } else {
+        alert("좋아요 처리에 실패했습니다.");
+      }
     }
   };
 
@@ -476,7 +499,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                         onClick={() => handleToggleLike(review._id)}
                         title="좋아요"
                       >
-                        👍 {review.likeCount}
+                        👍 {review.likeCount ?? 0}
                       </button>
                     </div>
                   </div>

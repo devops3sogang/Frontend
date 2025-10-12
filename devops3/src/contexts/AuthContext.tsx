@@ -34,15 +34,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const response = await authAPI.login({ email, password });
+      console.log("Login API response:", response);
+
+      // 응답이 토큰 문자열만 있는 경우 처리
+      let token: string;
+      if (typeof response === 'string') {
+        token = response;
+      } else if (response.token) {
+        token = response.token;
+      } else {
+        throw new Error("No token in response");
+      }
 
       // JWT 토큰 저장
-      authAPI.saveToken(response.token);
+      authAPI.saveToken(token);
 
-      // 사용자 정보 저장
+      // 토큰으로 사용자 정보 가져오기
+      const userProfile = await authAPI.getMyProfile();
+      console.log("User profile:", userProfile);
+
       const userToSave: User = {
-        _id: response.user.id,
-        email: response.user.email,
-        nickname: response.user.nickname,
+        _id: userProfile.id,
+        email: userProfile.email,
+        nickname: userProfile.nickname,
         passwordHash: "", // 불필요하므로 빈 문자열
         role: "USER",
         createdAt: new Date().toISOString(),
@@ -66,7 +80,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateNickname = async (newNickname: string) => {
     try {
-      const updatedProfile = await authAPI.updateMyProfile({ nickname: newNickname });
+      const updatedProfile = await authAPI.updateMyProfile({
+        nickname: newNickname,
+      });
 
       if (user) {
         const updatedUser = { ...user, nickname: updatedProfile.nickname };

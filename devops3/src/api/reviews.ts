@@ -1,5 +1,5 @@
 import apiClient from "./client";
-import type { CreateReviewRequest, ReviewResponse } from "./types";
+import type { CreateReviewRequest, ReviewResponse, ToggleLikeResponse } from "./types";
 
 // 리뷰 작성
 export const createReview = async (
@@ -24,8 +24,8 @@ export const getRestaurantReviews = async (
 };
 
 // 리뷰 좋아요 토글
-export const toggleReviewLike = async (reviewId: string) => {
-  const response = await apiClient.post(`/reviews/${reviewId}/like`);
+export const toggleReviewLike = async (reviewId: string): Promise<ToggleLikeResponse> => {
+  const response = await apiClient.post<ToggleLikeResponse>(`/reviews/${reviewId}/like`);
   return response.data;
 };
 
