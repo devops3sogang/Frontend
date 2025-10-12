@@ -225,7 +225,7 @@ function Roulette({ onNavigateToMap }: RouletteProps) {
             <div className="result-rating">
               <span className="star">★</span>
               <span className="rating-value">
-                {selectedRestaurant.stats?.averageRating?.toFixed(1) ?? '0.0'}
+                {selectedRestaurant.stats?.averageRating?.toFixed(1) ?? "0.0"}
               </span>
             </div>
 
@@ -250,7 +250,7 @@ function Roulette({ onNavigateToMap }: RouletteProps) {
                 className="btn-navigate"
                 onClick={() => {
                   setShowResultModal(false);
-                  onNavigateToMap(selectedRestaurant._id);
+                  onNavigateToMap(selectedRestaurant.id);
                 }}
               >
                 이동

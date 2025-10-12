@@ -59,7 +59,10 @@ function Home() {
 
   const getAverageRating = (ratings: ReviewResponse["ratings"]) => {
     // 가게 별점을 표시
-    if (ratings?.restaurantRating !== undefined && ratings?.restaurantRating !== null) {
+    if (
+      ratings?.restaurantRating !== undefined &&
+      ratings?.restaurantRating !== null
+    ) {
       return ratings.restaurantRating.toFixed(1);
     }
     return "0.0"; // 기본값
@@ -82,33 +85,42 @@ function Home() {
               <p>아직 리뷰가 없습니다.</p>
             ) : (
               latestReviews.map((review) => (
-              <div
-                key={review._id}
-                className="review-card"
-                onClick={() => review.restaurantId && handleReviewClick(review.restaurantId)}
-                style={{ cursor: review.restaurantId ? "pointer" : "default" }}
-              >
-                <div className="review-header">
-                  <div>
-                    <span className="restaurant-name">
-                      {review.restaurantName || "식당 정보 없음"}
-                    </span>
-                    {review.ratings.menuRatings.length > 0 && (
-                      <span className="menu-items">
-                        ({review.ratings.menuRatings.map(m => m.menuName).join(", ")})
+                <div
+                  key={review._id}
+                  className="review-card"
+                  onClick={() =>
+                    review.restaurantId &&
+                    handleReviewClick(review.restaurantId)
+                  }
+                  style={{
+                    cursor: review.restaurantId ? "pointer" : "default",
+                  }}
+                >
+                  <div className="review-header">
+                    <div>
+                      <span className="restaurant-name">
+                        {review.restaurantName || "식당 정보 없음"}
                       </span>
-                    )}
+                      {review.ratings.menuRatings.length > 0 && (
+                        <span className="menu-items">
+                          (
+                          {review.ratings.menuRatings
+                            .map((m) => m.menuName)
+                            .join(", ")}
+                          )
+                        </span>
+                      )}
+                    </div>
+                    <span className="rating">
+                      ⭐ {getAverageRating(review.ratings)}
+                    </span>
                   </div>
-                  <span className="rating">
-                    ⭐ {getAverageRating(review.ratings)}
-                  </span>
+                  <p className="review-content">{review.content}</p>
+                  <div className="review-footer">
+                    <span>{review.nickname}</span>
+                    <span>👍 {review.likeCount}</span>
+                  </div>
                 </div>
-                <p className="review-content">{review.content}</p>
-                <div className="review-footer">
-                  <span>{review.nickname}</span>
-                  <span>👍 {review.likeCount}</span>
-                </div>
-              </div>
               ))
             )}
           </div>
@@ -124,7 +136,9 @@ function Home() {
         <div className="section-container sogang-menu-section">
           <h2 className="section-title">오늘의 우정원 메뉴</h2>
           <div className="menu-placeholder">
-            {campusMenus && campusMenus.menus && campusMenus.menus.length > 0 ? (
+            {campusMenus &&
+            campusMenus.menus &&
+            campusMenus.menus.length > 0 ? (
               <div>
                 {campusMenus.menus.map((menu, index) => (
                   <div key={index} style={{ marginBottom: "10px" }}>
