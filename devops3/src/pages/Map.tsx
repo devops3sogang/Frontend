@@ -194,7 +194,7 @@ function Map() {
               >
                 <span style={{ color: "#FFA500", fontSize: "18px" }}>★</span>
                 <span style={{ fontSize: "14px", color: "#666" }}>
-                  {selectedRestaurant.stats?.averageRating?.toFixed(1) ?? "0.0"}
+                  {selectedRestaurant.stats?.rating?.toFixed(1) ?? "0.0"}
                 </span>
               </div>
             </div>

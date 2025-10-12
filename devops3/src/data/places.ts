@@ -30,7 +30,7 @@ export interface MenuItem {
 
 // 식당 통계 정보
 export interface RestaurantStats {
-  averageRating: number; // 평균 별점
+  rating: number; // 평균 별점
   reviewCount: number; // 리뷰 수
 }
 
@@ -109,7 +109,7 @@ export const restaurantsData: Restaurant[] = [
     imageUrl: "https://example.com/kimbap.jpg",
     isActive: true,
     stats: {
-      averageRating: 4.5,
+      rating: 4.5,
       reviewCount: 2,
     },
     menu: [
@@ -134,7 +134,7 @@ export const restaurantsData: Restaurant[] = [
     imageUrl: "https://example.com/donkatsu.jpg",
     isActive: true,
     stats: {
-      averageRating: 4.8,
+      rating: 4.8,
       reviewCount: 1,
     },
     menu: [
@@ -158,7 +158,7 @@ export const restaurantsData: Restaurant[] = [
     imageUrl: "https://example.com/korean.jpg",
     isActive: true,
     stats: {
-      averageRating: 4.2,
+      rating: 4.2,
       reviewCount: 1,
     },
     menu: [
@@ -183,7 +183,7 @@ export const restaurantsData: Restaurant[] = [
     imageUrl: "https://example.com/pasta.jpg",
     isActive: true,
     stats: {
-      averageRating: 4.7,
+      rating: 4.7,
       reviewCount: 1,
     },
     menu: [
@@ -208,7 +208,7 @@ export const restaurantsData: Restaurant[] = [
     imageUrl: "https://example.com/chinese.jpg",
     isActive: true,
     stats: {
-      averageRating: 4.4,
+      rating: 4.4,
       reviewCount: 2,
     },
     menu: [
@@ -233,7 +233,7 @@ export const restaurantsData: Restaurant[] = [
     imageUrl: "https://example.com/chicken.jpg",
     isActive: true,
     stats: {
-      averageRating: 4.6,
+      rating: 4.6,
       reviewCount: 2,
     },
     menu: [
@@ -258,7 +258,7 @@ export const restaurantsData: Restaurant[] = [
     imageUrl: "https://example.com/ramen.jpg",
     isActive: true,
     stats: {
-      averageRating: 4.9,
+      rating: 4.9,
       reviewCount: 2,
     },
     menu: [
@@ -283,7 +283,7 @@ export const restaurantsData: Restaurant[] = [
     imageUrl: "https://example.com/taco.jpg",
     isActive: true,
     stats: {
-      averageRating: 4.3,
+      rating: 4.3,
       reviewCount: 1,
     },
     menu: [
@@ -308,7 +308,7 @@ export const restaurantsData: Restaurant[] = [
     imageUrl: "https://example.com/cafe.jpg",
     isActive: true,
     stats: {
-      averageRating: 4.5,
+      rating: 4.5,
       reviewCount: 2,
     },
     menu: [
@@ -599,7 +599,7 @@ export const reviewsData: Review[] = [
 ];
 
 // 식당의 평균 별점 계산 헬퍼 함수 (가게 별점 평균)
-export function getAverageRating(restaurantId: string): number {
+export function getrating(restaurantId: string): number {
   const restaurantReviews = reviewsData.filter(
     (review) => review.target.restaurantId === restaurantId
   );
