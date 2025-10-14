@@ -77,8 +77,8 @@ function Login() {
           <p>
             <strong>테스트 계정:</strong>
           </p>
-          <p>이메일: user1@sogang.ac.kr</p>
-          <p>비밀번호: password</p>
+          <p>이메일: test@sogang.ac.kr</p>
+          <p>비밀번호: password123</p>
         </div>
 
         <div className="signup-link">
