@@ -1,6 +1,7 @@
 // 리뷰 쓸 때 뜨는 모달
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import type { Restaurant } from "../data/places";
 import type { ReviewResponse } from "../api/types";
 import "./ReviewModal.css";
@@ -164,7 +165,7 @@ function ReviewModal({
     </div>
   );
 
-  return (
+  const modalContent = (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
@@ -303,6 +304,9 @@ function ReviewModal({
       </div>
     </div>
   );
+
+  // Portal을 사용하여 document.body에 직접 렌더링
+  return createPortal(modalContent, document.body);
 }
 
 export default ReviewModal;
