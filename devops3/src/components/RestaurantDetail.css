@@ -4,18 +4,34 @@
   right: 0;
   width: 400px;
   height: calc(100vh - 60px);
+  height: -webkit-calc(100vh - 60px);
   background-color: white;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   z-index: 1000;
+  -webkit-animation: slideIn 0.3s ease-out;
   animation: slideIn 0.3s ease-out;
+}
+
+@-webkit-keyframes slideIn {
+  from {
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
+  }
+  to {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+  }
 }
 
 @keyframes slideIn {
   from {
+    -webkit-transform: translateX(100%);
     transform: translateX(100%);
   }
   to {
+    -webkit-transform: translateX(0);
     transform: translateX(0);
   }
 }
@@ -26,6 +42,7 @@
   align-items: center;
   padding: 20px;
   border-bottom: 1px solid #e0e0e0;
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
   background-color: white;
@@ -180,6 +197,13 @@
   cursor: pointer;
 }
 
+/* Safari 구버전 대응 */
+@supports not (gap: 4px) {
+  .review-rating > * + * {
+    margin-left: 4px;
+  }
+}
+
 .review-rating .star {
   color: #ffa500;
   font-size: 16px;
@@ -299,6 +323,16 @@
   margin-bottom: 8px;
 }
 
+/* Safari 구버전 대응 */
+@supports not (gap: 6px) {
+  .menu-tags {
+    margin: -3px -3px 8px -3px;
+  }
+  .menu-tags > * {
+    margin: 3px;
+  }
+}
+
 .menu-tag {
   display: inline-block;
   padding: 4px 8px;
@@ -376,9 +410,17 @@
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
   display: flex;
   gap: 6px;
   z-index: 2;
+}
+
+/* Safari 구버전 대응 */
+@supports not (gap: 6px) {
+  .image-indicators > * + * {
+    margin-left: 6px;
+  }
 }
 
 .image-indicators .indicator {
