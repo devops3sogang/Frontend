@@ -8,7 +8,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 10001;  /* RestaurantDetail(1000)보다 위에 */
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-content {
@@ -17,9 +18,13 @@
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
+  max-height: -webkit-calc(90vh);
   overflow-x: hidden;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 10002;
 }
 
 .modal-content::-webkit-scrollbar {
@@ -114,9 +119,23 @@ form {
   justify-content: center;
 }
 
+/* Safari 구버전 대응 */
+@supports not (gap: 8px) {
+  .rating-input .stars > * + * {
+    margin-left: 8px;
+  }
+}
+
 .stars {
   display: flex;
   gap: 8px;
+}
+
+/* Safari 구버전 대응 */
+@supports not (gap: 8px) {
+  .stars > * + * {
+    margin-left: 8px;
+  }
 }
 
 .stars .star {
@@ -141,6 +160,13 @@ form {
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid #eee;
+}
+
+/* Safari 구버전 대응 */
+@supports not (gap: 10px) {
+  .modal-actions > * + * {
+    margin-left: 10px;
+  }
 }
 
 .btn-cancel,
@@ -181,6 +207,14 @@ form {
   border-radius: 6px;
   max-height: 400px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Safari 구버전 대응 */
+@supports not (gap: 15px) {
+  .menu-list > * + * {
+    margin-top: 15px;
+  }
 }
 
 .menu-item {
@@ -192,6 +226,14 @@ form {
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: all 0.2s;
+  -webkit-transition: all 0.2s;
+}
+
+/* Safari 구버전 대응 */
+@supports not (gap: 10px) {
+  .menu-item > * + * {
+    margin-top: 10px;
+  }
 }
 
 .menu-item.selected {
@@ -227,6 +269,13 @@ form {
   gap: 8px;
 }
 
+/* Safari 구버전 대응 */
+@supports not (gap: 8px) {
+  .menu-stars > * + * {
+    margin-left: 8px;
+  }
+}
+
 .menu-stars .star {
   font-size: 28px;
   color: #ddd;
@@ -257,6 +306,13 @@ form {
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin-top: 15px;
+}
+
+/* Safari 구버전 대응 */
+@supports not (gap: 10px) {
+  .images-preview-grid {
+    grid-gap: 10px;
+  }
 }
 
 .image-preview-container {
