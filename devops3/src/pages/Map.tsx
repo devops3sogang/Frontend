@@ -253,7 +253,7 @@ function Map() {
             cursor: "pointer",
           }}
         >
-          + 식당 등록
+          + 맛집 등록
         </button>
       )}
 

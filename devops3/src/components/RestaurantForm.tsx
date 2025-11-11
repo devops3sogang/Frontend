@@ -11,28 +11,25 @@ interface RestaurantFormProps {
   mode: "create" | "edit";
   initialData?: Restaurant;
   onClose: () => void;
-  onSubmitSuccess: () => void;
+  onSubmitSuccess?: (payload: CreateRestaurantRequest) => void | Promise<void>;
 }
 
-export default function RestaurantForm({
+function RestaurantForm({
   mode,
   initialData,
   onClose,
   onSubmitSuccess,
 }: RestaurantFormProps) {
-  const [form, setForm] = useState<CreateRestaurantRequest>({
+  // --- 기본 폼 상태 ---
+  const [form, setForm] = useState({
     name: initialData?.name || "",
-    type: initialData?.type || "ON_CAMPUS",
-    category: initialData?.category || "한식",
+    category: initialData?.category || "",
     address: initialData?.address || "",
-    location: initialData?.location || {
-      type: "Point",
-      coordinates: [126.9410, 37.5509],
-    },
+    lat: initialData?.location?.coordinates?.[1] ?? 37.5511,
+    lng: initialData?.location?.coordinates?.[0] ?? 126.9418,
     imageUrl: initialData?.imageUrl || "",
+    isActive: initialData?.isActive ?? true,
   });
-
-  const [loading, setLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -41,38 +38,34 @@ export default function RestaurantForm({
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // --- 저장 버튼 클릭 시 ---
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    try {
-      if (mode === "create") {
-        await adminCreateRestaurant(form);
-        alert("새 식당이 등록되었습니다!");
-      } else if (mode === "edit" && initialData) {
-        await adminUpdateRestaurant(initialData.id, form);
-        alert("식당 정보가 수정되었습니다!");
-      }
-      onSubmitSuccess();
-      onClose();
-    } catch (err) {
-      console.error(err);
-      alert("저장 중 오류가 발생했습니다.");
-    } finally {
-      setLoading(false);
-    }
+
+    // ✅ CreateRestaurantRequest 형태의 payload 생성
+    const payload: CreateRestaurantRequest = {
+      name: form.name.trim(),
+      type: "OFF_CAMPUS",
+      category: form.category.trim(),
+      address: form.address.trim(),
+      location: {
+        type: "Point",
+        coordinates: [Number(form.lng), Number(form.lat)], // [경도, 위도]
+      },
+      imageUrl: form.imageUrl || undefined,
+    };
+
+    // ✅ 부모에게 payload 전달 (API 호출은 부모 컴포넌트에서 수행)
+    onSubmitSuccess?.(payload);
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div
-        className="modal-content"
-        style={{ maxWidth: "500px" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2>{mode === "create" ? "식당 등록" : "식당 수정"}</h2>
+    <div className="restaurant-form-overlay">
+      <div className="restaurant-form">
+        <h2>{mode === "create" ? "새 식당 등록" : "식당 정보 수정"}</h2>
         <form onSubmit={handleSubmit}>
           <label>
-            이름
+            식당 이름
             <input
               type="text"
               name="name"
@@ -80,14 +73,6 @@ export default function RestaurantForm({
               onChange={handleChange}
               required
             />
-          </label>
-
-          <label>
-            분류
-            <select name="type" value={form.type} onChange={handleChange}>
-              <option value="ON_CAMPUS">교내</option>
-              <option value="OFF_CAMPUS">교외</option>
-            </select>
           </label>
 
           <label>
@@ -112,8 +97,34 @@ export default function RestaurantForm({
             />
           </label>
 
+          <div className="form-row">
+            <label>
+              위도(lat)
+              <input
+                type="number"
+                step="any"
+                name="lat"
+                value={form.lat}
+                onChange={handleChange}
+                required
+              />
+            </label>
+
+            <label>
+              경도(lng)
+              <input
+                type="number"
+                step="any"
+                name="lng"
+                value={form.lng}
+                onChange={handleChange}
+                required
+              />
+            </label>
+          </div>
+
           <label>
-            이미지 URL
+            이미지 URL (선택)
             <input
               type="text"
               name="imageUrl"
@@ -123,11 +134,15 @@ export default function RestaurantForm({
           </label>
 
           <div className="form-actions">
-            <button type="button" onClick={onClose} disabled={loading}>
-              취소
+            <button type="submit" className="btn-submit">
+              {mode === "create" ? "등록" : "저장"}
             </button>
-            <button type="submit" disabled={loading}>
-              {loading ? "저장 중..." : "저장"}
+            <button
+              type="button"
+              className="btn-cancel"
+              onClick={() => onClose()}
+            >
+              취소
             </button>
           </div>
         </form>
@@ -135,3 +150,5 @@ export default function RestaurantForm({
     </div>
   );
 }
+
+export default RestaurantForm;

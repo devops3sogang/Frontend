@@ -157,7 +157,7 @@ function Home() {
 
         {/* 룰렛 컨테이너 */}
         <div className="section-container roulette-section">
-          <h2 className="section-title">🎰오늘의 식당</h2>
+          <h2 className="section-title">🎰오늘의 맛집</h2>
           <Roulette onNavigateToMap={handleReviewClick} />
         </div>
 

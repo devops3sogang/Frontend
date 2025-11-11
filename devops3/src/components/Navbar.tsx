@@ -21,14 +21,13 @@ function Navbar() {
         {isAuthenticated ? (
           <>
             <span className="nav-user">👤 {user?.nickname}</span>
-            <Link to="/mypage" className="nav-link">
-              마이페이지
-            </Link>
+            {user?.role?.toUpperCase() === "ADMIN" && (
+              <Link to="/admin" className="nav-link">관리자페이지</Link>
+            )}
+            <Link to="/mypage" className="nav-link">마이페이지</Link>
           </>
         ) : (
-          <Link to="/login" className="nav-link nav-login">
-            로그인
-          </Link>
+          <Link to="/login" className="nav-link nav-login">로그인</Link>
         )}
       </div>
     </nav>
