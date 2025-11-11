@@ -69,11 +69,23 @@ export interface CreateRestaurantRequest {
     coordinates: [number, number]; // [경도, 위도]
   };
   imageUrl?: string;
+
+  // 메뉴 최소 1개 이상 필수
+  menu: Array<MenuItemInput>;
 }
+
+// 업데이트 요청 타입이 별도로 필요하면 동일 구조 사용
+export type UpdateRestaurantRequest = CreateRestaurantRequest;
 
 export interface RestaurantListParams {
   type?: "ON_CAMPUS" | "OFF_CAMPUS";
   category?: string;
+}
+
+// 메뉴 타입 (요청용)
+export interface MenuItemInput {
+  name: string;
+  price: number;
 }
 
 // 리뷰 관련 타입
