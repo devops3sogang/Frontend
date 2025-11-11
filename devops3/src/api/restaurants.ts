@@ -6,12 +6,10 @@ import type {
 } from "./types";
 import type { Restaurant } from "../data/places";
 
-// 맛집 등록
-export const createRestaurant = async (
-  data: CreateRestaurantRequest
-): Promise<Restaurant> => {
-  const response = await apiClient.post<Restaurant>("/restaurants", data);
-  return response.data;
+// 관리자: 맛집 생성
+export const adminCreateRestaurant = async (data: CreateRestaurantRequest) => {
+  const res = await apiClient.post("/admin/restaurants", data);
+  return res.data;
 };
 
 // 맛집 목록 조회
@@ -32,4 +30,16 @@ export const getRestaurant = async (
     `/restaurants/${id}`
   );
   return response.data;
+};
+
+// 관리자: 맛집 수정
+export const adminUpdateRestaurant = async (id: string, data: CreateRestaurantRequest) => {
+  const res = await apiClient.put(`/admin/restaurants/${id}`, data);
+  return res.data;
+};
+
+// 관리자: 맛집 삭제
+export const adminDeleteRestaurant = async (id: string) => {
+  const res = await apiClient.delete(`/admin/restaurants/${id}`);
+  return res.data;
 };

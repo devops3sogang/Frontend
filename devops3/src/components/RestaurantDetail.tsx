@@ -8,9 +8,11 @@ import {
   getRestaurant,
   createReview,
   toggleReviewLike as apiToggleReviewLike,
+  adminDeleteRestaurant,
 } from "../api";
 import { useAuth } from "../contexts/AuthContext";
 import ReviewModal from "./ReviewModal";
+import RestaurantForm from "./RestaurantForm";
 import "./RestaurantDetail.css";
 
 interface RestaurantDetailProps {
@@ -60,6 +62,10 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
   const [reviews, setReviews] = useState<ReviewDetailResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // ✅ 관리자용 상태
+  const [showForm, setShowForm] = useState(false);
+  const [formMode, setFormMode] = useState<"create" | "edit">("edit");
+
   // 리뷰들의 restaurantRating 평균 계산
   const averageRating =
     reviews.length > 0
@@ -71,42 +77,31 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
   const reviewCount = reviews.length;
 
   // 리뷰 목록 가져오기
+  const fetchDetails = async () => {
+    if (!restaurant.id) {
+      console.warn("Restaurant ID is undefined, skipping review fetch");
+      setReviews([]);
+      setLoading(false);
+      return;
+    }
+    try {
+      const data = await getRestaurant(restaurant.id);
+      const reviewsWithLikedStatus = (data.reviews || []).map(review => ({
+        ...review,
+        likedByCurrentUser: review.likedByCurrentUser ?? false,
+      }));
+      setReviews(reviewsWithLikedStatus);
+    } catch (error) {
+      console.error("Failed to fetch restaurant details:", error);
+      setReviews([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchReviews = async () => {
-      // restaurant.id가 없으면 API 호출하지 않음
-      if (!restaurant.id) {
-        console.warn("Restaurant ID is undefined, skipping review fetch");
-        setReviews([]);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const data = await getRestaurant(restaurant.id);
-
-        console.log("--- API 응답 원본 데이터 ---", data);
-        if (data.reviews && data.reviews.length > 0) {
-          console.log("첫 번째 리뷰 데이터:", data.reviews[0]);
-          console.log("첫 번째 리뷰의 likedByCurrentUser:", data.reviews[0].likedByCurrentUser);
-          console.log("첫 번째 리뷰의 전체 필드:", Object.keys(data.reviews[0]));
-        }
-
-        // likedByCurrentUser가 undefined인 경우 false로 초기화
-        const reviewsWithLikedStatus = (data.reviews || []).map(review => ({
-          ...review,
-          likedByCurrentUser: review.likedByCurrentUser ?? false,
-        }));
-
-        setReviews(reviewsWithLikedStatus);
-      } catch (error) {
-        console.error("Failed to fetch restaurant details:", error);
-        setReviews([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchReviews();
+    setLoading(true);
+    fetchDetails();
   }, [restaurant.id]);
 
   const handleAddReview = () => {
@@ -225,6 +220,31 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     }
   };
 
+  // ✅ 관리자용 함수
+  const handleEditRestaurant = () => {
+    setFormMode("edit");
+    setShowForm(true);
+  };
+
+  const handleDeleteRestaurant = async () => {
+    if (!window.confirm("정말 이 식당을 삭제하시겠습니까?")) return;
+    try {
+      await adminDeleteRestaurant(restaurant.id);
+      alert("식당이 삭제되었습니다.");
+      onClose();                 // 패널 닫기
+      // 필요하면 navigate("/map"); // 또는 부모 콜백으로 목록/마커 갱신
+    } catch (error: any) {
+      console.error("식당 삭제 실패:", error);
+      const status = error?.response?.status;
+      if (status === 401 || status === 403) {
+        alert("권한이 없습니다. 관리자 계정으로 로그인해 주세요.");
+        navigate("/login");
+      } else {
+        alert("식당 삭제 중 오류가 발생했습니다.");
+      }
+    }
+  };
+
   const handleNextImage = (reviewId: string, totalImages: number) => {
     setCurrentImageIndex((prev) => ({
       ...prev,
@@ -298,6 +318,19 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     <div className="restaurant-detail">
       <div className="detail-header">
         <h2>{restaurant.name}</h2>
+
+        {/* ✅ 관리자 전용 버튼 */}
+        {user?.role.toUpperCase() === "ADMIN" && (
+          <div className="admin-actions">
+            <button className="btn-edit" onClick={handleEditRestaurant}>
+              수정
+            </button>
+            <button className="btn-delete" onClick={handleDeleteRestaurant}>
+              삭제
+            </button>
+          </div>
+        )}
+
         <button className="close-btn" onClick={onClose}>
           ×
         </button>
@@ -336,6 +369,19 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
             ))}
           </ul>
         </div>
+      )}
+
+      {/* ✅ RestaurantForm 추가 */}
+      {showForm && (
+        <RestaurantForm
+          mode={formMode}
+          initialData={restaurant}
+          onClose={() => setShowForm(false)}
+          onSubmitSuccess={async () => {
+            setShowForm(false);
+            await fetchDetails(); // ← 최신 상세만 다시 불러와 반영
+          }}
+        />
       )}
 
       <div className="reviews-section">

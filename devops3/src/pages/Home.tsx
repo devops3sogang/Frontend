@@ -4,6 +4,7 @@ import type { Restaurant } from "../data/places";
 import type { ReviewResponse, OnCampusMenuResponse } from "../api/types";
 import { getAllReviews } from "../api/reviews";
 import { getOnCampusMenus } from "../api/menus";
+import { getRestaurant } from "../api";
 import Roulette from "../components/Roulette";
 import RestaurantDetail from "../components/RestaurantDetail";
 import "../App.css";
@@ -18,6 +19,7 @@ function Home() {
     null
   );
   const [loading, setLoading] = useState(true);
+  const [restaurantNameMap, setRestaurantNameMap] = useState<Record<string, string>>({});
 
   // 최신 리뷰 가져오기
   useEffect(() => {
@@ -32,6 +34,28 @@ function Home() {
           )
           .slice(0, 5);
         setLatestReviews(sorted);
+
+        // ✅ 리뷰의 restaurantId로 최신 식당 이름을 매핑
+        const ids = Array.from(
+          new Set(
+            sorted
+              .map((r) => r.restaurantId) // 하위 호환 필드 사용 (이미 코드가 이걸 씀)
+              .filter((id): id is string => !!id)
+          )
+        );
+
+        const map: Record<string, string> = {};
+        await Promise.all(
+          ids.map(async (id) => {
+            try {
+              const detail = await getRestaurant(id);
+              map[id] = detail.name; // 최신 이름
+            } catch (e) {
+              console.warn("식당 이름 갱신 실패:", id, e);
+            }
+          })
+        );
+        setRestaurantNameMap(map);
       } catch (error) {
         console.error("Failed to fetch reviews:", error);
       } finally {
@@ -99,7 +123,12 @@ function Home() {
                   <div className="review-header">
                     <div>
                       <span className="restaurant-name">
-                        {review.restaurantName || "식당 정보 없음"}
+                        {
+                          // ✅ 최신 이름이 있으면 그걸 사용, 없으면 기존 필드 사용
+                          (review.restaurantId && restaurantNameMap[review.restaurantId]) ||
+                          review.restaurantName ||
+                          "식당 정보 없음"
+                        }
                       </span>
                       {review.ratings.menuRatings.length > 0 && (
                         <span className="menu-items">
