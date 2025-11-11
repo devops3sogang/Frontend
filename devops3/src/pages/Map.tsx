@@ -4,6 +4,8 @@ import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 import { getRestaurants } from "../api";
 import RestaurantDetail from "../components/RestaurantDetail";
 import type { Restaurant } from "../data/places";
+import RestaurantForm from "../components/RestaurantForm";
+import { useAuth } from "../contexts/AuthContext";
 
 const containerStyle = {
   width: "100%",
@@ -18,6 +20,8 @@ const defaultCenter = {
 
 function Map() {
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+
   const [currentPosition, setCurrentPosition] = useState<{
     lat: number;
     lng: number;
@@ -28,31 +32,28 @@ function Map() {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   // 맛집 목록 가져오기
-  useEffect(() => {
-    const fetchRestaurants = async () => {
-      try {
-        const data = await getRestaurants();
-        console.log("API Response:", data[0]); // 첫 번째 데이터의 구조 확인
-        // id 또는 id가 있는 레스토랑만 필터링
-        const validRestaurants = data.filter((r) => r.id || (r as any).id);
-        setRestaurants(validRestaurants);
-        if (validRestaurants.length < data.length) {
-          console.warn(
-            `${
-              data.length - validRestaurants.length
-            }개의 레스토랑에 id가 없어 제외되었습니다.`
-          );
-        }
-      } catch (error) {
-        console.error("Failed to fetch restaurants:", error);
-        setRestaurants([]);
-      } finally {
-        setLoading(false);
+  const fetchRestaurants = async () => {
+    try {
+      const data = await getRestaurants();
+      console.log("API Response:", data[0]);
+      const validRestaurants = data.filter((r) => r.id || (r as any).id);
+      setRestaurants(validRestaurants);
+      if (validRestaurants.length < data.length) {
+        console.warn(`${data.length - validRestaurants.length}개의 레스토랑에 id가 없어 제외되었습니다.`);
       }
-    };
+    } catch (error) {
+      console.error("Failed to fetch restaurants:", error);
+      setRestaurants([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    setLoading(true);
     fetchRestaurants();
   }, []);
 
@@ -120,6 +121,31 @@ function Map() {
       map.panBy(+150, 0);
     }
   }, [mapCenter, map]);
+
+  // ✅ 새 식당 기본값을 만드는 헬퍼 (지도 중심/현재 위치 기반 좌표)
+  const makeDefaultRestaurantPayload = () => {
+    const center = map
+      ? (map.getCenter() as google.maps.LatLng)
+      : currentPosition
+      ? new google.maps.LatLng(currentPosition.lat, currentPosition.lng)
+      : new google.maps.LatLng(defaultCenter.lat, defaultCenter.lng);
+
+    const lat = center.lat();
+    const lng = center.lng();
+
+    return {
+      name: "",
+      type: "OFF_CAMPUS" as const,
+      category: "",
+      address: "",
+      location: {
+        type: "Point" as const,
+        coordinates: [lng, lat] as [number, number], // [경도, 위도]
+      },
+      imageUrl: "",
+      menu: [] as { name: string; price: number }[],
+    };
+  };
 
   if (loading) {
     return (
@@ -207,6 +233,40 @@ function Map() {
         <RestaurantDetail
           restaurant={selectedRestaurant}
           onClose={() => setSelectedRestaurant(null)}
+        />
+      )}
+
+      {/* ✅ 관리자 전용 플로팅 버튼 */}
+      {user?.role === "ADMIN" && (
+        <button
+          onClick={() => setShowCreateForm(true)}
+          style={{
+            position: "absolute",
+            right: 24,
+            bottom: 24,
+            zIndex: 5,
+            border: "none",
+            borderRadius: "9999px",
+            padding: "12px 16px",
+            fontSize: 16,
+            boxShadow: "0 6px 20px rgba(0,0,0,0.2)",
+            cursor: "pointer",
+          }}
+        >
+          + 식당 등록
+        </button>
+      )}
+
+      {/* ✅ 생성 모달: RestaurantForm (mode="create") */}
+      {showCreateForm && (
+        <RestaurantForm
+          mode="create"
+          initialData={makeDefaultRestaurantPayload() as any}
+          onClose={() => setShowCreateForm(false)}
+          onSubmitSuccess={async () => {
+            setShowCreateForm(false);
+            await fetchRestaurants(); // 생성 후 목록 갱신
+          }}
         />
       )}
     </div>
