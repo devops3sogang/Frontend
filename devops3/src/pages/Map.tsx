@@ -242,7 +242,7 @@ function Map() {
           onClick={() => setShowCreateForm(true)}
           style={{
             position: "absolute",
-            right: 24,
+            left: 24,
             bottom: 24,
             zIndex: 5,
             border: "none",
