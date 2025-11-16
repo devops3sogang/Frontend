@@ -102,6 +102,21 @@ function MyPage() {
     navigate("/");
   };
 
+  const handleReviewClick = (review: ReviewResponse) => {
+    console.log("Review clicked:", review);
+    console.log("restaurantId:", review.restaurantId);
+    console.log("target:", review.target);
+
+    const restaurantId = review.restaurantId || review.target?.restaurantId;
+
+    if (restaurantId) {
+      console.log("Navigating to:", `/map?restaurantId=${restaurantId}`);
+      navigate(`/map?restaurantId=${restaurantId}`);
+    } else {
+      console.warn("No restaurantId found in review:", review);
+    }
+  };
+
   if (!user) {
     return null;
   }
@@ -202,7 +217,14 @@ function MyPage() {
           <div className="reviews-list">
             {myReviews.length > 0 ? (
               myReviews.map((review) => (
-                <div key={review._id} className="review-card">
+                <div
+                  key={review._id}
+                  className="review-card"
+                  onClick={() => handleReviewClick(review)}
+                  style={{
+                    cursor: "pointer",
+                  }}
+                >
                   <div className="review-header">
                     <h3>
                       {review.target?.restaurantName ||
@@ -251,7 +273,14 @@ function MyPage() {
           <div className="reviews-list">
             {likedReviews.length > 0 ? (
               likedReviews.map((review) => (
-                <div key={review._id} className="review-card">
+                <div
+                  key={review._id}
+                  className="review-card"
+                  onClick={() => handleReviewClick(review)}
+                  style={{
+                    cursor: "pointer",
+                  }}
+                >
                   <div className="review-header">
                     <h3>
                       {review.target?.restaurantName ||
