@@ -34,6 +34,18 @@ function Map() {
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
 
+  // 필터/정렬 상태
+  const [filterTypes, setFilterTypes] = useState<
+    ("ON_CAMPUS" | "OFF_CAMPUS")[]
+  >([]);
+  const [filterCategories, setFilterCategories] = useState<string[]>([]);
+  const [filterRadius, setFilterRadius] = useState<number | null>(null); // null = 전체 거리
+  const [sortBy, setSortBy] = useState<"NONE" | "DISTANCE" | "RATING">("NONE");
+
+  // 토글 상태
+  const [showFilters, setShowFilters] = useState(true);
+  const [showRestaurantList, setShowRestaurantList] = useState(true);
+
   // 맛집 목록 가져오기
   const fetchRestaurants = async () => {
     try {
@@ -41,15 +53,37 @@ function Map() {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           try {
-            const data = await getRestaurants({
+            const params: any = {
               lat: position.coords.latitude,
               lng: position.coords.longitude,
-            });
+            };
+
+            // 필터 적용 - 백엔드는 단일 type/category만 지원하므로 첫 번째 값 사용
+            if (filterTypes.length > 0) params.type = filterTypes[0];
+            if (filterCategories.length > 0)
+              params.category = filterCategories[0];
+            if (filterRadius !== null) params.radius = filterRadius; // null이 아닐 때만 적용
+            if (sortBy !== "NONE") params.sortBy = sortBy;
+
+            let data = await getRestaurants(params);
+
+            // 클라이언트 측에서 다중 필터 적용
+            if (filterTypes.length > 0) {
+              data = data.filter((r) => filterTypes.includes(r.type as any));
+            }
+            if (filterCategories.length > 0) {
+              data = data.filter((r) => filterCategories.includes(r.category));
+            }
+
             console.log("API Response:", data[0]);
             const validRestaurants = data.filter((r) => r.id || (r as any).id);
             setRestaurants(validRestaurants);
             if (validRestaurants.length < data.length) {
-              console.warn(`${data.length - validRestaurants.length}개의 레스토랑에 id가 없어 제외되었습니다.`);
+              console.warn(
+                `${
+                  data.length - validRestaurants.length
+                }개의 레스토랑에 id가 없어 제외되었습니다.`
+              );
             }
           } catch (error) {
             console.error("Failed to fetch restaurants:", error);
@@ -62,15 +96,37 @@ function Map() {
           console.error("위치 정보를 가져올 수 없습니다:", error);
           // 기본 위치 (서울) 사용
           try {
-            const data = await getRestaurants({
+            const params: any = {
               lat: defaultCenter.lat,
               lng: defaultCenter.lng,
-            });
+            };
+
+            // 필터 적용
+            if (filterTypes.length > 0) params.type = filterTypes[0];
+            if (filterCategories.length > 0)
+              params.category = filterCategories[0];
+            if (filterRadius !== null) params.radius = filterRadius; // null이 아닐 때만 적용
+            if (sortBy !== "NONE") params.sortBy = sortBy;
+
+            let data = await getRestaurants(params);
+
+            // 클라이언트 측에서 다중 필터 적용
+            if (filterTypes.length > 0) {
+              data = data.filter((r) => filterTypes.includes(r.type as any));
+            }
+            if (filterCategories.length > 0) {
+              data = data.filter((r) => filterCategories.includes(r.category));
+            }
+
             console.log("API Response:", data[0]);
             const validRestaurants = data.filter((r) => r.id || (r as any).id);
             setRestaurants(validRestaurants);
             if (validRestaurants.length < data.length) {
-              console.warn(`${data.length - validRestaurants.length}개의 레스토랑에 id가 없어 제외되었습니다.`);
+              console.warn(
+                `${
+                  data.length - validRestaurants.length
+                }개의 레스토랑에 id가 없어 제외되었습니다.`
+              );
             }
           } catch (error) {
             console.error("Failed to fetch restaurants:", error);
@@ -197,8 +253,486 @@ function Map() {
     );
   }
 
+  // 카테고리 목록
+  const categories = [
+    "한식",
+    "중식",
+    "일식",
+    "양식",
+    "분식",
+    "고깃집",
+    "횟집",
+    "패스트푸드",
+    "치킨",
+    "카페·디저트",
+    "퓨전",
+    "멕시칸",
+    "베트남",
+    "터키",
+    "인도",
+    "뷔페",
+  ];
+
+  // 필터 토글 핸들러
+  const toggleFilterType = (type: "ON_CAMPUS" | "OFF_CAMPUS") => {
+    setFilterTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
+
+  const toggleFilterCategory = (category: string) => {
+    setFilterCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category]
+    );
+  };
+
   return (
     <div style={{ position: "relative" }}>
+      {/* 필터 UI */}
+      <div
+        style={{
+          position: "absolute",
+          top: 20,
+          left: 20,
+          zIndex: 10,
+          backgroundColor: "white",
+          padding: "16px",
+          borderRadius: "8px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "12px",
+          minWidth: "300px",
+          maxWidth: "300px",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "4px",
+          }}
+        >
+          <div style={{ fontSize: "16px", fontWeight: "bold" }}>필터</div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            style={{
+              padding: "4px 8px",
+              fontSize: "12px",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+              backgroundColor: "white",
+              cursor: "pointer",
+              color: "#666",
+            }}
+          >
+            {showFilters ? "숨기기" : "보기"}
+          </button>
+        </div>
+
+        {showFilters && (
+          <>
+            {/* 식당 타입 - 버튼 형식 */}
+            <div>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button
+                  onClick={() => toggleFilterType("ON_CAMPUS")}
+                  style={{
+                    flex: 1,
+                    padding: "8px",
+                    border: filterTypes.includes("ON_CAMPUS")
+                      ? "2px solid #4CAF50"
+                      : "1px solid #ddd",
+                    borderRadius: "4px",
+                    backgroundColor: filterTypes.includes("ON_CAMPUS")
+                      ? "#e8f5e9"
+                      : "white",
+                    cursor: "pointer",
+                    fontSize: "13px",
+                    fontWeight: filterTypes.includes("ON_CAMPUS")
+                      ? "bold"
+                      : "normal",
+                    color: filterTypes.includes("ON_CAMPUS") ? "#2e7d32" : "#666",
+                  }}
+                >
+                  교내
+                </button>
+                <button
+                  onClick={() => toggleFilterType("OFF_CAMPUS")}
+                  style={{
+                    flex: 1,
+                    padding: "8px",
+                    border: filterTypes.includes("OFF_CAMPUS")
+                      ? "2px solid #4CAF50"
+                      : "1px solid #ddd",
+                    borderRadius: "4px",
+                    backgroundColor: filterTypes.includes("OFF_CAMPUS")
+                      ? "#e8f5e9"
+                      : "white",
+                    cursor: "pointer",
+                    fontSize: "13px",
+                    fontWeight: filterTypes.includes("OFF_CAMPUS")
+                      ? "bold"
+                      : "normal",
+                    color: filterTypes.includes("OFF_CAMPUS") ? "#2e7d32" : "#666",
+                  }}
+                >
+                  교외
+                </button>
+              </div>
+            </div>
+
+            {/* 카테고리 - 버튼 형식 */}
+            <div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => toggleFilterCategory(cat)}
+                    style={{
+                      padding: "6px 10px",
+                      border: filterCategories.includes(cat)
+                        ? "2px solid #4CAF50"
+                        : "1px solid #ddd",
+                      borderRadius: "16px",
+                      backgroundColor: filterCategories.includes(cat)
+                        ? "#e8f5e9"
+                        : "white",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      fontWeight: filterCategories.includes(cat)
+                        ? "bold"
+                        : "normal",
+                      color: filterCategories.includes(cat) ? "#2e7d32" : "#666",
+                    }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 거리 - 슬라이더 */}
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "6px",
+                }}
+              >
+                <label style={{ fontSize: "12px", color: "#666" }}>
+                  거리:{" "}
+                  {filterRadius === null
+                    ? "전체"
+                    : filterRadius >= 1000
+                    ? `${(filterRadius / 1000).toFixed(1)}km`
+                    : `${filterRadius}m`}
+                </label>
+                {filterRadius !== null && (
+                  <button
+                    onClick={() => setFilterRadius(null)}
+                    style={{
+                      fontSize: "10px",
+                      padding: "2px 6px",
+                      border: "1px solid #ddd",
+                      borderRadius: "3px",
+                      backgroundColor: "white",
+                      cursor: "pointer",
+                      color: "#666",
+                    }}
+                  >
+                    전체
+                  </button>
+                )}
+              </div>
+              <input
+                type="range"
+                min="100"
+                max="5000"
+                step="100"
+                value={filterRadius === null ? 5000 : filterRadius}
+                onChange={(e) => setFilterRadius(Number(e.target.value))}
+                style={{ width: "100%" }}
+              />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: "10px",
+                  color: "#999",
+                  marginTop: "2px",
+                }}
+              >
+                <span>100m</span>
+                <span>5km</span>
+              </div>
+            </div>
+
+            {/* 정렬 */}
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "12px",
+                  marginBottom: "6px",
+                  color: "#666",
+                }}
+              >
+                정렬 기준
+              </label>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <label
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "4px",
+                    cursor: "pointer",
+                    padding: "8px",
+                    border: "1px solid #ddd",
+                    borderRadius: "4px",
+                    backgroundColor: sortBy === "NONE" ? "#f0f0f0" : "white",
+                  }}
+                >
+                  <input
+                    type="radio"
+                    value="NONE"
+                    checked={sortBy === "NONE"}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                  />
+                  <span style={{ fontSize: "13px" }}>일반</span>
+                </label>
+                <label
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "4px",
+                    cursor: "pointer",
+                    padding: "8px",
+                    border: "1px solid #ddd",
+                    borderRadius: "4px",
+                    backgroundColor: sortBy === "DISTANCE" ? "#f0f0f0" : "white",
+                  }}
+                >
+                  <input
+                    type="radio"
+                    value="DISTANCE"
+                    checked={sortBy === "DISTANCE"}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                  />
+                  <span style={{ fontSize: "13px" }}>거리순</span>
+                </label>
+                <label
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "4px",
+                    cursor: "pointer",
+                    padding: "8px",
+                    border: "1px solid #ddd",
+                    borderRadius: "4px",
+                    backgroundColor: sortBy === "RATING" ? "#f0f0f0" : "white",
+                  }}
+                >
+                  <input
+                    type="radio"
+                    value="RATING"
+                    checked={sortBy === "RATING"}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                  />
+                  <span style={{ fontSize: "13px" }}>평점순</span>
+                </label>
+              </div>
+            </div>
+
+            {/* 검색 버튼 */}
+            <button
+              onClick={() => {
+                setLoading(true);
+                fetchRestaurants();
+              }}
+              style={{
+                padding: "10px",
+                backgroundColor: "#4CAF50",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontWeight: "bold",
+                fontSize: "14px",
+              }}
+            >
+              검색
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* 식당 리스트 */}
+      <div
+        style={{
+          position: "absolute",
+          top: 20,
+          left: 340,
+          zIndex: 10,
+          backgroundColor: "white",
+          padding: "16px",
+          borderRadius: "8px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+          width: "320px",
+          maxHeight: "calc(100vh - 100px)",
+          overflowY: "auto",
+        }}
+      >
+        <div
+          style={{
+            fontSize: "16px",
+            fontWeight: "bold",
+            marginBottom: "12px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span>식당 목록</span>
+            <span
+              style={{ fontSize: "14px", fontWeight: "normal", color: "#666" }}
+            >
+              {restaurants.length}개
+            </span>
+          </div>
+          <button
+            onClick={() => setShowRestaurantList(!showRestaurantList)}
+            style={{
+              padding: "4px 8px",
+              fontSize: "12px",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+              backgroundColor: "white",
+              cursor: "pointer",
+              color: "#666",
+            }}
+          >
+            {showRestaurantList ? "숨기기" : "보기"}
+          </button>
+        </div>
+
+        {showRestaurantList && (
+          <>
+            {loading ? (
+              <div
+                style={{ textAlign: "center", padding: "20px", color: "#666" }}
+              >
+                로딩 중...
+              </div>
+            ) : restaurants.length === 0 ? (
+              <div
+                style={{ textAlign: "center", padding: "20px", color: "#666" }}
+              >
+                검색 결과가 없습니다
+              </div>
+            ) : (
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+              >
+                {restaurants.map((restaurant) => (
+                  <div
+                    key={restaurant.id}
+                    onClick={() => {
+                      const newCenter = {
+                        lat: restaurant.location.coordinates[1],
+                        lng: restaurant.location.coordinates[0],
+                      };
+                      setSelectedRestaurant(restaurant);
+                      setMapCenter(newCenter);
+                    }}
+                    style={{
+                      padding: "12px",
+                      border: "1px solid #e0e0e0",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      backgroundColor:
+                        selectedRestaurant?.id === restaurant.id
+                          ? "#f0f8ff"
+                          : "white",
+                      transition: "all 0.2s",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedRestaurant?.id !== restaurant.id) {
+                        e.currentTarget.style.backgroundColor = "#f5f5f5";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedRestaurant?.id !== restaurant.id) {
+                        e.currentTarget.style.backgroundColor = "white";
+                      }
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: "14px",
+                          fontWeight: "bold",
+                          flex: 1,
+                        }}
+                      >
+                        {restaurant.name}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          color: "#666",
+                          backgroundColor: "#f0f0f0",
+                          padding: "2px 6px",
+                          borderRadius: "3px",
+                          whiteSpace: "nowrap",
+                          marginLeft: "8px",
+                        }}
+                      >
+                        {restaurant.category}
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        fontSize: "12px",
+                        color: "#666",
+                      }}
+                    >
+                      <span style={{ color: "#FFA500" }}>★</span>
+                      <span>
+                        {restaurant.stats?.rating?.toFixed(1) ?? "0.0"}
+                      </span>
+                      <span>({restaurant.stats?.reviewCount ?? 0})</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={mapCenter}
