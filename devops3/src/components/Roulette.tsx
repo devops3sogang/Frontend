@@ -23,13 +23,42 @@ function Roulette({ onNavigateToMap }: RouletteProps) {
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
-        const data = await getRestaurants();
-        setRestaurants(data.filter((r) => r.isActive));
+        // 사용자 위치 가져오기
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            try {
+              const data = await getRestaurants({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              });
+              setRestaurants(data.filter((r) => r.isActive));
+            } catch (error) {
+              console.error("Failed to fetch restaurants:", error);
+              setRestaurants([]);
+            } finally {
+              setLoading(false);
+            }
+          },
+          async (error) => {
+            console.error("위치 정보를 가져올 수 없습니다:", error);
+            // 기본 위치 (서강대) 사용
+            try {
+              const data = await getRestaurants({
+                lat: 37.5509,
+                lng: 126.9410,
+              });
+              setRestaurants(data.filter((r) => r.isActive));
+            } catch (error) {
+              console.error("Failed to fetch restaurants:", error);
+              setRestaurants([]);
+            } finally {
+              setLoading(false);
+            }
+          }
+        );
       } catch (error) {
-        console.error("Failed to fetch restaurants:", error);
-        // 에러 발생 시 빈 배열 설정
+        console.error("Failed to initialize geolocation:", error);
         setRestaurants([]);
-      } finally {
         setLoading(false);
       }
     };

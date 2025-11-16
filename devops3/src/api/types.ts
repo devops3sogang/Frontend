@@ -78,8 +78,12 @@ export interface CreateRestaurantRequest {
 export type UpdateRestaurantRequest = CreateRestaurantRequest;
 
 export interface RestaurantListParams {
+  lat?: number;
+  lng?: number;
   type?: "ON_CAMPUS" | "OFF_CAMPUS";
   category?: string;
+  radius?: number;
+  sortBy?: "NONE" | "DISTANCE" | "RATING";
 }
 
 // 메뉴 타입 (요청용)

@@ -37,17 +37,52 @@ function Map() {
   // 맛집 목록 가져오기
   const fetchRestaurants = async () => {
     try {
-      const data = await getRestaurants();
-      console.log("API Response:", data[0]);
-      const validRestaurants = data.filter((r) => r.id || (r as any).id);
-      setRestaurants(validRestaurants);
-      if (validRestaurants.length < data.length) {
-        console.warn(`${data.length - validRestaurants.length}개의 레스토랑에 id가 없어 제외되었습니다.`);
-      }
+      // 사용자 위치 가져오기
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const data = await getRestaurants({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+            console.log("API Response:", data[0]);
+            const validRestaurants = data.filter((r) => r.id || (r as any).id);
+            setRestaurants(validRestaurants);
+            if (validRestaurants.length < data.length) {
+              console.warn(`${data.length - validRestaurants.length}개의 레스토랑에 id가 없어 제외되었습니다.`);
+            }
+          } catch (error) {
+            console.error("Failed to fetch restaurants:", error);
+            setRestaurants([]);
+          } finally {
+            setLoading(false);
+          }
+        },
+        async (error) => {
+          console.error("위치 정보를 가져올 수 없습니다:", error);
+          // 기본 위치 (서울) 사용
+          try {
+            const data = await getRestaurants({
+              lat: defaultCenter.lat,
+              lng: defaultCenter.lng,
+            });
+            console.log("API Response:", data[0]);
+            const validRestaurants = data.filter((r) => r.id || (r as any).id);
+            setRestaurants(validRestaurants);
+            if (validRestaurants.length < data.length) {
+              console.warn(`${data.length - validRestaurants.length}개의 레스토랑에 id가 없어 제외되었습니다.`);
+            }
+          } catch (error) {
+            console.error("Failed to fetch restaurants:", error);
+            setRestaurants([]);
+          } finally {
+            setLoading(false);
+          }
+        }
+      );
     } catch (error) {
-      console.error("Failed to fetch restaurants:", error);
+      console.error("Failed to initialize geolocation:", error);
       setRestaurants([]);
-    } finally {
       setLoading(false);
     }
   };
