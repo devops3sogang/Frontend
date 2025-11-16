@@ -58,16 +58,13 @@ function Map() {
               lng: position.coords.longitude,
             };
 
-            // 필터 적용 - 백엔드는 단일 type/category만 지원하므로 첫 번째 값 사용
-            if (filterTypes.length > 0) params.type = filterTypes[0];
-            if (filterCategories.length > 0)
-              params.category = filterCategories[0];
-            if (filterRadius !== null) params.radius = filterRadius; // null이 아닐 때만 적용
-            if (sortBy !== "NONE") params.sortBy = sortBy;
+            // 거리 필터만 백엔드에 전달 (정렬은 클라이언트에서 처리)
+            if (filterRadius !== null) params.radius = filterRadius;
 
             let data = await getRestaurants(params);
+            console.log("백엔드에서 받은 데이터:", data.length, "개");
 
-            // 클라이언트 측에서 다중 필터 적용
+            // 클라이언트 측에서 OR 조건으로 필터 적용
             if (filterTypes.length > 0) {
               data = data.filter((r) => filterTypes.includes(r.type as any));
             }
@@ -75,7 +72,22 @@ function Map() {
               data = data.filter((r) => filterCategories.includes(r.category));
             }
 
-            console.log("API Response:", data[0]);
+            console.log("필터링 후 데이터:", data.length, "개", data.slice(0, 3).map(r => ({ name: r.name, distance: (r as any).distance })));
+
+            // 클라이언트에서 정렬
+            if (sortBy === "DISTANCE") {
+              // distance 필드가 있는지 확인
+              if (data.length > 0 && (data[0] as any).distance !== undefined) {
+                data.sort((a, b) => ((a as any).distance || 0) - ((b as any).distance || 0));
+                console.log("거리순 정렬 완료");
+              } else {
+                console.warn("거리 정보가 없어 거리순 정렬을 할 수 없습니다.");
+              }
+            } else if (sortBy === "RATING") {
+              data.sort((a, b) => (b.stats?.rating || 0) - (a.stats?.rating || 0));
+              console.log("평점순 정렬 완료");
+            }
+
             const validRestaurants = data.filter((r) => r.id || (r as any).id);
             setRestaurants(validRestaurants);
             if (validRestaurants.length < data.length) {
@@ -101,16 +113,13 @@ function Map() {
               lng: defaultCenter.lng,
             };
 
-            // 필터 적용
-            if (filterTypes.length > 0) params.type = filterTypes[0];
-            if (filterCategories.length > 0)
-              params.category = filterCategories[0];
-            if (filterRadius !== null) params.radius = filterRadius; // null이 아닐 때만 적용
-            if (sortBy !== "NONE") params.sortBy = sortBy;
+            // 거리 필터만 백엔드에 전달 (정렬은 클라이언트에서 처리)
+            if (filterRadius !== null) params.radius = filterRadius;
 
             let data = await getRestaurants(params);
+            console.log("백엔드에서 받은 데이터:", data.length, "개");
 
-            // 클라이언트 측에서 다중 필터 적용
+            // 클라이언트 측에서 OR 조건으로 필터 적용
             if (filterTypes.length > 0) {
               data = data.filter((r) => filterTypes.includes(r.type as any));
             }
@@ -118,7 +127,22 @@ function Map() {
               data = data.filter((r) => filterCategories.includes(r.category));
             }
 
-            console.log("API Response:", data[0]);
+            console.log("필터링 후 데이터:", data.length, "개", data.slice(0, 3).map(r => ({ name: r.name, distance: (r as any).distance })));
+
+            // 클라이언트에서 정렬
+            if (sortBy === "DISTANCE") {
+              // distance 필드가 있는지 확인
+              if (data.length > 0 && (data[0] as any).distance !== undefined) {
+                data.sort((a, b) => ((a as any).distance || 0) - ((b as any).distance || 0));
+                console.log("거리순 정렬 완료");
+              } else {
+                console.warn("거리 정보가 없어 거리순 정렬을 할 수 없습니다.");
+              }
+            } else if (sortBy === "RATING") {
+              data.sort((a, b) => (b.stats?.rating || 0) - (a.stats?.rating || 0));
+              console.log("평점순 정렬 완료");
+            }
+
             const validRestaurants = data.filter((r) => r.id || (r as any).id);
             setRestaurants(validRestaurants);
             if (validRestaurants.length < data.length) {
@@ -143,10 +167,16 @@ function Map() {
     }
   };
 
+  // 초기 로딩
   useEffect(() => {
     setLoading(true);
     fetchRestaurants();
   }, []);
+
+  // 필터 조건이 변경되면 자동으로 검색
+  useEffect(() => {
+    fetchRestaurants();
+  }, [filterTypes, filterCategories, filterRadius, sortBy]);
 
   // 사용자 위치 가져오기 (항상 실행)
   useEffect(() => {
@@ -238,20 +268,6 @@ function Map() {
     };
   };
 
-  if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "calc(100vh - 60px)",
-        }}
-      >
-        <p>맛집 정보를 불러오는 중...</p>
-      </div>
-    );
-  }
 
   // 카테고리 목록
   const categories = [
@@ -555,25 +571,6 @@ function Map() {
               </div>
             </div>
 
-            {/* 검색 버튼 */}
-            <button
-              onClick={() => {
-                setLoading(true);
-                fetchRestaurants();
-              }}
-              style={{
-                padding: "10px",
-                backgroundColor: "#4CAF50",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: "bold",
-                fontSize: "14px",
-              }}
-            >
-              검색
-            </button>
           </>
         )}
       </div>
