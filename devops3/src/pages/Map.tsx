@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 import { getRestaurants } from "../api";
@@ -33,6 +33,7 @@ function Map() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const previousMapCenter = useRef(mapCenter);
 
   // 필터/정렬 상태
   const [filterTypes, setFilterTypes] = useState<
@@ -40,7 +41,7 @@ function Map() {
   >([]);
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [filterRadius, setFilterRadius] = useState<number | null>(null); // null = 전체 거리
-  const [sortBy, setSortBy] = useState<"NONE" | "DISTANCE" | "RATING">("NONE");
+  const [sortBy, setSortBy] = useState<"DISTANCE" | "RATING" | "REVIEW_COUNT" | null>(null);
 
   // 토글 상태
   const [showFilters, setShowFilters] = useState(true);
@@ -86,6 +87,9 @@ function Map() {
             } else if (sortBy === "RATING") {
               data.sort((a, b) => (b.stats?.rating || 0) - (a.stats?.rating || 0));
               console.log("평점순 정렬 완료");
+            } else if (sortBy === "REVIEW_COUNT") {
+              data.sort((a, b) => (b.stats?.reviewCount || 0) - (a.stats?.reviewCount || 0));
+              console.log("리뷰 개수순 정렬 완료");
             }
 
             const validRestaurants = data.filter((r) => r.id || (r as any).id);
@@ -141,6 +145,9 @@ function Map() {
             } else if (sortBy === "RATING") {
               data.sort((a, b) => (b.stats?.rating || 0) - (a.stats?.rating || 0));
               console.log("평점순 정렬 완료");
+            } else if (sortBy === "REVIEW_COUNT") {
+              data.sort((a, b) => (b.stats?.reviewCount || 0) - (a.stats?.reviewCount || 0));
+              console.log("리뷰 개수순 정렬 완료");
             }
 
             const validRestaurants = data.filter((r) => r.id || (r as any).id);
@@ -236,10 +243,11 @@ function Map() {
 
   // mapCenter가 변경되면 지도를 해당 위치로 이동
   useEffect(() => {
-    if (map) {
+    if (map && (previousMapCenter.current.lat !== mapCenter.lat || previousMapCenter.current.lng !== mapCenter.lng)) {
       map.panTo(mapCenter);
       // 우측 패널(400px)을 고려해 오른쪽으로 이동
       map.panBy(+150, 0);
+      previousMapCenter.current = mapCenter;
     }
   }, [mapCenter, map]);
 
@@ -491,39 +499,40 @@ function Map() {
 
             {/* 정렬 */}
             <div>
-              <label
+              <div
                 style={{
-                  display: "block",
-                  fontSize: "12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                   marginBottom: "6px",
-                  color: "#666",
                 }}
               >
-                정렬 기준
-              </label>
-              <div style={{ display: "flex", gap: "8px" }}>
                 <label
                   style={{
-                    flex: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "4px",
-                    cursor: "pointer",
-                    padding: "8px",
-                    border: "1px solid #ddd",
-                    borderRadius: "4px",
-                    backgroundColor: sortBy === "NONE" ? "#f0f0f0" : "white",
+                    fontSize: "12px",
+                    color: "#666",
                   }}
                 >
-                  <input
-                    type="radio"
-                    value="NONE"
-                    checked={sortBy === "NONE"}
-                    onChange={(e) => setSortBy(e.target.value as any)}
-                  />
-                  <span style={{ fontSize: "13px" }}>일반</span>
+                  정렬 기준
                 </label>
+                {sortBy !== null && (
+                  <button
+                    onClick={() => setSortBy(null)}
+                    style={{
+                      fontSize: "10px",
+                      padding: "2px 6px",
+                      border: "1px solid #ddd",
+                      borderRadius: "3px",
+                      backgroundColor: "white",
+                      cursor: "pointer",
+                      color: "#666",
+                    }}
+                  >
+                    초기화
+                  </button>
+                )}
+              </div>
+              <div style={{ display: "flex", gap: "8px" }}>
                 <label
                   style={{
                     flex: 1,
@@ -567,6 +576,28 @@ function Map() {
                     onChange={(e) => setSortBy(e.target.value as any)}
                   />
                   <span style={{ fontSize: "13px" }}>평점순</span>
+                </label>
+                <label
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "4px",
+                    cursor: "pointer",
+                    padding: "8px",
+                    border: "1px solid #ddd",
+                    borderRadius: "4px",
+                    backgroundColor: sortBy === "REVIEW_COUNT" ? "#f0f0f0" : "white",
+                  }}
+                >
+                  <input
+                    type="radio"
+                    value="REVIEW_COUNT"
+                    checked={sortBy === "REVIEW_COUNT"}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                  />
+                  <span style={{ fontSize: "13px" }}>리뷰순</span>
                 </label>
               </div>
             </div>
