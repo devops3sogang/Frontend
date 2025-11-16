@@ -108,6 +108,18 @@ export interface CreateReviewRequest {
   imageUrls?: string[];
 }
 
+export interface ReviewUpdateRequest {
+  content?: string;
+  ratings: {
+    menuRatings: Array<{
+      menuName: string;
+      rating: number;
+    }>;
+    restaurantRating: number;
+  };
+  imageUrls?: string[];
+}
+
 export interface ReviewResponse {
   _id: string;
   userId: string;

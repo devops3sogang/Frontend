@@ -7,6 +7,8 @@ import type { ReviewResponse, ReviewDetailResponse } from "../api/types";
 import {
   getRestaurant,
   createReview,
+  updateReview,
+  deleteReview,
   toggleReviewLike as apiToggleReviewLike,
   adminDeleteRestaurant,
 } from "../api";
@@ -135,23 +137,37 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
       return;
     }
     const review = reviews.find((r) => r._id === reviewId);
-    if (review && review.userId !== user._id) {
+    if (review && review.userId !== user._id && user.role !== "ADMIN") {
       alert("본인이 작성한 리뷰만 삭제할 수 있습니다.");
       return;
     }
     if (window.confirm("리뷰를 삭제하시겠습니까?")) {
-      alert("리뷰 삭제 API가 아직 구현되지 않았습니다.");
-      // TODO: 백엔드에 DELETE /api/reviews/{id} API 추가 필요
-      // await deleteReview(reviewId);
-      // await fetchReviews();
+      try {
+        await deleteReview(reviewId);
+        alert("리뷰가 삭제되었습니다.");
+        await fetchDetails();
+      } catch (error) {
+        console.error("Failed to delete review:", error);
+        alert("리뷰 삭제에 실패했습니다.");
+      }
     }
   };
 
   const handleSubmitReview = async (reviewData: Partial<ReviewResponse>) => {
     if (editingReview) {
       // 수정
-      alert("리뷰 수정 API가 아직 구현되지 않았습니다.");
-      // TODO: 백엔드에 PUT /api/reviews/{id} API 추가 필요
+      try {
+        await updateReview(editingReview._id, {
+          content: reviewData.content,
+          ratings: reviewData.ratings!,
+          imageUrls: reviewData.imageUrls || [],
+        });
+        alert("리뷰가 수정되었습니다!");
+        await fetchDetails();
+      } catch (error) {
+        console.error("Failed to update review:", error);
+        alert("리뷰 수정에 실패했습니다.");
+      }
     } else {
       // 추가
       try {
@@ -163,13 +179,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
           imageUrls: reviewData.imageUrls || [],
         });
         alert("리뷰가 작성되었습니다!");
-        // 리뷰 목록 새로고침
-        const data = await getRestaurant(restaurant.id);
-        const reviewsWithLikedStatus = (data.reviews || []).map(review => ({
-          ...review,
-          likedByCurrentUser: review.likedByCurrentUser ?? false,
-        }));
-        setReviews(reviewsWithLikedStatus);
+        await fetchDetails();
       } catch (error) {
         console.error("Failed to create review:", error);
         alert("리뷰 작성에 실패했습니다.");

@@ -1,5 +1,10 @@
 import apiClient from "./client";
-import type { CreateReviewRequest, ReviewResponse, ToggleLikeResponse } from "./types";
+import type {
+  CreateReviewRequest,
+  ReviewResponse,
+  ReviewUpdateRequest,
+  ToggleLikeResponse,
+} from "./types";
 
 // 리뷰 작성
 export const createReview = async (
@@ -46,4 +51,21 @@ export const getAllReviews = async (): Promise<ReviewResponse[]> => {
 export const getMyLikedReviews = async (): Promise<ReviewResponse[]> => {
   const response = await apiClient.get<ReviewResponse[]>("/users/me/likes");
   return response.data;
+};
+
+// 리뷰 수정
+export const updateReview = async (
+  reviewId: string,
+  data: ReviewUpdateRequest
+): Promise<ReviewResponse> => {
+  const response = await apiClient.put<ReviewResponse>(
+    `/reviews/${reviewId}`,
+    data
+  );
+  return response.data;
+};
+
+// 리뷰 삭제
+export const deleteReview = async (reviewId: string): Promise<void> => {
+  await apiClient.delete(`/reviews/${reviewId}`);
 };
