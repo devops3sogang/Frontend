@@ -83,7 +83,7 @@ export interface RestaurantListParams {
   type?: "ON_CAMPUS" | "OFF_CAMPUS";
   category?: string;
   radius?: number;
-  sortBy?: "NONE" | "DISTANCE" | "RATING";
+  sortBy?: "NONE" | "DISTANCE" | "RATING" | "REVIEW_COUNT";
 }
 
 // 메뉴 타입 (요청용)

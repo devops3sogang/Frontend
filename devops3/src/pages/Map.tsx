@@ -41,7 +41,9 @@ function Map() {
   >([]);
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [filterRadius, setFilterRadius] = useState<number | null>(null); // null = 전체 거리
-  const [sortBy, setSortBy] = useState<"DISTANCE" | "RATING" | "REVIEW_COUNT" | null>(null);
+  const [sortBy, setSortBy] = useState<
+    "DISTANCE" | "RATING" | "REVIEW_COUNT" | null
+  >(null);
 
   // 토글 상태
   const [showFilters, setShowFilters] = useState(true);
@@ -59,8 +61,9 @@ function Map() {
               lng: position.coords.longitude,
             };
 
-            // 거리 필터만 백엔드에 전달 (정렬은 클라이언트에서 처리)
+            // 거리 필터와 정렬 옵션을 백엔드에 전달
             if (filterRadius !== null) params.radius = filterRadius;
+            if (sortBy !== null) params.sortBy = sortBy;
 
             let data = await getRestaurants(params);
             console.log("백엔드에서 받은 데이터:", data.length, "개");
@@ -73,24 +76,7 @@ function Map() {
               data = data.filter((r) => filterCategories.includes(r.category));
             }
 
-            console.log("필터링 후 데이터:", data.length, "개", data.slice(0, 3).map(r => ({ name: r.name, distance: (r as any).distance })));
-
-            // 클라이언트에서 정렬
-            if (sortBy === "DISTANCE") {
-              // distance 필드가 있는지 확인
-              if (data.length > 0 && (data[0] as any).distance !== undefined) {
-                data.sort((a, b) => ((a as any).distance || 0) - ((b as any).distance || 0));
-                console.log("거리순 정렬 완료");
-              } else {
-                console.warn("거리 정보가 없어 거리순 정렬을 할 수 없습니다.");
-              }
-            } else if (sortBy === "RATING") {
-              data.sort((a, b) => (b.stats?.rating || 0) - (a.stats?.rating || 0));
-              console.log("평점순 정렬 완료");
-            } else if (sortBy === "REVIEW_COUNT") {
-              data.sort((a, b) => (b.stats?.reviewCount || 0) - (a.stats?.reviewCount || 0));
-              console.log("리뷰 개수순 정렬 완료");
-            }
+            console.log("필터링 후 데이터:", data.length, "개");
 
             const validRestaurants = data.filter((r) => r.id || (r as any).id);
             setRestaurants(validRestaurants);
@@ -117,8 +103,9 @@ function Map() {
               lng: defaultCenter.lng,
             };
 
-            // 거리 필터만 백엔드에 전달 (정렬은 클라이언트에서 처리)
+            // 거리 필터와 정렬 옵션을 백엔드에 전달
             if (filterRadius !== null) params.radius = filterRadius;
+            if (sortBy !== null) params.sortBy = sortBy;
 
             let data = await getRestaurants(params);
             console.log("백엔드에서 받은 데이터:", data.length, "개");
@@ -131,24 +118,7 @@ function Map() {
               data = data.filter((r) => filterCategories.includes(r.category));
             }
 
-            console.log("필터링 후 데이터:", data.length, "개", data.slice(0, 3).map(r => ({ name: r.name, distance: (r as any).distance })));
-
-            // 클라이언트에서 정렬
-            if (sortBy === "DISTANCE") {
-              // distance 필드가 있는지 확인
-              if (data.length > 0 && (data[0] as any).distance !== undefined) {
-                data.sort((a, b) => ((a as any).distance || 0) - ((b as any).distance || 0));
-                console.log("거리순 정렬 완료");
-              } else {
-                console.warn("거리 정보가 없어 거리순 정렬을 할 수 없습니다.");
-              }
-            } else if (sortBy === "RATING") {
-              data.sort((a, b) => (b.stats?.rating || 0) - (a.stats?.rating || 0));
-              console.log("평점순 정렬 완료");
-            } else if (sortBy === "REVIEW_COUNT") {
-              data.sort((a, b) => (b.stats?.reviewCount || 0) - (a.stats?.reviewCount || 0));
-              console.log("리뷰 개수순 정렬 완료");
-            }
+            console.log("필터링 후 데이터:", data.length, "개");
 
             const validRestaurants = data.filter((r) => r.id || (r as any).id);
             setRestaurants(validRestaurants);
@@ -243,7 +213,11 @@ function Map() {
 
   // mapCenter가 변경되면 지도를 해당 위치로 이동
   useEffect(() => {
-    if (map && (previousMapCenter.current.lat !== mapCenter.lat || previousMapCenter.current.lng !== mapCenter.lng)) {
+    if (
+      map &&
+      (previousMapCenter.current.lat !== mapCenter.lat ||
+        previousMapCenter.current.lng !== mapCenter.lng)
+    ) {
       map.panTo(mapCenter);
       // 우측 패널(400px)을 고려해 오른쪽으로 이동
       map.panBy(+150, 0);
@@ -275,7 +249,6 @@ function Map() {
       menu: [] as { name: string; price: number }[],
     };
   };
-
 
   // 카테고리 목록
   const categories = [
@@ -379,7 +352,9 @@ function Map() {
                     fontWeight: filterTypes.includes("ON_CAMPUS")
                       ? "bold"
                       : "normal",
-                    color: filterTypes.includes("ON_CAMPUS") ? "#2e7d32" : "#666",
+                    color: filterTypes.includes("ON_CAMPUS")
+                      ? "#2e7d32"
+                      : "#666",
                   }}
                 >
                   교내
@@ -401,7 +376,9 @@ function Map() {
                     fontWeight: filterTypes.includes("OFF_CAMPUS")
                       ? "bold"
                       : "normal",
-                    color: filterTypes.includes("OFF_CAMPUS") ? "#2e7d32" : "#666",
+                    color: filterTypes.includes("OFF_CAMPUS")
+                      ? "#2e7d32"
+                      : "#666",
                   }}
                 >
                   교외
@@ -430,7 +407,9 @@ function Map() {
                       fontWeight: filterCategories.includes(cat)
                         ? "bold"
                         : "normal",
-                      color: filterCategories.includes(cat) ? "#2e7d32" : "#666",
+                      color: filterCategories.includes(cat)
+                        ? "#2e7d32"
+                        : "#666",
                     }}
                   >
                     {cat}
@@ -532,7 +511,7 @@ function Map() {
                   </button>
                 )}
               </div>
-              <div style={{ display: "flex", gap: "8px" }}>
+              <div style={{ display: "flex", gap: "5px" }}>
                 <label
                   style={{
                     flex: 1,
@@ -544,7 +523,8 @@ function Map() {
                     padding: "8px",
                     border: "1px solid #ddd",
                     borderRadius: "4px",
-                    backgroundColor: sortBy === "DISTANCE" ? "#f0f0f0" : "white",
+                    backgroundColor:
+                      sortBy === "DISTANCE" ? "#f0f0f0" : "white",
                   }}
                 >
                   <input
@@ -588,7 +568,8 @@ function Map() {
                     padding: "8px",
                     border: "1px solid #ddd",
                     borderRadius: "4px",
-                    backgroundColor: sortBy === "REVIEW_COUNT" ? "#f0f0f0" : "white",
+                    backgroundColor:
+                      sortBy === "REVIEW_COUNT" ? "#f0f0f0" : "white",
                   }}
                 >
                   <input
@@ -597,11 +578,12 @@ function Map() {
                     checked={sortBy === "REVIEW_COUNT"}
                     onChange={(e) => setSortBy(e.target.value as any)}
                   />
-                  <span style={{ fontSize: "13px" }}>리뷰순</span>
+                  <span style={{ fontSize: "13px", wordBreak: "keep-all" }}>
+                    리뷰많은순
+                  </span>
                 </label>
               </div>
             </div>
-
           </>
         )}
       </div>
