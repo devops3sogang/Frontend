@@ -33,10 +33,14 @@ apiClient.interceptors.response.use(
   (error) => {
     // 401 에러 (인증 실패) 처리
     if (error.response?.status === 401) {
-      // 토큰 제거 및 로그인 페이지로 리다이렉트
-      localStorage.removeItem("jwt_token");
-      localStorage.removeItem("currentUser");
-      window.location.href = "/login";
+      // 로그인/회원가입 페이지에서 발생한 401은 무시 (사용자가 입력한 정보가 틀린 경우)
+      const currentPath = window.location.pathname;
+      if (currentPath !== "/login" && currentPath !== "/signup") {
+        // 토큰 제거 및 로그인 페이지로 리다이렉트
+        localStorage.removeItem("jwt_token");
+        localStorage.removeItem("currentUser");
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }
