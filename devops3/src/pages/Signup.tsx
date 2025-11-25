@@ -38,20 +38,45 @@ function Signup() {
     setIsLoading(true);
 
     try {
-      await signup({
+      const signupData = {
         email,
         password,
         nickname: nickname.trim(),
-      });
+      };
+      console.log("회원가입 요청 데이터:", signupData);
+
+      await signup(signupData);
 
       alert("회원가입이 완료되었습니다! 로그인해주세요.");
       navigate("/login");
     } catch (err: any) {
       console.error("Signup failed:", err);
-      if (err.response?.status === 409) {
+      console.error("Error response:", err.response);
+      console.error("Error status:", err.response?.status);
+      console.error("Error data:", err.response?.data);
+
+      // 백엔드에서 반환한 에러 메시지 확인
+      const errorMessage =
+        err.response?.data?.message || err.response?.data?.error;
+
+      if (
+        err.response?.status === 409 ||
+        errorMessage?.includes("already exists")
+      ) {
         setError("이미 존재하는 이메일입니다.");
+      } else if (err.response?.status === 400) {
+        // 400 에러는 입력값 검증 실패
+        setError(errorMessage || "입력한 정보를 확인해주세요.");
+      } else if (err.response?.status === 500) {
+        // 500 에러는 서버 내부 오류
+        console.error("서버 내부 오류 - 백엔드 로그를 확인하세요");
+        setError(
+          errorMessage || "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+        );
       } else {
-        setError("회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
+        setError(
+          errorMessage || "회원가입 중 오류가 발생했습니다. 다시 시도해주세요."
+        );
       }
     } finally {
       setIsLoading(false);
@@ -129,10 +154,13 @@ function Signup() {
         <div className="login-link">
           <p>
             이미 계정이 있으신가요?{" "}
-            <a href="/login" onClick={(e) => {
-              e.preventDefault();
-              navigate("/login");
-            }}>
+            <a
+              href="/login"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate("/login");
+              }}
+            >
               로그인
             </a>
           </p>

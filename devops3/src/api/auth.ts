@@ -10,7 +10,7 @@ import type {
 
 // 회원가입
 export const signup = async (data: SignupRequest) => {
-  const response = await apiClient.post("/auth/signup", data);
+  const response = await apiClient.post("/auth/register", data);
   return response.data;
 };
 
