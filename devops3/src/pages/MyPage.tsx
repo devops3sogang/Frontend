@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import type { ReviewResponse } from "../api/types";
-import { updateUserPassword } from "../data/users";
-import { getMyProfile } from "../api/users";
+import { getMyProfile, updateMyProfile, deleteMyAccount } from "../api/users";
 import "./MyPage.css";
 
 function MyPage() {
@@ -20,6 +19,8 @@ function MyPage() {
   const [error, setError] = useState("");
   const [myReviews, setMyReviews] = useState<ReviewResponse[]>([]);
   const [likedReviews, setLikedReviews] = useState<ReviewResponse[]>([]);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -69,7 +70,7 @@ function MyPage() {
     }
   };
 
-  const handlePasswordUpdate = (e: React.FormEvent) => {
+  const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
     setError("");
@@ -86,20 +87,54 @@ function MyPage() {
       return;
     }
 
-    const success = updateUserPassword(user._id, currentPassword, newPassword);
-    if (success) {
+    try {
+      await updateMyProfile({
+        currentPassword,
+        newPassword,
+      });
       setMessage("비밀번호가 성공적으로 변경되었습니다.");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-    } else {
-      setError("현재 비밀번호가 올바르지 않습니다.");
+    } catch (error) {
+      console.error("Failed to update password:", error);
+      setError("현재 비밀번호가 올바르지 않거나 비밀번호 변경에 실패했습니다.");
     }
   };
 
   const handleLogout = () => {
     logout();
     navigate("/");
+  };
+
+  const handleDeleteAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage("");
+    setError("");
+
+    if (!deletePassword) {
+      setError("비밀번호를 입력해주세요.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deleteMyAccount({ password: deletePassword });
+      alert("회원 탈퇴가 완료되었습니다.");
+      logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Failed to delete account:", error);
+      setError("비밀번호가 올바르지 않거나 회원 탈퇴에 실패했습니다.");
+      setDeletePassword("");
+    }
   };
 
   const handleReviewClick = (review: ReviewResponse) => {
@@ -246,7 +281,10 @@ function MyPage() {
                             menuRating: { menuName: string; rating: number },
                             index: number
                           ) => (
-                            <span key={`my-review-${review._id}-menu-${index}`} className="menu-tag">
+                            <span
+                              key={`my-review-${review._id}-menu-${index}`}
+                              className="menu-tag"
+                            >
                               {menuRating.menuName}
                             </span>
                           )
@@ -307,7 +345,10 @@ function MyPage() {
                             menuRating: { menuName: string; rating: number },
                             index: number
                           ) => (
-                            <span key={`liked-review-${review._id}-menu-${index}`} className="menu-tag">
+                            <span
+                              key={`liked-review-${review._id}-menu-${index}`}
+                              className="menu-tag"
+                            >
                               {menuRating.menuName}
                             </span>
                           )
@@ -327,6 +368,76 @@ function MyPage() {
               <p className="no-reviews">아직 좋아요한 리뷰가 없습니다.</p>
             )}
           </div>
+        </div>
+
+        <div className="settings-section delete-account-section">
+          <h2>회원 탈퇴</h2>
+          {!showDeleteConfirm ? (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="btn-danger"
+              style={{
+                backgroundColor: "#dc3545",
+                color: "white",
+                border: "none",
+                padding: "10px 20px",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              회원 탈퇴하기
+            </button>
+          ) : (
+            <form onSubmit={handleDeleteAccount} className="settings-form">
+              <div className="form-group">
+                <label htmlFor="deletePassword">
+                  탈퇴하려면 현재 비밀번호를 입력하세요
+                </label>
+                <input
+                  type="password"
+                  id="deletePassword"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  placeholder="현재 비밀번호"
+                  required
+                />
+              </div>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <button
+                  type="submit"
+                  className="btn-danger"
+                  style={{
+                    backgroundColor: "#dc3545",
+                    color: "white",
+                    border: "none",
+                    padding: "10px 20px",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  탈퇴 확인
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    setDeletePassword("");
+                    setError("");
+                  }}
+                  style={{
+                    backgroundColor: "#6c757d",
+                    color: "white",
+                    border: "none",
+                    padding: "10px 20px",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  취소
+                </button>
+              </div>
+            </form>
+          )}
         </div>
 
         <div className="logout-section">

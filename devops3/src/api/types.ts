@@ -36,7 +36,12 @@ export interface UserProfile {
 
 export interface UpdateProfileRequest {
   nickname?: string;
-  password?: string;
+  currentPassword?: string;
+  newPassword?: string;
+}
+
+export interface DeleteAccountRequest {
+  password: string;
 }
 
 // 프로필 수정 응답 타입 (명세서 기준)

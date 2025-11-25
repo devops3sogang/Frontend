@@ -1,5 +1,5 @@
 import apiClient from "./client";
-import type { UserProfileResponse, UpdateProfileRequest } from "./types";
+import type { UserProfileResponse, UpdateProfileRequest, DeleteAccountRequest } from "./types";
 
 // 현재 로그인한 사용자의 통합 프로필 조회 (내가 작성한 리뷰 + 좋아요한 리뷰)
 export const getMyProfile = async (): Promise<UserProfileResponse> => {
@@ -15,6 +15,6 @@ export const updateMyProfile = async (
 };
 
 // 현재 로그인한 사용자 탈퇴
-export const deleteMyAccount = async (): Promise<void> => {
-  await apiClient.delete("/users/me");
+export const deleteMyAccount = async (data: DeleteAccountRequest): Promise<void> => {
+  await apiClient.delete("/users/me", { data });
 };
