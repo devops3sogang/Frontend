@@ -30,7 +30,10 @@ export const getMyProfile = async (): Promise<UserProfile> => {
 export const updateMyProfile = async (
   data: UpdateProfileRequest
 ): Promise<UpdateProfileResponse> => {
-  const response = await apiClient.put<UpdateProfileResponse>("/users/me", data);
+  const response = await apiClient.put<UpdateProfileResponse>(
+    "/users/me",
+    data
+  );
   console.log("updateMyProfile - Full response:", response);
   console.log("updateMyProfile - Response data:", response.data);
   return response.data;
