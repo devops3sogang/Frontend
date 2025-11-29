@@ -80,6 +80,7 @@ export interface CreateRestaurantRequest {
     coordinates: [number, number]; // [경도, 위도]
   };
   imageUrl?: string;
+  isActive?: boolean; // 운영 상태
 
   // 메뉴 최소 1개 이상 필수
   menu: Array<MenuItemInput>;

@@ -15,6 +15,7 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import ReviewModal from "./ReviewModal";
 import RestaurantForm from "./RestaurantForm";
+import { getFullImageUrl } from "../utils/imageUtils";
 import "./RestaurantDetail.css";
 
 interface RestaurantDetailProps {
@@ -349,10 +350,10 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
       {restaurant.imageUrl && (
         <div className="restaurant-image-container">
           <img
-            src={restaurant.imageUrl}
+            src={getFullImageUrl(restaurant.imageUrl)}
             alt={restaurant.name}
             className="restaurant-main-image"
-            onClick={() => handleImageClick([restaurant.imageUrl!], 0)}
+            onClick={() => handleImageClick([getFullImageUrl(restaurant.imageUrl!)!], 0)}
           />
         </div>
       )}
@@ -516,11 +517,11 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                           onTouchEnd={handleTouchEnd}
                         >
                           <img
-                            src={images[currentIndex]}
+                            src={getFullImageUrl(images[currentIndex])}
                             alt={`리뷰 사진 ${currentIndex + 1}`}
                             className="review-image"
                             onClick={() =>
-                              handleImageClick(images, currentIndex)
+                              handleImageClick(images.map(url => getFullImageUrl(url)!), currentIndex)
                             }
                           />
                           {images.length > 1 && (

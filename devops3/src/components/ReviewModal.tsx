@@ -4,6 +4,8 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import type { Restaurant } from "../data/places";
 import type { ReviewResponse } from "../api/types";
+import { uploadImage } from "../api/images";
+import { getFullImageUrl } from "../utils/imageUtils";
 import "./ReviewModal.css";
 
 interface ReviewModalProps {
@@ -85,25 +87,30 @@ function ReviewModal({
     const filesToProcess = Array.from(files).slice(0, remainingSlots);
     console.log("Files to process:", filesToProcess.length);
 
-    // 모든 파일을 Promise로 변환
-    const filePromises = filesToProcess.map((file) => {
-      return new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          resolve(reader.result as string);
-        };
-        reader.readAsDataURL(file);
+    // 각 파일을 서버에 업로드하고 URL을 받아옴
+    try {
+      const uploadPromises = filesToProcess.map(async (file) => {
+        try {
+          const imageUrl = await uploadImage(file);
+          return imageUrl;
+        } catch (error) {
+          console.error("Failed to upload image:", error);
+          throw error;
+        }
       });
-    });
 
-    // 모든 파일 읽기가 완료될 때까지 기다린 후 한 번에 추가
-    const base64Strings = await Promise.all(filePromises);
-    console.log("Base64 strings loaded:", base64Strings.length);
-    setImageUrls((prev) => {
-      const newUrls = [...prev, ...base64Strings];
-      console.log("New image URLs count:", newUrls.length);
-      return newUrls;
-    });
+      const uploadedUrls = await Promise.all(uploadPromises);
+      console.log("Uploaded image URLs:", uploadedUrls);
+
+      setImageUrls((prev) => {
+        const newUrls = [...prev, ...uploadedUrls];
+        console.log("New image URLs count:", newUrls.length);
+        return newUrls;
+      });
+    } catch (error) {
+      console.error("Image upload failed:", error);
+      alert("이미지 업로드에 실패했습니다. 다시 시도해주세요.");
+    }
 
     // input 초기화
     e.target.value = "";
@@ -268,13 +275,13 @@ function ReviewModal({
                   console.log(
                     "Rendering image",
                     index,
-                    "URL length:",
-                    url.length
+                    "URL:",
+                    url
                   );
                   return (
                     <div key={index} className="image-preview-container">
                       <img
-                        src={url}
+                        src={getFullImageUrl(url)}
                         alt={`미리보기 ${index + 1}`}
                         className="image-preview"
                       />
