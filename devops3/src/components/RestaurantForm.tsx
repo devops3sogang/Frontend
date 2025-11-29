@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Restaurant } from "../data/places";
 import type { CreateRestaurantRequest, MenuItemInput } from "../api/types";
+import { uploadImage } from "../api";
 import "./RestaurantDetail.css"; // 스타일 재사용
 
 interface RestaurantFormProps {
@@ -34,11 +35,43 @@ function RestaurantForm({
       : [{ name: "", price: 0 }]
   );
 
+  // 이미지 업로드 상태
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>(initialData?.imageUrl || "");
+  const [uploading, setUploading] = useState(false);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // 이미지 파일 선택 핸들러
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // 파일 크기 검증 (10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert("이미지 파일 크기는 10MB를 초과할 수 없습니다.");
+        return;
+      }
+
+      // 파일 타입 검증
+      if (!file.type.startsWith("image/")) {
+        alert("이미지 파일만 업로드 가능합니다.");
+        return;
+      }
+
+      setImageFile(file);
+
+      // 미리보기 생성
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   // ✅ 메뉴 조작 핸들러
@@ -60,7 +93,7 @@ function RestaurantForm({
   };
 
   // --- 저장 버튼 클릭 시 ---
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // ✅ 기본 필드 검증
@@ -100,6 +133,22 @@ function RestaurantForm({
       }
     }
 
+    // ✅ 이미지 업로드 처리
+    let uploadedImageUrl = form.imageUrl;
+    if (imageFile) {
+      try {
+        setUploading(true);
+        uploadedImageUrl = await uploadImage(imageFile);
+      } catch (error) {
+        console.error("이미지 업로드 실패:", error);
+        alert("이미지 업로드에 실패했습니다. 다시 시도해 주세요.");
+        setUploading(false);
+        return;
+      } finally {
+        setUploading(false);
+      }
+    }
+
     // ✅ CreateRestaurantRequest 형태의 payload 생성
     const payload: CreateRestaurantRequest = {
       name: form.name.trim(),
@@ -110,7 +159,7 @@ function RestaurantForm({
         type: "Point",
         coordinates: [Number(form.lng), Number(form.lat)], // [경도, 위도]
       },
-      imageUrl: form.imageUrl || undefined,
+      imageUrl: uploadedImageUrl || undefined,
       menu: cleanedMenu,
     };
 
@@ -183,14 +232,34 @@ function RestaurantForm({
           </div>
 
           <label>
-            이미지 URL (선택)
+            식당 이미지 (선택)
             <input
-              type="text"
-              name="imageUrl"
-              value={form.imageUrl}
-              onChange={handleChange}
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              style={{
+                padding: "8px",
+                border: "1px solid #ddd",
+                borderRadius: 8,
+                cursor: "pointer",
+              }}
             />
           </label>
+
+          {imagePreview && (
+            <div style={{ marginTop: 8 }}>
+              <img
+                src={imagePreview}
+                alt="미리보기"
+                style={{
+                  width: "100%",
+                  maxHeight: 200,
+                  objectFit: "cover",
+                  borderRadius: 8,
+                }}
+              />
+            </div>
+          )}
 
           {/* ✅ 메뉴 입력 섹션 */}
           <div style={{ marginTop: 16 }}>
@@ -264,13 +333,14 @@ function RestaurantForm({
           </div>
 
           <div className="form-actions" style={{ marginTop: "12px", display: "flex", justifyContent: "center", gap: "8px" }}>
-            <button type="submit" className="btn-submit">
-              {mode === "create" ? "등록" : "저장"}
+            <button type="submit" className="btn-submit" disabled={uploading}>
+              {uploading ? "이미지 업로드 중..." : mode === "create" ? "등록" : "저장"}
             </button>
             <button
               type="button"
               className="btn-cancel"
               onClick={() => onClose()}
+              disabled={uploading}
             >
               취소
             </button>

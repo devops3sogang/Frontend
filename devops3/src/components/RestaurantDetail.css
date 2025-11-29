@@ -631,6 +631,109 @@
   opacity: 0.9;
 }
 
+/* 식당 생성/수정 폼 모달 */
+.restaurant-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.restaurant-form {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.restaurant-form h2 {
+  margin: 0 0 20px 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.restaurant-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.restaurant-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+}
+
+.restaurant-form input,
+.restaurant-form select {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.restaurant-form input:focus,
+.restaurant-form select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.restaurant-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.restaurant-form .form-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.restaurant-form .btn-submit,
+.restaurant-form .btn-cancel {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.restaurant-form .btn-submit {
+  background: #111827;
+  color: #fff;
+}
+
+.restaurant-form .btn-submit:hover {
+  background: #374151;
+}
+
+.restaurant-form .btn-cancel {
+  background: #6b7280;
+  color: #fff;
+}
+
+.restaurant-form .btn-cancel:hover {
+  background: #9ca3af;
+}
+
 /* 모바일 대응 */
 @media (max-width: 768px) {
   .restaurant-detail {
@@ -652,5 +755,15 @@
   .image-modal-close {
     top: 10px;
     right: 10px;
+  }
+
+  .restaurant-form {
+    width: 95%;
+    max-height: 90vh;
+    padding: 20px;
+  }
+
+  .restaurant-form .form-row {
+    grid-template-columns: 1fr;
   }
 }
