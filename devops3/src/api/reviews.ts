@@ -69,3 +69,16 @@ export const updateReview = async (
 export const deleteReview = async (reviewId: string): Promise<void> => {
   await apiClient.delete(`/reviews/${reviewId}`);
 };
+
+// 관리자: 리뷰 목록 조회 (limit 파라미터 지원)
+export const adminGetReviews = async (limit?: number): Promise<ReviewResponse[]> => {
+  const response = await apiClient.get<ReviewResponse[]>("/reviews", {
+    params: { limit: limit || 100 }, // 기본 100개
+  });
+  return response.data;
+};
+
+// 관리자: 리뷰 삭제
+export const adminDeleteReview = async (reviewId: string): Promise<void> => {
+  await apiClient.delete(`/admin/reviews/${reviewId}`);
+};
