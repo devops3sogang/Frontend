@@ -9,6 +9,27 @@ import {
 import type { Restaurant } from "../data/places";
 import RestaurantForm from "../components/RestaurantForm";
 
+// 백엔드 응답을 프론트엔드 타입으로 변환
+function mapBackendRestaurant(r: any): Restaurant {
+  return {
+    id: r._id || r.id,
+    name: r.name,
+    type: r.type,
+    category: r.category,
+    address: r.address,
+    location: r.location,
+    imageUrl: r.imageUrl,
+    isActive: r.isActive ?? r.active ?? true,
+    stats: {
+      rating: r.stats?.rating ?? r.stats?.averageRating ?? 0,
+      reviewCount: r.stats?.reviewCount ?? 0,
+    },
+    menu: r.menu || [],
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt,
+  };
+}
+
 type Tab = "restaurants" | "reviews"; // reviews 탭은 UI만 자리 잡아두고 후속 구현
 
 export default function AdminDashboard() {
@@ -27,11 +48,21 @@ export default function AdminDashboard() {
   const loadRestaurants = async () => {
     setLoading(true);
     try {
-      const list = await getRestaurants();
-      setRestaurants(list);
-    } catch (e) {
-      console.error(e);
-      alert("레스토랑 목록을 불러오지 못했습니다.");
+      // 관리자는 모든 식당을 보기 위해 서강대 중심 좌표 사용 + 반경 크게 설정
+      const list = await getRestaurants({
+        lat: 37.5511, // 서강대 위도
+        lng: 126.9418, // 서강대 경도
+        radius: 50000, // 50km (매우 넓은 범위)
+        sortBy: "NONE",
+      });
+      console.log("Loaded restaurants:", list);
+      // 백엔드 응답을 프론트엔드 타입으로 변환
+      const mapped = list.map(mapBackendRestaurant);
+      setRestaurants(mapped);
+    } catch (e: any) {
+      console.error("Failed to load restaurants:", e);
+      console.error("Error response:", e.response);
+      alert(`레스토랑 목록을 불러오지 못했습니다: ${e.message}`);
     } finally {
       setLoading(false);
     }

@@ -12,16 +12,22 @@ export interface LoginRequest {
   password: string;
 }
 
-// 백엔드가 토큰 문자열만 반환하는 경우도 있고, 객체로 반환하는 경우도 있음
+// 백엔드 로그인 응답 타입
 export type LoginResponse =
   | string
   | {
-      token: string;
+      accessToken: string;
+      refreshToken: string;
+      tokenType?: string;
+      expiresAt?: number;
       user?: {
-        id: string;
+        _id: string;
         email: string;
         nickname: string;
+        role: string;
       };
+      // 하위 호환성
+      token?: string;
     };
 
 // 사용자 프로필 타입 (GET /users/me 응답)

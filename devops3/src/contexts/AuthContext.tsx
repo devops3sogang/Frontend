@@ -36,10 +36,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await authAPI.login({ email, password });
       console.log("Login API response:", response);
 
-      // 응답이 토큰 문자열만 있는 경우 처리
+      // 응답에서 accessToken 추출
       let token: string;
       if (typeof response === 'string') {
         token = response;
+      } else if (response.accessToken) {
+        token = response.accessToken;
       } else if (response.token) {
         token = response.token;
       } else {
@@ -49,8 +51,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // JWT 토큰 저장
       authAPI.saveToken(token);
 
-      // 토큰으로 사용자 정보 가져오기
-      const userProfile = await authAPI.getMyProfile();
+      // refreshToken도 저장 (있는 경우)
+      if (response.refreshToken) {
+        localStorage.setItem("refreshToken", response.refreshToken);
+      }
+
+      // 응답에 user 정보가 있으면 바로 사용, 없으면 API 호출
+      let userProfile;
+      if (response.user) {
+        userProfile = response.user;
+      } else {
+        userProfile = await authAPI.getMyProfile();
+      }
       console.log("User profile:", userProfile);
 
       const userToSave: User = {
