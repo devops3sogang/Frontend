@@ -160,7 +160,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
       try {
         await updateReview(editingReview._id, {
           content: reviewData.content,
-          ratings: reviewData.ratings!,
+          rating: reviewData.ratings!,
           imageUrls: reviewData.imageUrls || [],
         });
         alert("리뷰가 수정되었습니다!");
@@ -174,9 +174,8 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
       try {
         await createReview(restaurant.id, {
           restaurantId: restaurant.id,
-          restaurantName: restaurant.name,
-          ratings: reviewData.ratings!,
-          content: reviewData.content!,
+          rating: reviewData.ratings!,
+          content: reviewData.content,
           imageUrls: reviewData.imageUrls || [],
         });
         alert("리뷰가 작성되었습니다!");
@@ -364,6 +363,9 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
           {averageRating?.toFixed(1) ?? "0.0"}
         </span>
         <span className="review-count">({reviewCount}개 리뷰)</span>
+        <span className={`restaurant-status ${restaurant.isActive ? "active" : "inactive"}`}>
+          {restaurant.isActive ? "✅ 운영중" : "❌ 휴업"}
+        </span>
       </div>
 
       {restaurant.menu && restaurant.menu.length > 0 && (

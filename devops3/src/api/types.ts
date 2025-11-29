@@ -107,22 +107,20 @@ export interface MenuItemInput {
 // 리뷰 관련 타입
 export interface CreateReviewRequest {
   restaurantId: string;
-  restaurantName: string;
-  ratings: {
+  content?: string;
+  rating: {
     menuRatings: Array<{
       menuName: string;
       rating: number;
     }>;
     restaurantRating: number;
   };
-  content: string;
-  imageUrl?: string;
   imageUrls?: string[];
 }
 
 export interface ReviewUpdateRequest {
   content?: string;
-  ratings: {
+  rating: {
     menuRatings: Array<{
       menuName: string;
       rating: number;

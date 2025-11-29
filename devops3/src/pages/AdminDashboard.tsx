@@ -58,6 +58,7 @@ export default function AdminDashboard() {
   const loadRestaurants = async () => {
     setLoading(true);
     try {
+      // 모든 식당 조회 (휴업 포함)
       const list = await getRestaurants({
         lat: 37.5511,
         lng: 126.9418,

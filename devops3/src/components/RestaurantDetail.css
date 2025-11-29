@@ -97,6 +97,24 @@
   color: #666;
 }
 
+.restaurant-status {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 12px;
+  margin-left: auto;
+}
+
+.restaurant-status.active {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.restaurant-status.inactive {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
 .menu-section {
   padding: 20px;
   border-bottom: 1px solid #e0e0e0;
