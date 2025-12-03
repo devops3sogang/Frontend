@@ -308,8 +308,10 @@ export default function AdminDashboard() {
                 try {
                   if (formMode === "create") {
                     await adminCreateRestaurant(payload);
+                    alert("✅ 맛집이 성공적으로 등록되었습니다!");
                   } else if (editing) {
                     await adminUpdateRestaurant(editing.id, payload);
+                    alert("✅ 맛집 정보가 성공적으로 수정되었습니다!");
                   }
                   setShowForm(false);
                   await loadRestaurants();
@@ -317,11 +319,11 @@ export default function AdminDashboard() {
                   console.error(e);
                   const status = e?.response?.status;
                   if (status === 409) {
-                    alert("동일 이름+주소 식당이 존재합니다.");
+                    alert("❌ 동일 이름+주소 식당이 존재합니다.");
                   } else if (status === 401 || status === 403) {
-                    alert("권한이 없습니다. 관리자 계정으로 로그인해 주세요.");
+                    alert("❌ 권한이 없습니다. 관리자 계정으로 로그인해 주세요.");
                   } else {
-                    alert("저장 중 오류가 발생했습니다.");
+                    alert(`❌ 저장 중 오류가 발생했습니다.\n${e.response?.data?.message || e.message}`);
                   }
                 }
               }}

@@ -842,9 +842,22 @@ function Map() {
           mode="create"
           initialData={makeDefaultRestaurantPayload() as any}
           onClose={() => setShowCreateForm(false)}
-          onSubmitSuccess={async () => {
-            setShowCreateForm(false);
-            await fetchRestaurants(); // 생성 후 목록 갱신
+          onSubmitSuccess={async (payload) => {
+            try {
+              // 관리자 API로 식당 생성
+              const { adminCreateRestaurant } = await import("../api");
+              await adminCreateRestaurant(payload);
+              alert("✅ 맛집이 성공적으로 등록되었습니다!");
+              setShowCreateForm(false);
+              await fetchRestaurants(); // 생성 후 목록 갱신
+            } catch (error: any) {
+              console.error("맛집 등록 실패:", error);
+              alert(
+                `❌ 맛집 등록에 실패했습니다.\n${
+                  error.response?.data?.message || error.message
+                }`
+              );
+            }
           }}
         />
       )}

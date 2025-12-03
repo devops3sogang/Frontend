@@ -145,11 +145,11 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     if (window.confirm("리뷰를 삭제하시겠습니까?")) {
       try {
         await deleteReview(reviewId);
-        alert("리뷰가 삭제되었습니다.");
+        alert("✅ 리뷰가 삭제되었습니다.");
         await fetchDetails();
       } catch (error) {
         console.error("Failed to delete review:", error);
-        alert("리뷰 삭제에 실패했습니다.");
+        alert("❌ 리뷰 삭제에 실패했습니다.");
       }
     }
   };
@@ -163,11 +163,11 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
           rating: reviewData.ratings!,
           imageUrls: reviewData.imageUrls || [],
         });
-        alert("리뷰가 수정되었습니다!");
+        alert("✅ 리뷰가 수정되었습니다!");
         await fetchDetails();
       } catch (error) {
         console.error("Failed to update review:", error);
-        alert("리뷰 수정에 실패했습니다.");
+        alert("❌ 리뷰 수정에 실패했습니다.");
       }
     } else {
       // 추가
@@ -178,11 +178,11 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
           content: reviewData.content,
           imageUrls: reviewData.imageUrls || [],
         });
-        alert("리뷰가 작성되었습니다!");
+        alert("✅ 리뷰가 작성되었습니다!");
         await fetchDetails();
       } catch (error) {
         console.error("Failed to create review:", error);
-        alert("리뷰 작성에 실패했습니다.");
+        alert("❌ 리뷰 작성에 실패했습니다.");
       }
     }
     setShowReviewModal(false);
@@ -240,17 +240,17 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     if (!window.confirm("정말 이 식당을 삭제하시겠습니까?")) return;
     try {
       await adminDeleteRestaurant(restaurant.id);
-      alert("식당이 삭제되었습니다.");
+      alert("✅ 식당이 삭제되었습니다.");
       onClose();                 // 패널 닫기
       // 필요하면 navigate("/map"); // 또는 부모 콜백으로 목록/마커 갱신
     } catch (error: any) {
       console.error("식당 삭제 실패:", error);
       const status = error?.response?.status;
       if (status === 401 || status === 403) {
-        alert("권한이 없습니다. 관리자 계정으로 로그인해 주세요.");
+        alert("❌ 권한이 없습니다. 관리자 계정으로 로그인해 주세요.");
         navigate("/login");
       } else {
-        alert("식당 삭제 중 오류가 발생했습니다.");
+        alert("❌ 식당 삭제 중 오류가 발생했습니다.");
       }
     }
   };
@@ -390,9 +390,22 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
           mode={formMode}
           initialData={restaurant}
           onClose={() => setShowForm(false)}
-          onSubmitSuccess={async () => {
-            setShowForm(false);
-            await fetchDetails(); // ← 최신 상세만 다시 불러와 반영
+          onSubmitSuccess={async (payload) => {
+            try {
+              const { adminUpdateRestaurant } = await import("../api");
+              await adminUpdateRestaurant(restaurant.id, payload);
+              alert("✅ 맛집 정보가 성공적으로 수정되었습니다!");
+              setShowForm(false);
+              await fetchDetails(); // 최신 상세 정보 다시 불러오기
+              // 필요하면 부모 컴포넌트에 콜백을 전달하여 지도의 마커도 갱신
+            } catch (error: any) {
+              console.error("맛집 수정 실패:", error);
+              alert(
+                `❌ 맛집 수정에 실패했습니다.\n${
+                  error.response?.data?.message || error.message
+                }`
+              );
+            }
           }}
         />
       )}
