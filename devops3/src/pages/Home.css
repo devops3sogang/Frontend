@@ -95,21 +95,132 @@
   color: #999;
 }
 
-.menu-placeholder {
+/* 메뉴 컨텐츠 스타일 */
+.menu-content {
   background-color: white;
-  padding: 2rem;
-  border-radius: 6px;
-  text-align: center;
-  color: #999;
-  min-height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 1.5rem;
+  border-radius: 8px;
+  min-height: 200px;
 }
 
-.menu-placeholder-subtext {
+.menu-daily-container {
+  width: 100%;
+}
+
+.menu-date-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #4CAF50;
+}
+
+.menu-date {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.menu-day {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #4CAF50;
+}
+
+.menu-meals-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+.menu-meal-card {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.menu-meal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #4CAF50;
+}
+
+.menu-category-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-weight: 600;
   font-size: 0.9rem;
-  margin-top: 1rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.menu-items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-item {
+  padding: 0.5rem 0;
+  padding-left: 1.2rem;
+  color: #333;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  position: relative;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item::before {
+  content: "🍴";
+  position: absolute;
+  left: 0;
+  font-size: 0.85rem;
+}
+
+.menu-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #666;
+}
+
+.menu-empty p:first-child {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.menu-empty-subtext {
+  font-size: 0.9rem;
+  color: #999;
+}
+
+.menu-loading {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #666;
+}
+
+.menu-loading p:first-child {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.menu-loading-subtext {
+  font-size: 0.9rem;
+  color: #999;
+  margin-top: 0.5rem;
 }
 
 @media (max-width: 1024px) {

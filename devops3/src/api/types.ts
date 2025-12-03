@@ -157,10 +157,19 @@ export interface ReviewResponse {
 
 // 교내 메뉴 타입
 export interface OnCampusMenuResponse {
-  date: string;
-  menus: Array<{
-    restaurantName: string;
-    items: string[];
+  id: string;
+  restaurantId: string;
+  restaurantName: string;
+  weekStartDate: string;
+  dailyMenus: Array<{
+    date: string;
+    dayOfWeek: string;
+    meals: Array<{
+      corner: string;
+      category: string;
+      items: string[];
+      price: number;
+    }>;
   }>;
 }
 

@@ -163,28 +163,55 @@ function Home() {
 
         {/* 오늘의 우정원 메뉴 컨테이너 */}
         <div className="section-container sogang-menu-section">
-          <h2 className="section-title">오늘의 우정원 메뉴</h2>
-          <div className="menu-placeholder">
+          <h2 className="section-title">🍽️ 오늘의 우정원 메뉴</h2>
+          <div className="menu-content">
             {campusMenus &&
-            campusMenus.menus &&
-            campusMenus.menus.length > 0 ? (
-              <div>
-                {campusMenus.menus.map((menu, index) => (
-                  <div key={index} style={{ marginBottom: "10px" }}>
-                    <strong>{menu.restaurantName}</strong>
-                    <ul style={{ margin: "5px 0", paddingLeft: "20px" }}>
-                      {menu.items.map((item, idx) => (
-                        <li key={idx}>{item}</li>
-                      ))}
-                    </ul>
+            campusMenus.dailyMenus &&
+            campusMenus.dailyMenus.length > 0 ? (
+              <>
+                {campusMenus.dailyMenus
+                  .filter((dailyMenu) => {
+                    const today = new Date().toISOString().split("T")[0];
+                    return dailyMenu.date === today;
+                  })
+                  .map((dailyMenu, index) => (
+                    <div key={index} className="menu-daily-container">
+                      <div className="menu-date-header">
+                        <span className="menu-date">{dailyMenu.date}</span>
+                        <span className="menu-day">{dailyMenu.dayOfWeek}</span>
+                      </div>
+                      <div className="menu-meals-grid">
+                        {dailyMenu.meals.map((meal, idx) => (
+                          <div key={idx} className="menu-meal-card">
+                            <div className="menu-category-badge">
+                              {meal.category}
+                            </div>
+                            <ul className="menu-items-list">
+                              {meal.items.map((item, itemIdx) => (
+                                <li key={itemIdx} className="menu-item">
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                {campusMenus.dailyMenus.filter(
+                  (dm) => dm.date === new Date().toISOString().split("T")[0]
+                ).length === 0 && (
+                  <div className="menu-empty">
+                    <p>📅 오늘 날짜의 메뉴가 없습니다.</p>
+                    <p className="menu-empty-subtext">주말이거나 공휴일일 수 있습니다.</p>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             ) : (
-              <div>
-                <p>메뉴 정보를 준비 중입니다...</p>
-                <p className="menu-placeholder-subtext">
-                  데이터 양식이 정리되면 표시됩니다.
+              <div className="menu-loading">
+                <p>⏳ 메뉴 정보를 불러오는 중...</p>
+                <p className="menu-loading-subtext">
+                  잠시만 기다려 주세요.
                 </p>
               </div>
             )}
