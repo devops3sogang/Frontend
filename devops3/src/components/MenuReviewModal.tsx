@@ -53,11 +53,11 @@ function MenuReviewModal({ restaurantId, menuId, menuName, onClose }: MenuReview
         rating: {
           menuRatings: [
             {
-              menuId,
-              menuName,
+              menuId, // 백엔드는 menuId만 필요 (menuName 제거)
               rating,
             },
           ],
+          restaurantRating: 0, // 메뉴 리뷰는 식당 평점 0으로 설정
         },
         content: content.trim() || undefined,
       };
@@ -134,7 +134,7 @@ function MenuReviewModal({ restaurantId, menuId, menuName, onClose }: MenuReview
                 <div className="reviews-list">
                   {reviews.map((review) => {
                     // 해당 메뉴에 대한 평점 찾기
-                    const menuRating = review.ratings.menuRatings.find(
+                    const menuRating = review.ratings?.menuRatings?.find(
                       (mr) => mr.menuId === menuId
                     );
                     const displayRating = menuRating?.rating || 0;

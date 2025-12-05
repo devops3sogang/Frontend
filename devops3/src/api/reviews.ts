@@ -7,13 +7,13 @@ import type {
   CreateMenuReviewRequest,
 } from "./types";
 
-// 리뷰 작성
+// 리뷰 작성 (일반 식당)
 export const createReview = async (
   restaurantId: string,
   data: CreateReviewRequest
 ): Promise<ReviewResponse> => {
   const response = await apiClient.post<ReviewResponse>(
-    `/restaurants/${restaurantId}/reviews`,
+    `/reviews`,
     data
   );
   return response.data;

@@ -24,6 +24,7 @@ export type RestaurantCategory =
 
 // 메뉴 아이템 구조
 export interface MenuItem {
+  id?: string; // 메뉴 ID (백엔드에서 생성)
   name: string; // 메뉴 이름
   price: number; // 메뉴 가격 (원 단위)
 }

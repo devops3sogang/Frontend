@@ -276,7 +276,7 @@ function MyPage() {
                   {review.ratings?.menuRatings &&
                     review.ratings.menuRatings.length > 0 && (
                       <div className="menu-tags">
-                        {review.ratings.menuRatings.map(
+                        {review.ratings.menuRatings?.map(
                           (
                             menuRating: { menuName: string; rating: number },
                             index: number
@@ -340,7 +340,7 @@ function MyPage() {
                   {review.ratings?.menuRatings &&
                     review.ratings.menuRatings.length > 0 && (
                       <div className="menu-tags">
-                        {review.ratings.menuRatings.map(
+                        {review.ratings.menuRatings?.map(
                           (
                             menuRating: { menuName: string; rating: number },
                             index: number

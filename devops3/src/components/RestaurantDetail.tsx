@@ -73,7 +73,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
   const averageRating =
     reviews.length > 0
       ? reviews.reduce(
-          (sum, review) => sum + (review.ratings?.restaurantRating || 0),
+          (sum, review) => sum + (review.rating?.restaurantRating || 0),
           0
         ) / reviews.length
       : 0;
@@ -89,6 +89,11 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     }
     try {
       const data = await getRestaurant(restaurant.id);
+      console.log("📥 백엔드로부터 받은 식당 상세 데이터:", JSON.stringify(data, null, 2));
+      console.log("📥 리뷰 데이터:", data.reviews);
+      if (data.reviews && data.reviews.length > 0) {
+        console.log("📥 첫 번째 리뷰의 rating 구조:", data.reviews[0].rating);
+      }
       const reviewsWithLikedStatus = (data.reviews || []).map(review => ({
         ...review,
         likedByCurrentUser: review.likedByCurrentUser ?? false,
@@ -158,9 +163,16 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     if (editingReview) {
       // 수정
       try {
+        // 백엔드 요구사항에 맞춰 데이터 변환 (menuRatings에서 menuName 제거)
         await updateReview(editingReview._id, {
           content: reviewData.content,
-          rating: reviewData.ratings!,
+          rating: {
+            menuRatings: reviewData.ratings!.menuRatings.map(mr => ({
+              menuId: mr.menuId, // 백엔드는 menuId만 필요
+              rating: mr.rating,
+            })),
+            restaurantRating: reviewData.ratings!.restaurantRating,
+          },
           imageUrls: reviewData.imageUrls || [],
         });
         alert("✅ 리뷰가 수정되었습니다!");
@@ -172,17 +184,29 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
     } else {
       // 추가
       try {
-        await createReview(restaurant.id, {
+        // 백엔드 요구사항에 맞춰 데이터 변환 (menuRatings에서 menuName 제거)
+        const requestData = {
           restaurantId: restaurant.id,
-          rating: reviewData.ratings!,
+          targetType: "RESTAURANT" as const,
+          rating: {
+            menuRatings: reviewData.ratings!.menuRatings.map(mr => ({
+              menuId: mr.menuId, // 백엔드는 menuId만 필요
+              rating: mr.rating,
+            })),
+            restaurantRating: reviewData.ratings!.restaurantRating,
+          },
           content: reviewData.content,
           imageUrls: reviewData.imageUrls || [],
-        });
+        };
+        console.log("📤 리뷰 작성 요청 데이터:", JSON.stringify(requestData, null, 2));
+
+        await createReview(restaurant.id, requestData);
         alert("✅ 리뷰가 작성되었습니다!");
         await fetchDetails();
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to create review:", error);
-        alert("❌ 리뷰 작성에 실패했습니다.");
+        console.error("Error response:", error.response?.data);
+        alert(`❌ 리뷰 작성에 실패했습니다.\n${error.response?.data?.message || error.message}`);
       }
     }
     setShowReviewModal(false);
@@ -433,7 +457,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                     >
                       <span className="star">★</span>
                       <span>
-                        {review.ratings?.restaurantRating?.toFixed(1) ?? "0.0"}
+                        {review.rating?.restaurantRating?.toFixed(1) ?? "0.0"}
                       </span>
                       <span
                         className={`material-symbols-outlined expand-icon ${
@@ -469,7 +493,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                   {expandedReviewId === review._id && (
                     <div className="review-ratings-detail">
                       <div className="menu-ratings-section">
-                        {review.ratings.menuRatings.map(
+                        {review.rating?.menuRatings?.map(
                           (mr: { menuName: string; rating: number }) => (
                             <StarRatingDisplay
                               key={mr.menuName}
@@ -481,10 +505,10 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                       </div>
                     </div>
                   )}
-                  {review.ratings?.menuRatings &&
-                    review.ratings.menuRatings.length > 0 && (
+                  {review.rating?.menuRatings &&
+                    review.rating.menuRatings.length > 0 && (
                       <div className="menu-tags">
-                        {review.ratings.menuRatings.map(
+                        {review.rating.menuRatings.map(
                           (
                             menuRating: { menuName: string; rating: number },
                             index: number
@@ -623,7 +647,14 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
                   },
                   restaurantId: restaurant.id,
                   restaurantName: restaurant.name,
-                  ratings: editingReview.ratings,
+                  ratings: {
+                    menuRatings: editingReview.rating?.menuRatings?.map(mr => ({
+                      menuId: mr.menuId || mr.menuName, // 백업: menuId 없으면 menuName 사용
+                      menuName: mr.menuName,
+                      rating: mr.rating,
+                    })) || [],
+                    restaurantRating: editingReview.rating?.restaurantRating || 0,
+                  },
                   content: editingReview.content || "",
                   imageUrls: editingReview.imageUrls,
                   likeCount: editingReview.likeCount,

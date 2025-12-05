@@ -16,7 +16,8 @@ interface ReviewModalProps {
 }
 
 interface MenuRatingState {
-  menuName: string;
+  menuId: string; // 백엔드 요구사항: menuId만 전송
+  menuName: string; // UI 표시용
   rating: number;
 }
 
@@ -27,13 +28,13 @@ function ReviewModal({
   onSubmit,
 }: ReviewModalProps) {
   const [selectedMenus, setSelectedMenus] = useState<string[]>(
-    existingReview?.ratings.menuRatings.map((mr) => mr.menuName) || []
+    existingReview?.ratings?.menuRatings?.map((mr) => mr.menuName) || []
   );
   const [menuRatings, setMenuRatings] = useState<MenuRatingState[]>(
-    existingReview?.ratings.menuRatings || []
+    existingReview?.ratings?.menuRatings || []
   );
   const [restaurantRating, setRestaurantRating] = useState(
-    existingReview?.ratings.restaurantRating || 0
+    existingReview?.ratings?.restaurantRating || 0
   );
   const [content, setContent] = useState(existingReview?.content || "");
   const [imageUrls, setImageUrls] = useState<string[]>(
@@ -56,6 +57,10 @@ function ReviewModal({
   };
 
   const handleMenuRatingChange = (menuName: string, rating: number) => {
+    // restaurant.menu에서 menuId 찾기
+    const menuItem = restaurant.menu?.find((m) => m.name === menuName);
+    const menuId = menuItem?.id || menuName; // menuId가 없으면 menuName 사용
+
     setMenuRatings((prev) => {
       const existing = prev.find((mr) => mr.menuName === menuName);
       if (existing) {
@@ -63,7 +68,7 @@ function ReviewModal({
           mr.menuName === menuName ? { ...mr, rating } : mr
         );
       } else {
-        return [...prev, { menuName, rating }];
+        return [...prev, { menuId, menuName, rating }];
       }
     });
   };
@@ -137,7 +142,11 @@ function ReviewModal({
       restaurantId: restaurant.id,
       restaurantName: restaurant.name,
       ratings: {
-        menuRatings: menuRatings,
+        menuRatings: menuRatings.map(mr => ({
+          menuId: mr.menuId, // 백엔드는 menuId만 필요
+          menuName: mr.menuName, // 응답용 (표시용)
+          rating: mr.rating,
+        })),
         restaurantRating: restaurantRating,
       },
       content: content.trim(),

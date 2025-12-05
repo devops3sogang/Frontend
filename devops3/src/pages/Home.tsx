@@ -142,7 +142,7 @@ function Home() {
                             "식당 정보 없음"
                         }
                       </span>
-                      {review.ratings.menuRatings.length > 0 && (
+                      {review.ratings?.menuRatings && review.ratings.menuRatings.length > 0 && (
                         <span className="menu-items">
                           (
                           {review.ratings.menuRatings

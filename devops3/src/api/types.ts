@@ -107,10 +107,12 @@ export interface MenuItemInput {
 // 리뷰 관련 타입
 export interface CreateReviewRequest {
   restaurantId: string;
+  targetType: "RESTAURANT" | "MENU";
+  menuIds?: string[]; // Type.MENU인 경우 필요
   content?: string;
   rating: {
     menuRatings: Array<{
-      menuName: string;
+      menuId: string; // 백엔드는 menuId만 필요 (menuName 불필요)
       rating: number;
     }>;
     restaurantRating: number;
@@ -118,20 +120,19 @@ export interface CreateReviewRequest {
   imageUrls?: string[];
 }
 
-// 학식 메뉴 리뷰 작성 요청 타입 (백엔드 명세에 맞춤)
+// 학식 메뉴 리뷰 작성 요청 타입 (CreateReviewRequest와 동일하지만 명확성을 위해 유지)
 export interface CreateMenuReviewRequest {
   restaurantId: string; // 교내 식당은 'MAIN_CAMPUS'
   targetType: "MENU";
   menuIds: string[]; // 단일 메뉴 ID 배열
   rating: {
-    restaurantRating?: number;
     menuRatings: Array<{
-      menuId: string;
-      menuName: string;
+      menuId: string; // 백엔드는 menuId만 필요
       rating: number;
     }>;
+    restaurantRating?: number;
   };
-  content?: string; // 선택
+  content?: string;
   imageUrls?: string[];
 }
 
@@ -139,7 +140,7 @@ export interface ReviewUpdateRequest {
   content?: string;
   rating: {
     menuRatings: Array<{
-      menuName: string;
+      menuId: string; // 백엔드는 menuId만 필요
       rating: number;
     }>;
     restaurantRating: number;
@@ -196,8 +197,11 @@ export interface ReviewDetailResponse {
   _id: string;
   userId: string;
   nickname: string;
-  ratings: {
+  targetType?: "RESTAURANT" | "MENU";
+  menuIds?: string[];
+  rating: {  // 백엔드는 rating (단수) 사용
     menuRatings: Array<{
+      menuId: string;
       menuName: string;
       rating: number;
     }>;
@@ -224,10 +228,12 @@ export interface RestaurantDetailResponse {
   imageUrl?: string;
   isActive: boolean;
   stats: {
-    averageRating: number;
+    rating: number;  // 백엔드는 rating 사용 (averageRating 아님)
     reviewCount: number;
+    likeCount: number;
   };
   menu: Array<{
+    id: string;
     name: string;
     price: number;
   }>;
