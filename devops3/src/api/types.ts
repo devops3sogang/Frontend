@@ -167,7 +167,7 @@ export interface OnCampusMenuResponse {
     meals: Array<{
       corner: string;
       category: string;
-      items: string[];
+      items: string[] | Array<{ id?: string; name: string; price: number }>;
       price: number;
     }>;
   }>;

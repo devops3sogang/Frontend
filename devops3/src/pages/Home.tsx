@@ -19,7 +19,9 @@ function Home() {
     null
   );
   const [loading, setLoading] = useState(true);
-  const [restaurantNameMap, setRestaurantNameMap] = useState<Record<string, string>>({});
+  const [restaurantNameMap, setRestaurantNameMap] = useState<
+    Record<string, string>
+  >({});
 
   // 최신 리뷰 가져오기
   useEffect(() => {
@@ -125,9 +127,10 @@ function Home() {
                       <span className="restaurant-name">
                         {
                           // ✅ 최신 이름이 있으면 그걸 사용, 없으면 기존 필드 사용
-                          (review.restaurantId && restaurantNameMap[review.restaurantId]) ||
-                          review.restaurantName ||
-                          "식당 정보 없음"
+                          (review.restaurantId &&
+                            restaurantNameMap[review.restaurantId]) ||
+                            review.restaurantName ||
+                            "식당 정보 없음"
                         }
                       </span>
                       {review.ratings.menuRatings.length > 0 && (
@@ -189,7 +192,7 @@ function Home() {
                             <ul className="menu-items-list">
                               {meal.items.map((item, itemIdx) => (
                                 <li key={itemIdx} className="menu-item">
-                                  {item}
+                                  {typeof item === "string" ? item : item.name}
                                 </li>
                               ))}
                             </ul>
@@ -203,16 +206,16 @@ function Home() {
                 ).length === 0 && (
                   <div className="menu-empty">
                     <p>📅 오늘 날짜의 메뉴가 없습니다.</p>
-                    <p className="menu-empty-subtext">주말이거나 공휴일일 수 있습니다.</p>
+                    <p className="menu-empty-subtext">
+                      주말이거나 공휴일일 수 있습니다.
+                    </p>
                   </div>
                 )}
               </>
             ) : (
               <div className="menu-loading">
                 <p>⏳ 메뉴 정보를 불러오는 중...</p>
-                <p className="menu-loading-subtext">
-                  잠시만 기다려 주세요.
-                </p>
+                <p className="menu-loading-subtext">잠시만 기다려 주세요.</p>
               </div>
             )}
           </div>
