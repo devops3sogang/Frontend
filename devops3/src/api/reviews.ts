@@ -4,6 +4,7 @@ import type {
   ReviewResponse,
   ReviewUpdateRequest,
   ToggleLikeResponse,
+  CreateMenuReviewRequest,
 } from "./types";
 
 // 리뷰 작성
@@ -81,4 +82,23 @@ export const adminGetReviews = async (limit?: number): Promise<ReviewResponse[]>
 // 관리자: 리뷰 삭제
 export const adminDeleteReview = async (reviewId: string): Promise<void> => {
   await apiClient.delete(`/admin/reviews/${reviewId}`);
+};
+
+// 학식 메뉴 리뷰 작성
+export const createMenuReview = async (
+  data: CreateMenuReviewRequest
+): Promise<ReviewResponse> => {
+  const response = await apiClient.post<ReviewResponse>(`/reviews`, data);
+  return response.data;
+};
+
+// 특정 메뉴의 리뷰 목록 조회
+export const getMenuReviews = async (
+  restaurantId: string,
+  menuId: string
+): Promise<ReviewResponse[]> => {
+  const response = await apiClient.get<ReviewResponse[]>(`/reviews/by-menu`, {
+    params: { restaurantId, menuId },
+  });
+  return response.data;
 };

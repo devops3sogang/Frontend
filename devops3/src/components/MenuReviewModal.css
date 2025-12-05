@@ -1,0 +1,180 @@
+.menu-review-modal {
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.menu-review-modal .modal-body {
+  position: relative;
+  padding: 20px;
+  min-height: 300px;
+}
+
+.loading-text,
+.no-reviews {
+  text-align: center;
+  color: #666;
+  padding: 40px 20px;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 80px; /* 플로팅 버튼 공간 확보 */
+}
+
+.review-item {
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.reviewer-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.review-content {
+  margin: 12px 0;
+  color: #555;
+  line-height: 1.6;
+}
+
+.review-date {
+  font-size: 0.875rem;
+  color: #999;
+}
+
+/* 별점 스타일 */
+.stars {
+  display: flex;
+  gap: 4px;
+}
+
+.star {
+  font-size: 1.5rem;
+  color: #ddd;
+  cursor: pointer;
+  transition: color 0.2s;
+  user-select: none;
+}
+
+.star.active {
+  color: #ffc107;
+}
+
+.star.readonly {
+  cursor: default;
+}
+
+.star:not(.readonly):hover {
+  color: #ffb300;
+}
+
+/* 플로팅 연필 버튼 */
+.floating-write-btn {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #007bff;
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+  transition: all 0.3s;
+  z-index: 1000;
+}
+
+.floating-write-btn:hover {
+  background: #0056b3;
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.6);
+  transform: scale(1.1);
+}
+
+/* 리뷰 작성 폼 */
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group textarea {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.btn-cancel,
+.btn-submit {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background: #f8f9fa;
+  color: #666;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: #e9ecef;
+}
+
+.btn-submit {
+  background: #007bff;
+  color: white;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.btn-submit:disabled,
+.btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

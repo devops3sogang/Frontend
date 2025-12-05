@@ -118,6 +118,23 @@ export interface CreateReviewRequest {
   imageUrls?: string[];
 }
 
+// 학식 메뉴 리뷰 작성 요청 타입 (백엔드 명세에 맞춤)
+export interface CreateMenuReviewRequest {
+  restaurantId: string; // 교내 식당은 'MAIN_CAMPUS'
+  targetType: "MENU";
+  menuIds: string[]; // 단일 메뉴 ID 배열
+  rating: {
+    restaurantRating?: number;
+    menuRatings: Array<{
+      menuId: string;
+      menuName: string;
+      rating: number;
+    }>;
+  };
+  content?: string; // 선택
+  imageUrls?: string[];
+}
+
 export interface ReviewUpdateRequest {
   content?: string;
   rating: {
@@ -143,6 +160,7 @@ export interface ReviewResponse {
   restaurantName?: string;
   ratings: {
     menuRatings: Array<{
+      menuId: string; // 백엔드 응답에 포함됨
       menuName: string;
       rating: number;
     }>;

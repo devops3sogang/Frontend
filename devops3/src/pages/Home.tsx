@@ -7,6 +7,7 @@ import { getOnCampusMenus } from "../api/menus";
 import { getRestaurant } from "../api";
 import Roulette from "../components/Roulette";
 import RestaurantDetail from "../components/RestaurantDetail";
+import MenuReviewModal from "../components/MenuReviewModal";
 import "../App.css";
 import "./Home.css";
 
@@ -22,6 +23,10 @@ function Home() {
   const [restaurantNameMap, setRestaurantNameMap] = useState<
     Record<string, string>
   >({});
+  const [selectedMenu, setSelectedMenu] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   // 최신 리뷰 가져오기
   useEffect(() => {
@@ -96,6 +101,10 @@ function Home() {
 
   const handleReviewClick = (restaurantId: string) => {
     navigate(`/map?restaurantId=${restaurantId}`);
+  };
+
+  const handleMenuClick = (menuId: string, menuName: string) => {
+    setSelectedMenu({ id: menuId, name: menuName });
   };
 
   return (
@@ -190,11 +199,27 @@ function Home() {
                               {meal.category}
                             </div>
                             <ul className="menu-items-list">
-                              {meal.items.map((item, itemIdx) => (
-                                <li key={itemIdx} className="menu-item">
-                                  {typeof item === "string" ? item : item.name}
-                                </li>
-                              ))}
+                              {meal.items.map((item, itemIdx) => {
+                                const menuName = typeof item === "string" ? item : item.name;
+                                const menuId = typeof item === "string" ? item : (item.id || item.name);
+
+                                return (
+                                  <li
+                                    key={itemIdx}
+                                    className="menu-item clickable"
+                                    onClick={() => handleMenuClick(menuId, menuName)}
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter" || e.key === " ") {
+                                        handleMenuClick(menuId, menuName);
+                                      }
+                                    }}
+                                    role="button"
+                                    tabIndex={0}
+                                  >
+                                    {menuName}
+                                  </li>
+                                );
+                              })}
                             </ul>
                           </div>
                         ))}
@@ -235,6 +260,16 @@ function Home() {
             />
           </div>
         </div>
+      )}
+
+      {/* 메뉴 리뷰 모달 */}
+      {selectedMenu && campusMenus && (
+        <MenuReviewModal
+          restaurantId={campusMenus.restaurantId}
+          menuId={selectedMenu.id}
+          menuName={selectedMenu.name}
+          onClose={() => setSelectedMenu(null)}
+        />
       )}
     </div>
   );

@@ -188,6 +188,24 @@
   font-size: 0.85rem;
 }
 
+.menu-item.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-item.clickable:hover {
+  background-color: #f0f8ff;
+  padding-left: 1.5rem;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.menu-item.clickable:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+  background-color: #f0f8ff;
+}
+
 .menu-empty {
   text-align: center;
   padding: 3rem 1rem;
