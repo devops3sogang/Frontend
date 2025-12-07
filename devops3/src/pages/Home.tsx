@@ -23,6 +23,9 @@ function Home() {
   const [restaurantNameMap, setRestaurantNameMap] = useState<
     Record<string, string>
   >({});
+  const [restaurantMenuMap, setRestaurantMenuMap] = useState<
+    Record<string, Array<{ id?: string | null; _id?: string; name: string; price: number }>>
+  >({});
   const [selectedMenu, setSelectedMenu] = useState<{
     id: string;
     name: string;
@@ -51,18 +54,21 @@ function Home() {
           )
         );
 
-        const map: Record<string, string> = {};
+        const nameMap: Record<string, string> = {};
+        const menuMap: Record<string, Array<{ id?: string | null; _id?: string; name: string; price: number }>> = {};
         await Promise.all(
           ids.map(async (id) => {
             try {
               const detail = await getRestaurant(id);
-              map[id] = detail.name; // 최신 이름
+              nameMap[id] = detail.name; // 최신 이름
+              menuMap[id] = detail.menu;
             } catch (e) {
-              console.warn("식당 이름 갱신 실패:", id, e);
+              console.warn("식당 정보 갱신 실패:", id, e);
             }
           })
         );
-        setRestaurantNameMap(map);
+        setRestaurantNameMap(nameMap);
+        setRestaurantMenuMap(menuMap);
       } catch (error) {
         console.error("Failed to fetch reviews:", error);
       } finally {
@@ -122,7 +128,8 @@ function Home() {
   ) => {
     // MAIN_CAMPUS인 경우 첫 번째 메뉴의 리뷰 모달 띄우기
     if (restaurantId === "MAIN_CAMPUS" && review) {
-      const firstMenu = review.ratings?.menuRatings?.[0];
+      const ratings = (review as any).rating || review.ratings;
+      const firstMenu = ratings?.menuRatings?.[0];
       if (firstMenu) {
         const menuName =
           getMenuNameById(firstMenu.menuId) ||
@@ -140,7 +147,7 @@ function Home() {
     setSelectedMenu({ id: menuId, name: menuName });
   };
 
-  // menuId로 campusMenus에서 메뉴 이름 찾기
+  // menuId로 campusMenus에서 메뉴 이름 찾기 (MAIN_CAMPUS용)
   const getMenuNameById = (menuId: string): string | null => {
     if (!campusMenus?.dailyMenus) return null;
 
@@ -157,6 +164,15 @@ function Home() {
       }
     }
     return null;
+  };
+
+  // menuId와 restaurantId로 메뉴 이름 찾기 (OFF_CAMPUS용)
+  const getOffCampusMenuName = (restaurantId: string, menuId: string): string | null => {
+    const menus = restaurantMenuMap[restaurantId];
+    if (!menus) return null;
+
+    const menu = menus.find(m => m.id === menuId || m._id === menuId);
+    return menu?.name || null;
   };
 
   return (
@@ -204,29 +220,38 @@ function Home() {
                               review.restaurantName ||
                               "식당 정보 없음"}
                         </span>
-                        {review.ratings?.menuRatings &&
-                          review.ratings.menuRatings.length > 0 && (
+                        {(() => {
+                          const ratings = (review as any).rating || review.ratings;
+                          return ratings?.menuRatings && ratings.menuRatings.length > 0 ? (
                             <span className="menu-items">
                               (
                               {isMainCampus
-                                ? review.ratings.menuRatings
+                                ? ratings.menuRatings
                                     .map(
-                                      (m) =>
+                                      (m: any) =>
                                         getMenuNameById(m.menuId) ||
                                         m.menuName ||
                                         "메뉴 정보 없음"
                                     )
                                     .join(", ")
-                                : review.ratings.menuRatings
-                                    .map((m) => m.menuName)
+                                : ratings.menuRatings
+                                    .map((m: any) => {
+                                      const restaurantId = review.restaurantId;
+                                      return (
+                                        (restaurantId && getOffCampusMenuName(restaurantId, m.menuId)) ||
+                                        m.menuName ||
+                                        "메뉴 정보 없음"
+                                      );
+                                    })
                                     .join(", ")}
                               )
                             </span>
-                          )}
+                          ) : null;
+                        })()}
                       </div>
                       <span className="rating">
                         ⭐{" "}
-                        {getAverageRating(review.ratings, review.restaurantId)}
+                        {getAverageRating((review as any).rating || review.ratings, review.restaurantId)}
                       </span>
                     </div>
                     <p className="review-content">{review.content}</p>

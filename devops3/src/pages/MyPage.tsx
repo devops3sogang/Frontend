@@ -3,8 +3,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import type { ReviewResponse } from "../api/types";
+import type { ReviewResponse, OnCampusMenuResponse } from "../api/types";
 import { getMyProfile, updateMyProfile, deleteMyAccount } from "../api/users";
+import { getRestaurant } from "../api";
+import { getOnCampusMenus } from "../api/menus";
+import MenuReviewModal from "../components/MenuReviewModal";
 import "./MyPage.css";
 
 function MyPage() {
@@ -21,6 +24,19 @@ function MyPage() {
   const [likedReviews, setLikedReviews] = useState<ReviewResponse[]>([]);
   const [deletePassword, setDeletePassword] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [restaurantNameMap, setRestaurantNameMap] = useState<
+    Record<string, string>
+  >({});
+  const [restaurantMenuMap, setRestaurantMenuMap] = useState<
+    Record<string, Array<{ id?: string | null; _id?: string; name: string; price: number }>>
+  >({});
+  const [campusMenus, setCampusMenus] = useState<OnCampusMenuResponse | null>(
+    null
+  );
+  const [selectedMenu, setSelectedMenu] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -36,8 +52,37 @@ function MyPage() {
         try {
           const data = await getMyProfile();
           console.log("Fetched profile data:", data);
-          setMyReviews(data.myReviews || []);
-          setLikedReviews(data.likedReviews || []);
+          const myReviewsData = data.myReviews || [];
+          const likedReviewsData = data.likedReviews || [];
+          setMyReviews(myReviewsData);
+          setLikedReviews(likedReviewsData);
+
+          // 모든 리뷰에서 식당 ID 수집 (target.restaurantId 사용)
+          const allReviews = [...myReviewsData, ...likedReviewsData];
+          const restaurantIds = Array.from(
+            new Set(
+              allReviews
+                .map((r) => r.target?.restaurantId)
+                .filter((id): id is string => !!id && id !== "MAIN_CAMPUS")
+            )
+          );
+
+          // 식당 이름과 메뉴 정보 가져오기
+          const nameMap: Record<string, string> = {};
+          const menuMap: Record<string, Array<{ id?: string | null; _id?: string; name: string; price: number }>> = {};
+          await Promise.all(
+            restaurantIds.map(async (id) => {
+              try {
+                const detail = await getRestaurant(id);
+                nameMap[id] = detail.name;
+                menuMap[id] = detail.menu;
+              } catch (e) {
+                console.warn("식당 정보 갱신 실패:", id, e);
+              }
+            })
+          );
+          setRestaurantNameMap(nameMap);
+          setRestaurantMenuMap(menuMap);
         } catch (error) {
           console.error("Failed to fetch user profile:", error);
           setMyReviews([]);
@@ -48,6 +93,21 @@ function MyPage() {
       fetchUserProfile();
     }
   }, [user?.nickname, isAuthenticated, navigate]);
+
+  // 교내 메뉴 가져오기
+  useEffect(() => {
+    const fetchCampusMenus = async () => {
+      try {
+        const today = new Date().toISOString().split("T")[0];
+        const menus = await getOnCampusMenus(today);
+        setCampusMenus(menus);
+      } catch (error) {
+        console.error("Failed to fetch campus menus:", error);
+      }
+    };
+
+    fetchCampusMenus();
+  }, []);
 
   const handleNicknameUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,12 +204,87 @@ function MyPage() {
 
     const restaurantId = review.restaurantId || review.target?.restaurantId;
 
+    // MAIN_CAMPUS인 경우 첫 번째 메뉴의 리뷰 모달 띄우기
+    if (restaurantId === "MAIN_CAMPUS") {
+      const ratings = (review as any).rating || review.ratings;
+      const firstMenu = ratings?.menuRatings?.[0];
+      if (firstMenu) {
+        const menuName =
+          getMenuNameById(firstMenu.menuId) ||
+          firstMenu.menuName ||
+          "메뉴 정보 없음";
+        handleMenuClick(firstMenu.menuId, menuName);
+      }
+      return; // menuRatings가 없어도 map으로 이동하지 않음
+    }
+
+    // 일반 식당인 경우 지도로 이동
     if (restaurantId) {
       console.log("Navigating to:", `/map?restaurantId=${restaurantId}`);
       navigate(`/map?restaurantId=${restaurantId}`);
     } else {
       console.warn("No restaurantId found in review:", review);
     }
+  };
+
+  const handleMenuClick = (menuId: string, menuName: string) => {
+    setSelectedMenu({ id: menuId, name: menuName });
+  };
+
+  // 별점 계산 (MAIN_CAMPUS인 경우 메뉴 별점 평균)
+  const getAverageRating = (review: ReviewResponse) => {
+    const ratings = (review as any).rating || review.ratings;
+    const restaurantId = review.restaurantId || review.target?.restaurantId;
+
+    // MAIN_CAMPUS인 경우 메뉴 별점의 평균을 표시
+    if (restaurantId === "MAIN_CAMPUS" && ratings?.menuRatings) {
+      const menuRatings = ratings.menuRatings;
+      if (menuRatings.length > 0) {
+        const sum = menuRatings.reduce(
+          (acc: number, menu: any) => acc + (menu.rating || 0),
+          0
+        );
+        const avg = sum / menuRatings.length;
+        return avg.toFixed(1);
+      }
+    }
+
+    // 일반 식당은 식당 별점 표시
+    if (
+      ratings?.restaurantRating !== undefined &&
+      ratings?.restaurantRating !== null
+    ) {
+      return ratings.restaurantRating.toFixed(1);
+    }
+    return "0.0";
+  };
+
+  // menuId로 campusMenus에서 메뉴 이름 찾기 (MAIN_CAMPUS용)
+  const getMenuNameById = (menuId: string): string | null => {
+    if (!campusMenus?.dailyMenus) return null;
+
+    for (const dailyMenu of campusMenus.dailyMenus) {
+      for (const meal of dailyMenu.meals) {
+        for (const item of meal.items) {
+          if (
+            typeof item === "object" &&
+            (item._id === menuId || item.id === menuId)
+          ) {
+            return item.name;
+          }
+        }
+      }
+    }
+    return null;
+  };
+
+  // menuId와 restaurantId로 메뉴 이름 찾기 (OFF_CAMPUS용)
+  const getOffCampusMenuName = (restaurantId: string, menuId: string): string | null => {
+    const menus = restaurantMenuMap[restaurantId];
+    if (!menus) return null;
+
+    const menu = menus.find(m => m.id === menuId || m._id === menuId);
+    return menu?.name || null;
   };
 
   if (!user) {
@@ -262,35 +397,49 @@ function MyPage() {
                 >
                   <div className="review-header">
                     <h3>
-                      {review.target?.restaurantName ||
-                        review.restaurantName ||
-                        "식당 정보 없음"}
+                      {review.target?.restaurantId === "MAIN_CAMPUS"
+                        ? "우정원"
+                        : (review.target?.restaurantId &&
+                            restaurantNameMap[review.target.restaurantId]) ||
+                          review.target?.restaurantName ||
+                          review.restaurantName ||
+                          "식당 정보 없음"}
                     </h3>
                     <div className="review-rating">
                       <span className="star">★</span>
                       <span>
-                        {review.ratings?.restaurantRating?.toFixed(1) ?? "0.0"}
+                        {getAverageRating(review)}
                       </span>
                     </div>
                   </div>
-                  {review.ratings?.menuRatings &&
-                    review.ratings.menuRatings.length > 0 && (
+                  {(() => {
+                    const ratings = (review as any).rating || review.ratings;
+                    const restaurantId = review.restaurantId || review.target?.restaurantId;
+                    return ratings?.menuRatings && ratings.menuRatings.length > 0 ? (
                       <div className="menu-tags">
-                        {review.ratings.menuRatings?.map(
+                        {ratings.menuRatings?.map(
                           (
-                            menuRating: { menuName: string; rating: number },
+                            menuRating: { menuId: string; menuName?: string; rating: number },
                             index: number
-                          ) => (
-                            <span
-                              key={`my-review-${review._id}-menu-${index}`}
-                              className="menu-tag"
-                            >
-                              {menuRating.menuName}
-                            </span>
-                          )
+                          ) => {
+                            const menuName = restaurantId === "MAIN_CAMPUS"
+                              ? getMenuNameById(menuRating.menuId)
+                              : restaurantId
+                              ? getOffCampusMenuName(restaurantId, menuRating.menuId)
+                              : null;
+                            return (
+                              <span
+                                key={`my-review-${review._id}-menu-${index}`}
+                                className="menu-tag"
+                              >
+                                {menuName || menuRating.menuName || "메뉴 정보 없음"}
+                              </span>
+                            );
+                          }
                         )}
                       </div>
-                    )}
+                    ) : null;
+                  })()}
                   <p className="review-content">{review.content}</p>
                   <div className="review-footer">
                     <span className="review-date">
@@ -321,14 +470,18 @@ function MyPage() {
                 >
                   <div className="review-header">
                     <h3>
-                      {review.target?.restaurantName ||
-                        review.restaurantName ||
-                        "식당 정보 없음"}
+                      {review.target?.restaurantId === "MAIN_CAMPUS"
+                        ? "우정원"
+                        : (review.target?.restaurantId &&
+                            restaurantNameMap[review.target.restaurantId]) ||
+                          review.target?.restaurantName ||
+                          review.restaurantName ||
+                          "식당 정보 없음"}
                     </h3>
                     <div className="review-rating">
                       <span className="star">★</span>
                       <span>
-                        {review.ratings?.restaurantRating?.toFixed(1) ?? "0.0"}
+                        {getAverageRating(review)}
                       </span>
                     </div>
                   </div>
@@ -337,24 +490,34 @@ function MyPage() {
                       작성자: {review.nickname}
                     </span>
                   </div>
-                  {review.ratings?.menuRatings &&
-                    review.ratings.menuRatings.length > 0 && (
+                  {(() => {
+                    const ratings = (review as any).rating || review.ratings;
+                    const restaurantId = review.restaurantId || review.target?.restaurantId;
+                    return ratings?.menuRatings && ratings.menuRatings.length > 0 ? (
                       <div className="menu-tags">
-                        {review.ratings.menuRatings?.map(
+                        {ratings.menuRatings?.map(
                           (
-                            menuRating: { menuName: string; rating: number },
+                            menuRating: { menuId: string; menuName?: string; rating: number },
                             index: number
-                          ) => (
-                            <span
-                              key={`liked-review-${review._id}-menu-${index}`}
-                              className="menu-tag"
-                            >
-                              {menuRating.menuName}
-                            </span>
-                          )
+                          ) => {
+                            const menuName = restaurantId === "MAIN_CAMPUS"
+                              ? getMenuNameById(menuRating.menuId)
+                              : restaurantId
+                              ? getOffCampusMenuName(restaurantId, menuRating.menuId)
+                              : null;
+                            return (
+                              <span
+                                key={`liked-review-${review._id}-menu-${index}`}
+                                className="menu-tag"
+                              >
+                                {menuName || menuRating.menuName || "메뉴 정보 없음"}
+                              </span>
+                            );
+                          }
                         )}
                       </div>
-                    )}
+                    ) : null;
+                  })()}
                   <p className="review-content">{review.content}</p>
                   <div className="review-footer">
                     <span className="review-date">
@@ -446,6 +609,16 @@ function MyPage() {
           </button>
         </div>
       </div>
+
+      {/* 메뉴 리뷰 모달 */}
+      {selectedMenu && campusMenus && (
+        <MenuReviewModal
+          restaurantId={campusMenus.restaurantId}
+          menuId={selectedMenu.id}
+          menuName={selectedMenu.name}
+          onClose={() => setSelectedMenu(null)}
+        />
+      )}
     </div>
   );
 }
