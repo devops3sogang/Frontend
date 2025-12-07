@@ -77,9 +77,23 @@ function Home() {
   useEffect(() => {
     const fetchCampusMenus = async () => {
       try {
-        // const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD (원래 코드)
-        const today = "2025-12-05"; // 디버그용 고정 날짜
-        const menus = await getOnCampusMenus(today);
+        const todayDate = new Date();
+        const dayOfWeek = todayDate.getDay(); // 0=일요일, 6=토요일
+
+        // 주말이면 다음 주 월요일 날짜로 API 호출
+        let targetDate = todayDate;
+        if (dayOfWeek === 6) {
+          // 토요일 -> 다음 주 월요일
+          targetDate = new Date(todayDate);
+          targetDate.setDate(todayDate.getDate() + 2);
+        } else if (dayOfWeek === 0) {
+          // 일요일 -> 다음 주 월요일
+          targetDate = new Date(todayDate);
+          targetDate.setDate(todayDate.getDate() + 1);
+        }
+
+        const dateStr = targetDate.toISOString().split("T")[0]; // YYYY-MM-DD
+        const menus = await getOnCampusMenus(dateStr);
         setCampusMenus(menus);
       } catch (error) {
         console.error("Failed to fetch campus menus:", error);
@@ -131,7 +145,10 @@ function Home() {
     for (const dailyMenu of campusMenus.dailyMenus) {
       for (const meal of dailyMenu.meals) {
         for (const item of meal.items) {
-          if (typeof item === "object" && (item._id === menuId || item.id === menuId)) {
+          if (
+            typeof item === "object" &&
+            (item._id === menuId || item.id === menuId)
+          ) {
             return item.name;
           }
         }
@@ -165,10 +182,7 @@ function Home() {
                       }
                     }}
                     onKeyDown={(e) => {
-                      if (
-                        isClickable &&
-                        (e.key === "Enter" || e.key === " ")
-                      ) {
+                      if (isClickable && (e.key === "Enter" || e.key === " ")) {
                         handleReviewClick(review.restaurantId!);
                       }
                     }}
@@ -194,7 +208,12 @@ function Home() {
                               (
                               {isMainCampus
                                 ? review.ratings.menuRatings
-                                    .map((m) => getMenuNameById(m.menuId) || m.menuName || "메뉴 정보 없음")
+                                    .map(
+                                      (m) =>
+                                        getMenuNameById(m.menuId) ||
+                                        m.menuName ||
+                                        "메뉴 정보 없음"
+                                    )
                                     .join(", ")
                                 : review.ratings.menuRatings
                                     .map((m) => m.menuName)
@@ -204,7 +223,8 @@ function Home() {
                           )}
                       </div>
                       <span className="rating">
-                        ⭐ {getAverageRating(review.ratings, review.restaurantId)}
+                        ⭐{" "}
+                        {getAverageRating(review.ratings, review.restaurantId)}
                       </span>
                     </div>
                     <p className="review-content">{review.content}</p>
@@ -233,13 +253,38 @@ function Home() {
             campusMenus.dailyMenus &&
             campusMenus.dailyMenus.length > 0 ? (
               <>
-                {campusMenus.dailyMenus
-                  .filter((dailyMenu) => {
-                    // const today = new Date().toISOString().split("T")[0];
-                    const today = "2025-12-05"; // 디버그용
-                    return dailyMenu.date === today;
-                  })
-                  .map((dailyMenu, index) => (
+                {(() => {
+                  const today = new Date().toISOString().split("T")[0];
+                  const todayDate = new Date();
+                  const dayOfWeek = todayDate.getDay(); // 0=일요일, 6=토요일
+
+                  // 오늘 날짜의 메뉴를 먼저 찾습니다
+                  let targetMenus = campusMenus.dailyMenus.filter(
+                    (dailyMenu) => dailyMenu.date === today
+                  );
+
+                  // 메뉴가 없으면 (주말인 경우) 다음 주 월요일 메뉴를 찾습니다
+                  if (targetMenus.length === 0) {
+                    if (dayOfWeek === 6) {
+                      // 토요일 -> 다음 주 월요일 메뉴
+                      const monday = new Date(todayDate);
+                      monday.setDate(todayDate.getDate() + 2);
+                      const mondayStr = monday.toISOString().split("T")[0];
+                      targetMenus = campusMenus.dailyMenus.filter(
+                        (dailyMenu) => dailyMenu.date === mondayStr
+                      );
+                    } else if (dayOfWeek === 0) {
+                      // 일요일 -> 다음 주 월요일 메뉴
+                      const monday = new Date(todayDate);
+                      monday.setDate(todayDate.getDate() + 1);
+                      const mondayStr = monday.toISOString().split("T")[0];
+                      targetMenus = campusMenus.dailyMenus.filter(
+                        (dailyMenu) => dailyMenu.date === mondayStr
+                      );
+                    }
+                  }
+
+                  return targetMenus.map((dailyMenu, index) => (
                     <div key={index} className="menu-daily-container">
                       <div className="menu-date-header">
                         <span className="menu-date">{dailyMenu.date}</span>
@@ -256,32 +301,42 @@ function Home() {
                                 const menuName =
                                   typeof item === "string" ? item : item.name;
                                 const menuId =
-                                  typeof item === "string"
-                                    ? null
-                                    : item.id;
+                                  typeof item === "string" ? null : item.id;
 
                                 // id가 없으면 클릭 불가
-                                const isClickable = menuId !== null && menuId !== undefined;
+                                const isClickable =
+                                  menuId !== null && menuId !== undefined;
 
                                 return (
                                   <li
                                     key={itemIdx}
-                                    className={`menu-item ${isClickable ? "clickable" : "disabled"}`}
+                                    className={`menu-item ${
+                                      isClickable ? "clickable" : "disabled"
+                                    }`}
                                     onClick={() => {
                                       if (isClickable) {
                                         handleMenuClick(menuId, menuName);
                                       } else {
-                                        alert("이 메뉴는 아직 리뷰를 작성할 수 없습니다.\nDB에 메뉴 ID가 설정되지 않았습니다.");
+                                        alert(
+                                          "이 메뉴는 아직 리뷰를 작성할 수 없습니다.\nDB에 메뉴 ID가 설정되지 않았습니다."
+                                        );
                                       }
                                     }}
                                     onKeyDown={(e) => {
-                                      if ((e.key === "Enter" || e.key === " ") && isClickable) {
+                                      if (
+                                        (e.key === "Enter" || e.key === " ") &&
+                                        isClickable
+                                      ) {
                                         handleMenuClick(menuId, menuName);
                                       }
                                     }}
                                     role="button"
                                     tabIndex={0}
-                                    title={isClickable ? "클릭하여 리뷰 작성" : "메뉴 ID가 설정되지 않음"}
+                                    title={
+                                      isClickable
+                                        ? "클릭하여 리뷰 작성"
+                                        : "메뉴 ID가 설정되지 않음"
+                                    }
                                   >
                                     {menuName} {!isClickable && " ⚠️"}
                                   </li>
@@ -292,17 +347,46 @@ function Home() {
                         ))}
                       </div>
                     </div>
-                  ))}
-                {campusMenus.dailyMenus.filter(
-                  (dm) => dm.date === new Date().toISOString().split("T")[0]
-                ).length === 0 && (
-                  <div className="menu-empty">
-                    <p>📅 오늘 날짜의 메뉴가 없습니다.</p>
-                    <p className="menu-empty-subtext">
-                      주말이거나 공휴일일 수 있습니다.
-                    </p>
-                  </div>
-                )}
+                  ));
+                })()}
+                {(() => {
+                  const today = new Date().toISOString().split("T")[0];
+                  const todayDate = new Date();
+                  const dayOfWeek = todayDate.getDay();
+
+                  let targetMenus = campusMenus.dailyMenus.filter(
+                    (dailyMenu) => dailyMenu.date === today
+                  );
+
+                  if (targetMenus.length === 0) {
+                    if (dayOfWeek === 6) {
+                      const monday = new Date(todayDate);
+                      monday.setDate(todayDate.getDate() + 2);
+                      const mondayStr = monday.toISOString().split("T")[0];
+                      targetMenus = campusMenus.dailyMenus.filter(
+                        (dailyMenu) => dailyMenu.date === mondayStr
+                      );
+                    } else if (dayOfWeek === 0) {
+                      const monday = new Date(todayDate);
+                      monday.setDate(todayDate.getDate() + 1);
+                      const mondayStr = monday.toISOString().split("T")[0];
+                      targetMenus = campusMenus.dailyMenus.filter(
+                        (dailyMenu) => dailyMenu.date === mondayStr
+                      );
+                    }
+                  }
+
+                  return targetMenus.length === 0 ? (
+                    <div className="menu-empty">
+                      <p>📅 메뉴 정보가 없습니다.</p>
+                      <p className="menu-empty-subtext">
+                        {dayOfWeek === 6 || dayOfWeek === 0
+                          ? "주말이거나 공휴일일 수 있습니다."
+                          : "잠시 후 다시 시도해주세요."}
+                      </p>
+                    </div>
+                  ) : null;
+                })()}
               </>
             ) : (
               <div className="menu-loading">
