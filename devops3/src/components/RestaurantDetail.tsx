@@ -21,6 +21,7 @@ import "./RestaurantDetail.css";
 interface RestaurantDetailProps {
   restaurant: Restaurant;
   onClose: () => void;
+  onDataChange?: () => void; // 리뷰 추가/삭제, 식당 삭제 등 데이터 변경 시 호출
 }
 
 interface StarRatingDisplayProps {
@@ -46,7 +47,7 @@ const StarRatingDisplay = ({ label, rating }: StarRatingDisplayProps) => {
   );
 };
 
-function RestaurantDetail({ restaurant: initialRestaurant, onClose }: RestaurantDetailProps) {
+function RestaurantDetail({ restaurant: initialRestaurant, onClose, onDataChange }: RestaurantDetailProps) {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -178,6 +179,7 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose }: Restaurant
         await deleteReview(reviewId);
         alert("✅ 리뷰가 삭제되었습니다.");
         await fetchDetails();
+        onDataChange?.(); // 부모 컴포넌트에 데이터 변경 알림
       } catch (error) {
         console.error("Failed to delete review:", error);
         alert("❌ 리뷰 삭제에 실패했습니다.");
@@ -203,6 +205,7 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose }: Restaurant
         });
         alert("✅ 리뷰가 수정되었습니다!");
         await fetchDetails();
+        onDataChange?.(); // 부모 컴포넌트에 데이터 변경 알림
       } catch (error) {
         console.error("Failed to update review:", error);
         alert("❌ 리뷰 수정에 실패했습니다.");
@@ -229,6 +232,7 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose }: Restaurant
         await createReview(requestData);
         alert("✅ 리뷰가 작성되었습니다!");
         await fetchDetails();
+        onDataChange?.(); // 부모 컴포넌트에 데이터 변경 알림
       } catch (error: any) {
         console.error("Failed to create review:", error);
         console.error("Error response:", error.response?.data);
@@ -291,6 +295,7 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose }: Restaurant
     try {
       await adminDeleteRestaurant(restaurant.id);
       alert("✅ 식당이 삭제되었습니다.");
+      onDataChange?.(); // 부모 컴포넌트에 데이터 변경 알림
       onClose();                 // 패널 닫기
       // 필요하면 navigate("/map"); // 또는 부모 콜백으로 목록/마커 갱신
     } catch (error: any) {
@@ -447,7 +452,7 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose }: Restaurant
               alert("✅ 맛집 정보가 성공적으로 수정되었습니다!");
               setShowForm(false);
               await fetchDetails(); // 최신 상세 정보 다시 불러오기
-              // 필요하면 부모 컴포넌트에 콜백을 전달하여 지도의 마커도 갱신
+              onDataChange?.(); // 부모 컴포넌트에 데이터 변경 알림
             } catch (error: any) {
               console.error("맛집 수정 실패:", error);
               alert(

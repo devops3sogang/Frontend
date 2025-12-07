@@ -810,8 +810,13 @@ function Map() {
       {/* 우측 상세 정보 패널 */}
       {selectedRestaurant && (
         <RestaurantDetail
+          key={selectedRestaurant.id}
           restaurant={selectedRestaurant}
           onClose={() => setSelectedRestaurant(null)}
+          onDataChange={() => {
+            // 데이터 변경 시 식당 목록 갱신
+            fetchRestaurants();
+          }}
         />
       )}
 
