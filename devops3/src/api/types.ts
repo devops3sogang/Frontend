@@ -13,22 +13,18 @@ export interface LoginRequest {
 }
 
 // 백엔드 로그인 응답 타입
-export type LoginResponse =
-  | string
-  | {
-      accessToken: string;
-      refreshToken: string;
-      tokenType?: string;
-      expiresAt?: number;
-      user?: {
-        _id: string;
-        email: string;
-        nickname: string;
-        role: string;
-      };
-      // 하위 호환성
-      token?: string;
-    };
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresAt: number;
+  user: {
+    _id: string;
+    email: string;
+    nickname: string;
+    role: string;
+  };
+}
 
 // 사용자 프로필 타입 (GET /users/me 응답)
 export interface UserProfile {

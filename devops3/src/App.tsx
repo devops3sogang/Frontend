@@ -1,15 +1,15 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { LoadScript } from '@react-google-maps/api'
-import { AuthProvider } from './contexts/AuthContext'
-import Navbar from './components/Navbar'
-import Home from './pages/Home'
-import Map from './pages/Map'
-import Login from './pages/Login'
-import Signup from './pages/Signup'
-import MyPage from './pages/MyPage'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { LoadScript } from "@react-google-maps/api";
+import { AuthProvider } from "./contexts/AuthContext";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Map from "./pages/Map";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import MyPage from "./pages/MyPage";
 import AdminRoute from "./components/AdminRoute";
-import './App.css'
-import AdminDashboard from './pages/AdminDashBoard'
+import "./App.css";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -37,7 +37,7 @@ function App() {
         </LoadScript>
       </AuthProvider>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;

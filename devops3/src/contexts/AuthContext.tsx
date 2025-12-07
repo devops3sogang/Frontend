@@ -36,33 +36,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await authAPI.login({ email, password });
       console.log("Login API response:", response);
 
-      // 응답에서 accessToken 추출
-      let token: string;
-      if (typeof response === 'string') {
-        token = response;
-      } else if (response.accessToken) {
-        token = response.accessToken;
-      } else if (response.token) {
-        token = response.token;
-      } else {
-        throw new Error("No token in response");
-      }
-
       // JWT 토큰 저장
-      authAPI.saveToken(token);
+      authAPI.saveToken(response.accessToken);
 
-      // refreshToken도 저장 (있는 경우)
-      if (response.refreshToken) {
-        localStorage.setItem("refreshToken", response.refreshToken);
-      }
+      // refreshToken 저장
+      localStorage.setItem("refreshToken", response.refreshToken);
 
-      // 응답에 user 정보가 있으면 바로 사용, 없으면 API 호출
-      let userProfile;
-      if (response.user) {
-        userProfile = response.user;
-      } else {
-        userProfile = await authAPI.getMyProfile();
-      }
+      // 응답에 포함된 user 정보 사용
+      const userProfile = response.user;
       console.log("User profile:", userProfile);
 
       const userToSave: User = {
@@ -71,8 +52,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         nickname: userProfile.nickname,
         passwordHash: "", // 불필요하므로 빈 문자열
         role: userProfile.role as "USER" | "ADMIN",
-        createdAt: userProfile.createdAt,
-        updatedAt: userProfile.updatedAt,
+        createdAt: "", // 백엔드 응답에 없으므로 빈 문자열
+        updatedAt: "", // 백엔드 응답에 없으므로 빈 문자열
       };
 
       setUser(userToSave);
