@@ -11,7 +11,12 @@ interface MenuReviewModalProps {
   onClose: () => void;
 }
 
-function MenuReviewModal({ restaurantId, menuId, menuName, onClose }: MenuReviewModalProps) {
+function MenuReviewModal({
+  restaurantId,
+  menuId,
+  menuName,
+  onClose,
+}: MenuReviewModalProps) {
   const [reviews, setReviews] = useState<ReviewResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [isWritingReview, setIsWritingReview] = useState(false);
@@ -46,7 +51,7 @@ function MenuReviewModal({ restaurantId, menuId, menuName, onClose }: MenuReview
 
     setSubmitting(true);
     try {
-      const requestData = {
+      const requestData: any = {
         restaurantId, // 'MAIN_CAMPUS' 또는 실제 restaurantId
         targetType: "MENU" as const,
         menuIds: [menuId], // 단일 메뉴 ID 배열
@@ -59,8 +64,13 @@ function MenuReviewModal({ restaurantId, menuId, menuName, onClose }: MenuReview
           ],
           restaurantRating: 0, // 메뉴 리뷰는 식당 평점 0으로 설정
         },
-        content: content.trim() || undefined,
       };
+
+      // content가 있을 때만 추가 (undefined 방지)
+      const trimmedContent = content.trim();
+      if (trimmedContent) {
+        requestData.content = trimmedContent;
+      }
 
       console.log("📤 리뷰 작성 요청 데이터:", requestData);
       console.log("🔑 JWT 토큰:", localStorage.getItem("jwt_token"));
@@ -83,7 +93,10 @@ function MenuReviewModal({ restaurantId, menuId, menuName, onClose }: MenuReview
       console.error("❌ 에러 응답:", error.response?.data);
       console.error("❌ 에러 상태:", error.response?.status);
 
-      const errorMessage = error.response?.data?.message || error.message || "리뷰 작성에 실패했습니다.";
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "리뷰 작성에 실패했습니다.";
       alert(`리뷰 작성 실패: ${errorMessage}`);
     } finally {
       setSubmitting(false);
@@ -103,7 +116,9 @@ function MenuReviewModal({ restaurantId, menuId, menuName, onClose }: MenuReview
       {[1, 2, 3, 4, 5].map((star) => (
         <span
           key={star}
-          className={`star ${value >= star ? "active" : ""} ${readonly ? "readonly" : ""}`}
+          className={`star ${value >= star ? "active" : ""} ${
+            readonly ? "readonly" : ""
+          }`}
           onClick={() => !readonly && onChange && onChange(star)}
         >
           ★
@@ -114,7 +129,10 @@ function MenuReviewModal({ restaurantId, menuId, menuName, onClose }: MenuReview
 
   const modalContent = (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content menu-review-modal" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-content menu-review-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
           <h2>{menuName}</h2>
           <button className="close-btn" onClick={onClose}>
@@ -129,7 +147,9 @@ function MenuReviewModal({ restaurantId, menuId, menuName, onClose }: MenuReview
               {loading ? (
                 <p className="loading-text">로딩 중...</p>
               ) : reviews.length === 0 ? (
-                <p className="no-reviews">아직 리뷰가 없습니다. 첫 리뷰를 작성해보세요!</p>
+                <p className="no-reviews">
+                  아직 리뷰가 없습니다. 첫 리뷰를 작성해보세요!
+                </p>
               ) : (
                 <div className="reviews-list">
                   {reviews.map((review) => {
@@ -142,7 +162,9 @@ function MenuReviewModal({ restaurantId, menuId, menuName, onClose }: MenuReview
                     return (
                       <div key={review._id} className="review-item">
                         <div className="review-header">
-                          <span className="reviewer-name">{review.nickname}</span>
+                          <span className="reviewer-name">
+                            {review.nickname}
+                          </span>
                           <StarRating value={displayRating} readonly />
                         </div>
                         {review.content && (

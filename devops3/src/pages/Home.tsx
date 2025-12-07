@@ -77,7 +77,8 @@ function Home() {
   useEffect(() => {
     const fetchCampusMenus = async () => {
       try {
-        const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+        // const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD (원래 코드)
+        const today = "2025-12-05"; // 디버그용 고정 날짜
         const menus = await getOnCampusMenus(today);
         setCampusMenus(menus);
       } catch (error) {
@@ -142,15 +143,16 @@ function Home() {
                             "식당 정보 없음"
                         }
                       </span>
-                      {review.ratings?.menuRatings && review.ratings.menuRatings.length > 0 && (
-                        <span className="menu-items">
-                          (
-                          {review.ratings.menuRatings
-                            .map((m) => m.menuName)
-                            .join(", ")}
-                          )
-                        </span>
-                      )}
+                      {review.ratings?.menuRatings &&
+                        review.ratings.menuRatings.length > 0 && (
+                          <span className="menu-items">
+                            (
+                            {review.ratings.menuRatings
+                              .map((m) => m.menuName)
+                              .join(", ")}
+                            )
+                          </span>
+                        )}
                     </div>
                     <span className="rating">
                       ⭐ {getAverageRating(review.ratings)}
@@ -183,7 +185,8 @@ function Home() {
               <>
                 {campusMenus.dailyMenus
                   .filter((dailyMenu) => {
-                    const today = new Date().toISOString().split("T")[0];
+                    // const today = new Date().toISOString().split("T")[0];
+                    const today = "2025-12-05"; // 디버그용
                     return dailyMenu.date === today;
                   })
                   .map((dailyMenu, index) => (
@@ -200,23 +203,37 @@ function Home() {
                             </div>
                             <ul className="menu-items-list">
                               {meal.items.map((item, itemIdx) => {
-                                const menuName = typeof item === "string" ? item : item.name;
-                                const menuId = typeof item === "string" ? item : (item.id || item.name);
+                                const menuName =
+                                  typeof item === "string" ? item : item.name;
+                                const menuId =
+                                  typeof item === "string"
+                                    ? null
+                                    : item.id;
+
+                                // id가 없으면 클릭 불가
+                                const isClickable = menuId !== null && menuId !== undefined;
 
                                 return (
                                   <li
                                     key={itemIdx}
-                                    className="menu-item clickable"
-                                    onClick={() => handleMenuClick(menuId, menuName)}
+                                    className={`menu-item ${isClickable ? "clickable" : "disabled"}`}
+                                    onClick={() => {
+                                      if (isClickable) {
+                                        handleMenuClick(menuId, menuName);
+                                      } else {
+                                        alert("이 메뉴는 아직 리뷰를 작성할 수 없습니다.\nDB에 메뉴 ID가 설정되지 않았습니다.");
+                                      }
+                                    }}
                                     onKeyDown={(e) => {
-                                      if (e.key === "Enter" || e.key === " ") {
+                                      if ((e.key === "Enter" || e.key === " ") && isClickable) {
                                         handleMenuClick(menuId, menuName);
                                       }
                                     }}
                                     role="button"
                                     tabIndex={0}
+                                    title={isClickable ? "클릭하여 리뷰 작성" : "메뉴 ID가 설정되지 않음"}
                                   >
-                                    {menuName}
+                                    {menuName} {!isClickable && " ⚠️"}
                                   </li>
                                 );
                               })}
