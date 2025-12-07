@@ -47,7 +47,11 @@ const StarRatingDisplay = ({ label, rating }: StarRatingDisplayProps) => {
   );
 };
 
-function RestaurantDetail({ restaurant: initialRestaurant, onClose, onDataChange }: RestaurantDetailProps) {
+function RestaurantDetail({
+  restaurant: initialRestaurant,
+  onClose,
+  onDataChange,
+}: RestaurantDetailProps) {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -93,7 +97,10 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose, onDataChange
     }
     try {
       const data = await getRestaurant(restaurant.id);
-      console.log("📥 백엔드로부터 받은 식당 상세 데이터:", JSON.stringify(data, null, 2));
+      console.log(
+        "📥 백엔드로부터 받은 식당 상세 데이터:",
+        JSON.stringify(data, null, 2)
+      );
       console.log("📥 리뷰 데이터:", data.reviews);
       if (data.reviews && data.reviews.length > 0) {
         console.log("📥 첫 번째 리뷰의 rating 구조:", data.reviews[0].rating);
@@ -113,7 +120,7 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose, onDataChange
           rating: data.stats.rating,
           reviewCount: data.stats.reviewCount,
         },
-        menu: data.menu.map(item => ({
+        menu: (data.menu || []).map((item) => ({
           ...item,
           id: item.id || item.name, // id가 null이면 name 사용
         })),
@@ -121,7 +128,7 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose, onDataChange
         updatedAt: data.updatedAt,
       });
 
-      const reviewsWithLikedStatus = (data.reviews || []).map(review => ({
+      const reviewsWithLikedStatus = (data.reviews || []).map((review) => ({
         ...review,
         likedByCurrentUser: review.likedByCurrentUser ?? false,
       }));
@@ -195,7 +202,7 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose, onDataChange
         await updateReview(editingReview._id, {
           content: reviewData.content,
           rating: {
-            menuRatings: reviewData.ratings!.menuRatings.map(mr => ({
+            menuRatings: reviewData.ratings!.menuRatings.map((mr) => ({
               menuId: mr.menuId, // 백엔드는 menuId만 필요
               rating: mr.rating,
             })),
@@ -218,7 +225,7 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose, onDataChange
           restaurantId: restaurant.id,
           targetType: "RESTAURANT" as const,
           rating: {
-            menuRatings: reviewData.ratings!.menuRatings.map(mr => ({
+            menuRatings: reviewData.ratings!.menuRatings.map((mr) => ({
               menuId: mr.menuId, // 백엔드는 menuId만 필요
               rating: mr.rating,
             })),
@@ -227,7 +234,10 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose, onDataChange
           content: reviewData.content,
           imageUrls: reviewData.imageUrls || [],
         };
-        console.log("📤 리뷰 작성 요청 데이터:", JSON.stringify(requestData, null, 2));
+        console.log(
+          "📤 리뷰 작성 요청 데이터:",
+          JSON.stringify(requestData, null, 2)
+        );
 
         await createReview(requestData);
         alert("✅ 리뷰가 작성되었습니다!");
@@ -236,7 +246,11 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose, onDataChange
       } catch (error: any) {
         console.error("Failed to create review:", error);
         console.error("Error response:", error.response?.data);
-        alert(`❌ 리뷰 작성에 실패했습니다.\n${error.response?.data?.message || error.message}`);
+        alert(
+          `❌ 리뷰 작성에 실패했습니다.\n${
+            error.response?.data?.message || error.message
+          }`
+        );
       }
     }
     setShowReviewModal(false);
@@ -296,7 +310,7 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose, onDataChange
       await adminDeleteRestaurant(restaurant.id);
       alert("✅ 식당이 삭제되었습니다.");
       onDataChange?.(); // 부모 컴포넌트에 데이터 변경 알림
-      onClose();                 // 패널 닫기
+      onClose(); // 패널 닫기
       // 필요하면 navigate("/map"); // 또는 부모 콜백으로 목록/마커 갱신
     } catch (error: any) {
       console.error("식당 삭제 실패:", error);
@@ -407,7 +421,9 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose, onDataChange
             src={getFullImageUrl(restaurant.imageUrl)}
             alt={restaurant.name}
             className="restaurant-main-image"
-            onClick={() => handleImageClick([getFullImageUrl(restaurant.imageUrl!)!], 0)}
+            onClick={() =>
+              handleImageClick([getFullImageUrl(restaurant.imageUrl!)!], 0)
+            }
           />
         </div>
       )}
@@ -418,7 +434,11 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose, onDataChange
           {averageRating?.toFixed(1) ?? "0.0"}
         </span>
         <span className="review-count">({reviewCount}개 리뷰)</span>
-        <span className={`restaurant-status ${restaurant.isActive ? "active" : "inactive"}`}>
+        <span
+          className={`restaurant-status ${
+            restaurant.isActive ? "active" : "inactive"
+          }`}
+        >
           {restaurant.isActive ? "✅ 운영중" : "❌ 휴업"}
         </span>
       </div>
@@ -591,7 +611,10 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose, onDataChange
                             alt={`리뷰 사진 ${currentIndex + 1}`}
                             className="review-image"
                             onClick={() =>
-                              handleImageClick(images.map(url => getFullImageUrl(url)!), currentIndex)
+                              handleImageClick(
+                                images.map((url) => getFullImageUrl(url)!),
+                                currentIndex
+                              )
                             }
                           />
                           {images.length > 1 && (
@@ -679,12 +702,14 @@ function RestaurantDetail({ restaurant: initialRestaurant, onClose, onDataChange
                   restaurantId: restaurant.id,
                   restaurantName: restaurant.name,
                   ratings: {
-                    menuRatings: editingReview.rating?.menuRatings?.map(mr => ({
-                      menuId: mr.menuId || mr.menuName, // 백업: menuId 없으면 menuName 사용
-                      menuName: mr.menuName,
-                      rating: mr.rating,
-                    })) || [],
-                    restaurantRating: editingReview.rating?.restaurantRating || 0,
+                    menuRatings:
+                      editingReview.rating?.menuRatings?.map((mr) => ({
+                        menuId: mr.menuId || mr.menuName, // 백업: menuId 없으면 menuName 사용
+                        menuName: mr.menuName,
+                        rating: mr.rating,
+                      })) || [],
+                    restaurantRating:
+                      editingReview.rating?.restaurantRating || 0,
                   },
                   content: editingReview.content || "",
                   imageUrls: editingReview.imageUrls,
