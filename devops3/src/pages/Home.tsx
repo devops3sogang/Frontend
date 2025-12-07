@@ -77,26 +77,12 @@ function Home() {
   useEffect(() => {
     const fetchCampusMenus = async () => {
       try {
-        const todayDate = new Date();
-        const dayOfWeek = todayDate.getDay(); // 0=일요일, 6=토요일
-
-        // 주말이면 다음 주 월요일 날짜로 API 호출
-        let targetDate = todayDate;
-        if (dayOfWeek === 6) {
-          // 토요일 -> 다음 주 월요일
-          targetDate = new Date(todayDate);
-          targetDate.setDate(todayDate.getDate() + 2);
-        } else if (dayOfWeek === 0) {
-          // 일요일 -> 다음 주 월요일
-          targetDate = new Date(todayDate);
-          targetDate.setDate(todayDate.getDate() + 1);
-        }
-
-        const dateStr = targetDate.toISOString().split("T")[0]; // YYYY-MM-DD
-        const menus = await getOnCampusMenus(dateStr);
+        const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+        const menus = await getOnCampusMenus(today);
         setCampusMenus(menus);
       } catch (error) {
         console.error("Failed to fetch campus menus:", error);
+        // 에러 발생 시 (404 등) 빈 상태로 유지
       }
     };
 
@@ -256,31 +242,26 @@ function Home() {
                 {(() => {
                   const today = new Date().toISOString().split("T")[0];
                   const todayDate = new Date();
-                  const dayOfWeek = todayDate.getDay(); // 0=일요일, 6=토요일
 
                   // 오늘 날짜의 메뉴를 먼저 찾습니다
                   let targetMenus = campusMenus.dailyMenus.filter(
                     (dailyMenu) => dailyMenu.date === today
                   );
 
-                  // 메뉴가 없으면 (주말인 경우) 다음 주 월요일 메뉴를 찾습니다
+                  // 메뉴가 없으면 다음 7일 안에서 가장 가까운 메뉴를 찾습니다
                   if (targetMenus.length === 0) {
-                    if (dayOfWeek === 6) {
-                      // 토요일 -> 다음 주 월요일 메뉴
-                      const monday = new Date(todayDate);
-                      monday.setDate(todayDate.getDate() + 2);
-                      const mondayStr = monday.toISOString().split("T")[0];
+                    for (let i = 1; i <= 7; i++) {
+                      const nextDay = new Date(todayDate);
+                      nextDay.setDate(todayDate.getDate() + i);
+                      const nextDayStr = nextDay.toISOString().split("T")[0];
+
                       targetMenus = campusMenus.dailyMenus.filter(
-                        (dailyMenu) => dailyMenu.date === mondayStr
+                        (dailyMenu) => dailyMenu.date === nextDayStr
                       );
-                    } else if (dayOfWeek === 0) {
-                      // 일요일 -> 다음 주 월요일 메뉴
-                      const monday = new Date(todayDate);
-                      monday.setDate(todayDate.getDate() + 1);
-                      const mondayStr = monday.toISOString().split("T")[0];
-                      targetMenus = campusMenus.dailyMenus.filter(
-                        (dailyMenu) => dailyMenu.date === mondayStr
-                      );
+
+                      if (targetMenus.length > 0) {
+                        break;
+                      }
                     }
                   }
 
@@ -352,27 +333,24 @@ function Home() {
                 {(() => {
                   const today = new Date().toISOString().split("T")[0];
                   const todayDate = new Date();
-                  const dayOfWeek = todayDate.getDay();
 
                   let targetMenus = campusMenus.dailyMenus.filter(
                     (dailyMenu) => dailyMenu.date === today
                   );
 
                   if (targetMenus.length === 0) {
-                    if (dayOfWeek === 6) {
-                      const monday = new Date(todayDate);
-                      monday.setDate(todayDate.getDate() + 2);
-                      const mondayStr = monday.toISOString().split("T")[0];
+                    for (let i = 1; i <= 7; i++) {
+                      const nextDay = new Date(todayDate);
+                      nextDay.setDate(todayDate.getDate() + i);
+                      const nextDayStr = nextDay.toISOString().split("T")[0];
+
                       targetMenus = campusMenus.dailyMenus.filter(
-                        (dailyMenu) => dailyMenu.date === mondayStr
+                        (dailyMenu) => dailyMenu.date === nextDayStr
                       );
-                    } else if (dayOfWeek === 0) {
-                      const monday = new Date(todayDate);
-                      monday.setDate(todayDate.getDate() + 1);
-                      const mondayStr = monday.toISOString().split("T")[0];
-                      targetMenus = campusMenus.dailyMenus.filter(
-                        (dailyMenu) => dailyMenu.date === mondayStr
-                      );
+
+                      if (targetMenus.length > 0) {
+                        break;
+                      }
                     }
                   }
 
@@ -380,9 +358,7 @@ function Home() {
                     <div className="menu-empty">
                       <p>📅 메뉴 정보가 없습니다.</p>
                       <p className="menu-empty-subtext">
-                        {dayOfWeek === 6 || dayOfWeek === 0
-                          ? "주말이거나 공휴일일 수 있습니다."
-                          : "잠시 후 다시 시도해주세요."}
+                        다음 7일 안에 메뉴가 없습니다. 잠시 후 다시 시도해주세요.
                       </p>
                     </div>
                   ) : null;
