@@ -128,11 +128,6 @@ function ReviewModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (menuRatings.length === 0) {
-      alert("최소 하나의 메뉴에 별점을 매겨주세요.");
-      return;
-    }
-
     if (restaurantRating === 0) {
       alert("가게 별점을 매겨주세요.");
       return;
