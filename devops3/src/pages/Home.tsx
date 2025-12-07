@@ -89,7 +89,23 @@ function Home() {
     fetchCampusMenus();
   }, []);
 
-  const getAverageRating = (ratings: ReviewResponse["ratings"]) => {
+  const getAverageRating = (
+    ratings: ReviewResponse["ratings"],
+    restaurantId?: string
+  ) => {
+    // MAIN_CAMPUS인 경우 메뉴 별점의 평균을 표시
+    if (restaurantId === "MAIN_CAMPUS" && ratings?.menuRatings) {
+      const menuRatings = ratings.menuRatings;
+      if (menuRatings.length > 0) {
+        const sum = menuRatings.reduce(
+          (acc, menu) => acc + (menu.rating || 0),
+          0
+        );
+        const avg = sum / menuRatings.length;
+        return avg.toFixed(1);
+      }
+    }
+
     // 가게 별점을 표시
     if (
       ratings?.restaurantRating !== undefined &&
@@ -108,6 +124,22 @@ function Home() {
     setSelectedMenu({ id: menuId, name: menuName });
   };
 
+  // menuId로 campusMenus에서 메뉴 이름 찾기
+  const getMenuNameById = (menuId: string): string | null => {
+    if (!campusMenus?.dailyMenus) return null;
+
+    for (const dailyMenu of campusMenus.dailyMenus) {
+      for (const meal of dailyMenu.meals) {
+        for (const item of meal.items) {
+          if (typeof item === "object" && (item._id === menuId || item.id === menuId)) {
+            return item.name;
+          }
+        }
+      }
+    }
+    return null;
+  };
+
   return (
     <div className="home-container">
       <div className="home-grid">
@@ -120,51 +152,69 @@ function Home() {
             ) : latestReviews.length === 0 ? (
               <p>아직 리뷰가 없습니다.</p>
             ) : (
-              latestReviews.map((review) => (
-                <div
-                  key={review._id}
-                  className="review-card"
-                  onClick={() =>
-                    review.restaurantId &&
-                    handleReviewClick(review.restaurantId)
-                  }
-                  style={{
-                    cursor: review.restaurantId ? "pointer" : "default",
-                  }}
-                >
-                  <div className="review-header">
-                    <div>
-                      <span className="restaurant-name">
-                        {
-                          // ✅ 최신 이름이 있으면 그걸 사용, 없으면 기존 필드 사용
-                          (review.restaurantId &&
-                            restaurantNameMap[review.restaurantId]) ||
-                            review.restaurantName ||
-                            "식당 정보 없음"
-                        }
+              latestReviews.map((review) => {
+                const isMainCampus = review.restaurantId === "MAIN_CAMPUS";
+                const isClickable = !isMainCampus && review.restaurantId;
+                return (
+                  <div
+                    key={review._id}
+                    className="review-card"
+                    onClick={() => {
+                      if (isClickable) {
+                        handleReviewClick(review.restaurantId!);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (
+                        isClickable &&
+                        (e.key === "Enter" || e.key === " ")
+                      ) {
+                        handleReviewClick(review.restaurantId!);
+                      }
+                    }}
+                    role={isClickable ? "button" : undefined}
+                    tabIndex={isClickable ? 0 : undefined}
+                    style={{
+                      cursor: isClickable ? "pointer" : "default",
+                    }}
+                  >
+                    <div className="review-header">
+                      <div>
+                        <span className="restaurant-name">
+                          {isMainCampus
+                            ? "우정원"
+                            : (review.restaurantId &&
+                                restaurantNameMap[review.restaurantId]) ||
+                              review.restaurantName ||
+                              "식당 정보 없음"}
+                        </span>
+                        {review.ratings?.menuRatings &&
+                          review.ratings.menuRatings.length > 0 && (
+                            <span className="menu-items">
+                              (
+                              {isMainCampus
+                                ? review.ratings.menuRatings
+                                    .map((m) => getMenuNameById(m.menuId) || m.menuName || "메뉴 정보 없음")
+                                    .join(", ")
+                                : review.ratings.menuRatings
+                                    .map((m) => m.menuName)
+                                    .join(", ")}
+                              )
+                            </span>
+                          )}
+                      </div>
+                      <span className="rating">
+                        ⭐ {getAverageRating(review.ratings, review.restaurantId)}
                       </span>
-                      {review.ratings?.menuRatings &&
-                        review.ratings.menuRatings.length > 0 && (
-                          <span className="menu-items">
-                            (
-                            {review.ratings.menuRatings
-                              .map((m) => m.menuName)
-                              .join(", ")}
-                            )
-                          </span>
-                        )}
                     </div>
-                    <span className="rating">
-                      ⭐ {getAverageRating(review.ratings)}
-                    </span>
+                    <p className="review-content">{review.content}</p>
+                    <div className="review-footer">
+                      <span>{review.nickname}</span>
+                      <span>👍 {review.likeCount}</span>
+                    </div>
                   </div>
-                  <p className="review-content">{review.content}</p>
-                  <div className="review-footer">
-                    <span>{review.nickname}</span>
-                    <span>👍 {review.likeCount}</span>
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

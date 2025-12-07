@@ -182,7 +182,7 @@ export interface OnCampusMenuResponse {
     meals: Array<{
       corner: string;
       category: string;
-      items: string[] | Array<{ id?: string; name: string; price: number }>;
+      items: string[] | Array<{ _id?: string; id?: string; name: string; price: number }>;
       price: number;
     }>;
   }>;
