@@ -22,6 +22,9 @@ RUN npm run build
 # Stage 2: Serve the built files with Nginx
 FROM nginx:alpine
 
+# Install openssl to allow automatic generation of self-signed certificates inside the container
+RUN apk add --no-cache openssl
+
 # Copy built files from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
