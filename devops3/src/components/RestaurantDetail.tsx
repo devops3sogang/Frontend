@@ -46,7 +46,7 @@ const StarRatingDisplay = ({ label, rating }: StarRatingDisplayProps) => {
   );
 };
 
-function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
+function RestaurantDetail({ restaurant: initialRestaurant, onClose }: RestaurantDetailProps) {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -65,6 +65,9 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
   const [reviews, setReviews] = useState<ReviewDetailResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // ✅ 식당 정보를 로컬 상태로 관리하여 수정 시 업데이트 가능하도록
+  const [restaurant, setRestaurant] = useState<Restaurant>(initialRestaurant);
+
   // ✅ 관리자용 상태
   const [showForm, setShowForm] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("edit");
@@ -79,7 +82,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
       : 0;
   const reviewCount = reviews.length;
 
-  // 리뷰 목록 가져오기
+  // 리뷰 목록 및 식당 정보 가져오기
   const fetchDetails = async () => {
     if (!restaurant.id) {
       console.warn("Restaurant ID is undefined, skipping review fetch");
@@ -94,6 +97,29 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
       if (data.reviews && data.reviews.length > 0) {
         console.log("📥 첫 번째 리뷰의 rating 구조:", data.reviews[0].rating);
       }
+
+      // ✅ 식당 정보 업데이트
+      setRestaurant({
+        id: data._id,
+        name: data.name,
+        type: data.type,
+        category: data.category as any,
+        address: data.address,
+        location: data.location,
+        imageUrl: data.imageUrl || undefined,
+        isActive: (data as any).isActive ?? (data as any).active ?? true,
+        stats: {
+          rating: data.stats.rating,
+          reviewCount: data.stats.reviewCount,
+        },
+        menu: data.menu.map(item => ({
+          ...item,
+          id: item.id || item.name, // id가 null이면 name 사용
+        })),
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+      });
+
       const reviewsWithLikedStatus = (data.reviews || []).map(review => ({
         ...review,
         likedByCurrentUser: review.likedByCurrentUser ?? false,
@@ -200,7 +226,7 @@ function RestaurantDetail({ restaurant, onClose }: RestaurantDetailProps) {
         };
         console.log("📤 리뷰 작성 요청 데이터:", JSON.stringify(requestData, null, 2));
 
-        await createReview(restaurant.id, requestData);
+        await createReview(requestData);
         alert("✅ 리뷰가 작성되었습니다!");
         await fetchDetails();
       } catch (error: any) {

@@ -9,13 +9,9 @@ import type {
 
 // 리뷰 작성 (일반 식당)
 export const createReview = async (
-  restaurantId: string,
   data: CreateReviewRequest
 ): Promise<ReviewResponse> => {
-  const response = await apiClient.post<ReviewResponse>(
-    `/reviews`,
-    data
-  );
+  const response = await apiClient.post<ReviewResponse>(`/reviews`, data);
   return response.data;
 };
 
@@ -30,8 +26,12 @@ export const getRestaurantReviews = async (
 };
 
 // 리뷰 좋아요 토글
-export const toggleReviewLike = async (reviewId: string): Promise<ToggleLikeResponse> => {
-  const response = await apiClient.post<ToggleLikeResponse>(`/reviews/${reviewId}/like`);
+export const toggleReviewLike = async (
+  reviewId: string
+): Promise<ToggleLikeResponse> => {
+  const response = await apiClient.post<ToggleLikeResponse>(
+    `/reviews/${reviewId}/like`
+  );
   return response.data;
 };
 
@@ -72,7 +72,9 @@ export const deleteReview = async (reviewId: string): Promise<void> => {
 };
 
 // 관리자: 리뷰 목록 조회 (limit 파라미터 지원)
-export const adminGetReviews = async (limit?: number): Promise<ReviewResponse[]> => {
+export const adminGetReviews = async (
+  limit?: number
+): Promise<ReviewResponse[]> => {
   const response = await apiClient.get<ReviewResponse[]>("/reviews", {
     params: { limit: limit || 100 }, // 기본 100개
   });

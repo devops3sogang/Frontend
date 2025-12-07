@@ -225,15 +225,16 @@ export interface RestaurantDetailResponse {
     type: "Point";
     coordinates: [number, number]; // [경도, 위도]
   };
-  imageUrl?: string;
-  isActive: boolean;
+  imageUrl?: string | null;
+  isActive?: boolean;  // 선택적으로 변경
+  active?: boolean;    // 백엔드가 active를 보낼 수 있음
   stats: {
     rating: number;  // 백엔드는 rating 사용 (averageRating 아님)
     reviewCount: number;
     likeCount: number;
   };
   menu: Array<{
-    id: string;
+    id: string | null;  // id가 null일 수 있음
     name: string;
     price: number;
   }>;
