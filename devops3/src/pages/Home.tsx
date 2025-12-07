@@ -116,7 +116,23 @@ function Home() {
     return "0.0"; // 기본값
   };
 
-  const handleReviewClick = (restaurantId: string) => {
+  const handleReviewClick = (
+    restaurantId: string,
+    review?: ReviewResponse
+  ) => {
+    // MAIN_CAMPUS인 경우 첫 번째 메뉴의 리뷰 모달 띄우기
+    if (restaurantId === "MAIN_CAMPUS" && review) {
+      const firstMenu = review.ratings?.menuRatings?.[0];
+      if (firstMenu) {
+        const menuName =
+          getMenuNameById(firstMenu.menuId) ||
+          firstMenu.menuName ||
+          "메뉴 정보 없음";
+        handleMenuClick(firstMenu.menuId, menuName);
+        return;
+      }
+    }
+    // 일반 식당인 경우 지도로 이동
     navigate(`/map?restaurantId=${restaurantId}`);
   };
 
@@ -157,19 +173,19 @@ function Home() {
             ) : (
               latestReviews.map((review) => {
                 const isMainCampus = review.restaurantId === "MAIN_CAMPUS";
-                const isClickable = !isMainCampus && review.restaurantId;
+                const isClickable = review.restaurantId !== undefined;
                 return (
                   <div
                     key={review._id}
                     className="review-card"
                     onClick={() => {
                       if (isClickable) {
-                        handleReviewClick(review.restaurantId!);
+                        handleReviewClick(review.restaurantId!, review);
                       }
                     }}
                     onKeyDown={(e) => {
                       if (isClickable && (e.key === "Enter" || e.key === " ")) {
-                        handleReviewClick(review.restaurantId!);
+                        handleReviewClick(review.restaurantId!, review);
                       }
                     }}
                     role={isClickable ? "button" : undefined}
