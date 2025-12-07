@@ -39,7 +39,7 @@ export interface UserProfile {
 export interface UpdateProfileRequest {
   nickname?: string;
   currentPassword?: string;
-  newPassword?: string;
+  password?: string;
 }
 
 export interface DeleteAccountRequest {

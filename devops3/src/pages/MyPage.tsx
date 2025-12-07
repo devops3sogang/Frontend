@@ -77,8 +77,8 @@ function MyPage() {
 
     if (!user) return;
 
-    if (newPassword.length < 6) {
-      setError("새 비밀번호는 6자 이상이어야 합니다.");
+    if (newPassword.length < 8) {
+      setError("새 비밀번호는 8자 이상이어야 합니다.");
       return;
     }
 
@@ -90,7 +90,7 @@ function MyPage() {
     try {
       await updateMyProfile({
         currentPassword,
-        newPassword,
+        password: newPassword,
       });
       setMessage("비밀번호가 성공적으로 변경되었습니다.");
       setCurrentPassword("");
