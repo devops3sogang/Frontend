@@ -82,9 +82,9 @@
 
 /* 플로팅 연필 버튼 */
 .floating-write-btn {
-  position: fixed;
-  bottom: 40px;
-  right: 40px;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
   width: 56px;
   height: 56px;
   border-radius: 50%;
@@ -95,7 +95,7 @@
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
   transition: all 0.3s;
-  z-index: 1000;
+  z-index: 10;
 }
 
 .floating-write-btn:hover {
