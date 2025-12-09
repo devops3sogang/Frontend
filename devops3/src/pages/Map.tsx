@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
+import { GoogleMap, Marker, InfoWindow, Circle } from "@react-google-maps/api";
 import { getRestaurants } from "../api";
 import RestaurantDetail from "../components/RestaurantDetail";
 import type { Restaurant } from "../data/places";
@@ -16,6 +16,12 @@ const containerStyle = {
 const defaultCenter = {
   lat: 37.5665,
   lng: 126.978,
+};
+
+// 서강대학교 위치
+const sogangLocation = {
+  lat: 37.551105,
+  lng: 126.941053,
 };
 
 function Map() {
@@ -778,6 +784,21 @@ function Map() {
           />
         ))}
 
+        {/* 거리 필터 동심원 오버레이 */}
+        {currentPosition && filterRadius !== null && (
+          <Circle
+            center={currentPosition}
+            radius={filterRadius}
+            options={{
+              fillColor: "transparent",
+              fillOpacity: 0,
+              strokeColor: "#4CAF50",
+              strokeOpacity: 0.8,
+              strokeWeight: 2,
+            }}
+          />
+        )}
+
         {/* 간단한 정보 말풍선 (지도 위) */}
         {selectedRestaurant && (
           <InfoWindow
@@ -806,6 +827,72 @@ function Map() {
           </InfoWindow>
         )}
       </GoogleMap>
+
+      {/* 위치 이동 버튼들 */}
+      <div
+        style={{
+          position: "absolute",
+          right: selectedRestaurant ? 420 : 20,
+          bottom: 100,
+          zIndex: 5,
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          transition: "right 0.3s ease",
+        }}
+      >
+        {/* 내 위치로 이동 */}
+        <button
+          onClick={() => {
+            if (currentPosition) {
+              setMapCenter(currentPosition);
+              map?.panTo(currentPosition);
+            } else {
+              alert("현재 위치를 가져올 수 없습니다.");
+            }
+          }}
+          style={{
+            width: "44px",
+            height: "44px",
+            border: "none",
+            borderRadius: "50%",
+            backgroundColor: "white",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "20px",
+          }}
+          title="내 위치로 이동"
+        >
+          📍
+        </button>
+
+        {/* 서강대로 이동 */}
+        <button
+          onClick={() => {
+            setMapCenter(sogangLocation);
+            map?.panTo(sogangLocation);
+          }}
+          style={{
+            width: "44px",
+            height: "44px",
+            border: "none",
+            borderRadius: "50%",
+            backgroundColor: "white",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "20px",
+          }}
+          title="서강대로 이동"
+        >
+          🏫
+        </button>
+      </div>
 
       {/* 우측 상세 정보 패널 */}
       {selectedRestaurant && (
