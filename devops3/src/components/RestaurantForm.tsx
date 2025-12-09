@@ -438,7 +438,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
   },
   header: {
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    background: "#FFD600",
     padding: "32px",
     borderRadius: "24px 24px 0 0",
     display: "flex",
@@ -453,12 +453,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 28,
     fontWeight: 700,
     color: "#fff",
-    textShadow: "1px 1px 2px rgba(0,0,0,0.2)",
+    textShadow: "1px 1px 2px rgba(0,0,0,0.1)",
   },
   subtitle: {
     margin: "8px 0 0",
     fontSize: 14,
-    color: "rgba(255, 255, 255, 0.9)",
+    color: "rgba(255, 255, 255, 0.95)",
   },
   closeButton: {
     background: "rgba(255, 255, 255, 0.2)",
@@ -551,8 +551,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     background: "#f9fafb",
   },
   fileLabelDragging: {
-    border: "2px dashed #667eea",
-    background: "#eef2ff",
+    border: "2px dashed #FFD600",
+    background: "#FFF8E1",
     transform: "scale(1.02)",
   },
   uploadIcon: {
@@ -562,7 +562,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   uploadText: {
     fontSize: 15,
     fontWeight: 600,
-    color: "#667eea",
+    color: "#FFC107",
     marginBottom: 4,
   },
   uploadHint: {
@@ -599,7 +599,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: "8px 16px",
     borderRadius: 10,
     border: "none",
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    background: "#FFD600",
     color: "#fff",
     fontSize: 13,
     fontWeight: 600,
@@ -642,12 +642,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: "14px 32px",
     borderRadius: 12,
     border: "none",
-    background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+    background: "#FFD600",
     color: "#fff",
     fontSize: 15,
     fontWeight: 600,
     cursor: "pointer",
-    boxShadow: "0 4px 12px rgba(245, 87, 108, 0.4)",
+    boxShadow: "0 4px 12px rgba(255, 214, 0, 0.4)",
     transition: "all 0.2s ease",
   },
 };

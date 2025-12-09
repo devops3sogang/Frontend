@@ -21,7 +21,7 @@
   height: 0;
   border-left: 15px solid transparent;
   border-right: 15px solid transparent;
-  border-top: 30px solid #ff4444;
+  border-top: 30px solid var(--color-error);
   z-index: 10;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
@@ -29,25 +29,25 @@
 .roulette-canvas {
   display: block;
   border-radius: 50%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
 }
 
 .spin-button {
   padding: 15px 40px;
   font-size: 18px;
   font-weight: bold;
-  color: white;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: var(--color-text-on-primary);
+  background-color: var(--color-primary);
   border: none;
-  border-radius: 50px;
+  border-radius: var(--radius-full);
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  transition: all var(--transition-slow);
+  box-shadow: var(--shadow-primary);
 }
 
 .spin-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 6px 20px rgba(255, 214, 0, 0.6);
 }
 
 .spin-button:active:not(:disabled) {
@@ -57,7 +57,7 @@
 .spin-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background: linear-gradient(135deg, #999 0%, #666 100%);
+  background-color: var(--color-text-muted);
 }
 
 .spin-button.spinning {
@@ -67,10 +67,10 @@
 @keyframes pulse {
   0%,
   100% {
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: var(--shadow-primary);
   }
   50% {
-    box-shadow: 0 4px 25px rgba(102, 126, 234, 0.8);
+    box-shadow: 0 4px 25px rgba(255, 214, 0, 0.8);
   }
 }
 
@@ -90,21 +90,21 @@
 }
 
 .roulette-result-container {
-  background: white;
-  border-radius: 20px;
+  background: var(--color-bg-white);
+  border-radius: var(--radius-xl);
   padding: 30px;
   max-width: 500px;
   width: 90%;
   max-height: 85vh;
   overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-lg);
   animation: modalSlideIn 0.3s ease-out;
 }
 
 .roulette-result-container h2 {
   margin: 0 0 20px 0;
   font-size: 28px;
-  color: #2d3436;
+  color: var(--color-text-primary);
   text-align: center;
 }
 
@@ -115,7 +115,7 @@
 .result-image-wrapper {
   width: 100%;
   margin-bottom: 20px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
@@ -135,13 +135,13 @@
 }
 
 .result-rating .star {
-  color: #ffd700;
+  color: var(--color-star);
   font-size: 24px;
 }
 
 .result-rating .rating-value {
   font-weight: bold;
-  color: #2d3436;
+  color: var(--color-text-primary);
 }
 
 .result-menu {
@@ -151,7 +151,7 @@
 .result-menu h3 {
   margin: 0 0 12px 0;
   font-size: 18px;
-  color: #2d3436;
+  color: var(--color-text-primary);
 }
 
 .result-menu ul {
@@ -165,17 +165,17 @@
   justify-content: space-between;
   padding: 8px 12px;
   margin-bottom: 6px;
-  background: #f8f9fa;
-  border-radius: 8px;
+  background: var(--color-bg-light);
+  border-radius: var(--radius-md);
 }
 
 .result-menu .menu-name {
-  color: #2d3436;
+  color: var(--color-text-primary);
   font-weight: 500;
 }
 
 .result-menu .menu-price {
-  color: #636e72;
+  color: var(--color-text-secondary);
   font-weight: 600;
 }
 
@@ -192,29 +192,29 @@
   font-size: 16px;
   font-weight: bold;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 .btn-navigate {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+  box-shadow: var(--shadow-primary);
 }
 
 .btn-navigate:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 6px 20px rgba(255, 214, 0, 0.6);
 }
 
 .btn-cancel {
-  background: #dfe6e9;
-  color: #2d3436;
+  background: var(--color-bg-gray);
+  color: var(--color-text-primary);
 }
 
 .btn-cancel:hover {
-  background: #b2bec3;
+  background: var(--color-border-default);
 }
 
 /* 모달 스타일 */
@@ -233,12 +233,12 @@
 }
 
 .modal-content {
-  background: white;
-  border-radius: 15px;
+  background: var(--color-bg-white);
+  border-radius: var(--radius-xl);
   max-width: 90%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-lg);
   animation: modalSlideIn 0.3s ease-out;
 }
 

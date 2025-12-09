@@ -347,11 +347,11 @@ function Map() {
                     flex: 1,
                     padding: "8px",
                     border: filterTypes.includes("ON_CAMPUS")
-                      ? "2px solid #4CAF50"
+                      ? "2px solid #FFD600"
                       : "1px solid #ddd",
                     borderRadius: "4px",
                     backgroundColor: filterTypes.includes("ON_CAMPUS")
-                      ? "#e8f5e9"
+                      ? "#FFF8E1"
                       : "white",
                     cursor: "pointer",
                     fontSize: "13px",
@@ -359,7 +359,7 @@ function Map() {
                       ? "bold"
                       : "normal",
                     color: filterTypes.includes("ON_CAMPUS")
-                      ? "#2e7d32"
+                      ? "#333"
                       : "#666",
                   }}
                 >
@@ -371,11 +371,11 @@ function Map() {
                     flex: 1,
                     padding: "8px",
                     border: filterTypes.includes("OFF_CAMPUS")
-                      ? "2px solid #4CAF50"
+                      ? "2px solid #FFD600"
                       : "1px solid #ddd",
                     borderRadius: "4px",
                     backgroundColor: filterTypes.includes("OFF_CAMPUS")
-                      ? "#e8f5e9"
+                      ? "#FFF8E1"
                       : "white",
                     cursor: "pointer",
                     fontSize: "13px",
@@ -383,7 +383,7 @@ function Map() {
                       ? "bold"
                       : "normal",
                     color: filterTypes.includes("OFF_CAMPUS")
-                      ? "#2e7d32"
+                      ? "#333"
                       : "#666",
                   }}
                 >
@@ -402,11 +402,11 @@ function Map() {
                     style={{
                       padding: "6px 10px",
                       border: filterCategories.includes(cat)
-                        ? "2px solid #4CAF50"
+                        ? "2px solid #FFD600"
                         : "1px solid #ddd",
                       borderRadius: "16px",
                       backgroundColor: filterCategories.includes(cat)
-                        ? "#e8f5e9"
+                        ? "#FFF8E1"
                         : "white",
                       cursor: "pointer",
                       fontSize: "12px",
@@ -414,7 +414,7 @@ function Map() {
                         ? "bold"
                         : "normal",
                       color: filterCategories.includes(cat)
-                        ? "#2e7d32"
+                        ? "#333"
                         : "#666",
                     }}
                   >
@@ -792,7 +792,7 @@ function Map() {
             options={{
               fillColor: "transparent",
               fillOpacity: 0,
-              strokeColor: "#4CAF50",
+              strokeColor: "#FFD600",
               strokeOpacity: 0.8,
               strokeWeight: 2,
             }}

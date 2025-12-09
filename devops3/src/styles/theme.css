@@ -1,0 +1,64 @@
+/* ========================================
+   Yellow & White Theme - CSS Variables
+   ======================================== */
+
+:root {
+  /* Primary Colors */
+  --color-primary: #FFD600;
+  --color-primary-hover: #FFC107;
+  --color-primary-light: #FFF8E1;
+  --color-primary-shadow: rgba(255, 214, 0, 0.4);
+
+  /* Background Colors */
+  --color-bg-white: #FFFFFF;
+  --color-bg-cream: #FFFDF7;
+  --color-bg-light: #FFF9E6;
+  --color-bg-gray: #F5F5F5;
+  --color-bg-dark: #333333;
+
+  /* Text Colors */
+  --color-text-primary: #333333;
+  --color-text-secondary: #666666;
+  --color-text-muted: #999999;
+  --color-text-on-primary: #FFFFFF;
+  --color-text-on-dark: #FFFFFF;
+
+  /* Border Colors */
+  --color-border-light: #EEEEEE;
+  --color-border-default: #E5E5E5;
+  --color-border-dark: #DDDDDD;
+
+  /* Semantic Colors */
+  --color-success: #4CAF50;
+  --color-success-light: #E8F5E9;
+  --color-success-dark: #2E7D32;
+
+  --color-error: #E53935;
+  --color-error-light: #FFEBEE;
+  --color-error-dark: #C62828;
+
+  --color-warning: #FF9800;
+  --color-warning-light: #FFF3E0;
+
+  /* Star Rating */
+  --color-star: #FFB300;
+  --color-star-empty: #E0E0E0;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --shadow-primary: 0 4px 12px rgba(255, 214, 0, 0.4);
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}

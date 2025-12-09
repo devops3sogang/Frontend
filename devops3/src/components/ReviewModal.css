@@ -8,13 +8,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10001;  /* RestaurantDetail(1000)보다 위에 */
+  z-index: 10001;
   -webkit-overflow-scrolling: touch;
 }
 
 .modal-content {
-  background: white;
-  border-radius: 12px;
+  background: var(--color-bg-white);
+  border-radius: var(--radius-lg);
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
@@ -22,7 +22,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   position: relative;
   z-index: 10002;
 }
@@ -36,20 +36,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .modal-header h2 {
   margin: 0;
   font-size: 20px;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .close-btn {
   background: none;
   border: none;
   font-size: 28px;
-  color: #999;
+  color: var(--color-text-muted);
   cursor: pointer;
   padding: 0;
   width: 30px;
@@ -58,7 +58,7 @@
 }
 
 .close-btn:hover {
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 form {
@@ -73,7 +73,7 @@ form {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .form-group input,
@@ -81,15 +81,15 @@ form {
 .form-group textarea {
   width: 90%;
   padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-md);
   font-size: 14px;
   font-family: inherit;
 }
 
 .form-group input:disabled {
-  background-color: #f5f5f5;
-  color: #666;
+  background-color: var(--color-bg-gray);
+  color: var(--color-text-secondary);
   cursor: not-allowed;
 }
 
@@ -109,7 +109,7 @@ form {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .rating-input .stars {
@@ -140,17 +140,17 @@ form {
 
 .stars .star {
   font-size: 32px;
-  color: #ddd;
+  color: var(--color-star-empty);
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color var(--transition-normal);
 }
 
 .stars .star.active {
-  color: #ffa500;
+  color: var(--color-star);
 }
 
 .stars .star:hover {
-  color: #ffb84d;
+  color: var(--color-star);
 }
 
 .modal-actions {
@@ -159,7 +159,7 @@ form {
   justify-content: flex-end;
   margin-top: 20px;
   padding-top: 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--color-border-light);
 }
 
 /* Safari 구버전 대응 */
@@ -172,30 +172,30 @@ form {
 .btn-cancel,
 .btn-submit {
   padding: 10px 20px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   border: none;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-normal);
 }
 
 .btn-cancel {
-  background-color: #f5f5f5;
-  color: #666;
+  background-color: var(--color-bg-gray);
+  color: var(--color-text-secondary);
 }
 
 .btn-cancel:hover {
-  background-color: #e0e0e0;
+  background-color: var(--color-border-default);
 }
 
 .btn-submit {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
 }
 
 .btn-submit:hover {
-  background-color: #0056b3;
+  box-shadow: var(--shadow-primary);
 }
 
 .menu-list {
@@ -203,8 +203,8 @@ form {
   flex-direction: column;
   gap: 15px;
   padding: 8px;
-  background-color: #f9f9f9;
-  border-radius: 6px;
+  background-color: var(--color-bg-light);
+  border-radius: var(--radius-md);
   max-height: 400px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -222,10 +222,10 @@ form {
   flex-direction: column;
   gap: 10px;
   padding: 12px;
-  background-color: white;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s;
+  background-color: var(--color-bg-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
   -webkit-transition: all 0.2s;
 }
 
@@ -237,8 +237,8 @@ form {
 }
 
 .menu-item.selected {
-  background-color: #f0f8ff;
-  border: 2px solid #007bff6c;
+  background-color: var(--color-primary-light);
+  border: 2px solid var(--color-primary);
 }
 
 .menu-info {
@@ -256,12 +256,12 @@ form {
 .menu-name {
   font-size: 15px;
   font-weight: 500;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .menu-price {
   font-size: 14px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .menu-stars {
@@ -278,29 +278,29 @@ form {
 
 .menu-stars .star {
   font-size: 28px;
-  color: #ddd;
+  color: var(--color-star-empty);
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color var(--transition-normal);
 }
 
 .menu-stars .star.active {
-  color: #ffa500;
+  color: var(--color-star);
 }
 
 .menu-stars .star:hover {
-  color: #ffb84d;
+  color: var(--color-star);
 }
 
 .image-drop-zone {
-  border: 2px dashed #d1d5db;
-  border-radius: 12px;
-  background: #f9fafb;
-  transition: all 0.2s ease;
+  border: 2px dashed var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-light);
+  transition: all var(--transition-normal);
 }
 
 .image-drop-zone.dragging {
-  border-color: #007bff;
-  background: #e8f4ff;
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
   transform: scale(1.02);
 }
 
@@ -330,13 +330,13 @@ form {
 .drop-text {
   font-size: 14px;
   font-weight: 600;
-  color: #007bff;
+  color: var(--color-primary-hover);
   margin-bottom: 4px;
 }
 
 .drop-hint {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--color-text-muted);
 }
 
 .images-preview-grid {
@@ -358,8 +358,8 @@ form {
   width: 100%;
   padding-bottom: 100%;
   overflow: hidden;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
 }
 
 .image-preview {
@@ -369,7 +369,7 @@ form {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .btn-remove-image {
@@ -385,7 +385,7 @@ form {
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-normal);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -393,12 +393,12 @@ form {
 }
 
 .btn-remove-image:hover {
-  background-color: #ff4444;
+  background-color: var(--color-error);
   transform: scale(1.1);
 }
 
 .image-count-info {
   margin-top: 8px;
   font-size: 13px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
