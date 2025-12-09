@@ -173,8 +173,8 @@
 
 .btn-add-review {
   padding: 8px 16px;
-  background-color: var(--color-primary);
-  color: var(--color-text-on-primary);
+  background-color: #FFD600 !important;
+  color: #fff !important;
   border: none;
   border-radius: var(--radius-md);
   font-size: 14px;
@@ -184,7 +184,7 @@
 }
 
 .btn-add-review:hover {
-  box-shadow: var(--shadow-primary);
+  box-shadow: 0 4px 12px rgba(255, 214, 0, 0.4);
   transform: translateY(-1px);
 }
 
