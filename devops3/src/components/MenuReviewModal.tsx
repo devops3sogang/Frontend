@@ -62,7 +62,7 @@ function MenuReviewModal({
               rating,
             },
           ],
-          // restaurantRating: 0, // 메뉴 리뷰는 식당 평점 안 남김
+          restaurantRating: null, // 메뉴 리뷰는 식당 평점 안 남김
         },
       };
 
