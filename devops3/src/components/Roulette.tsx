@@ -45,7 +45,7 @@ function Roulette({ onNavigateToMap }: RouletteProps) {
             try {
               const data = await getRestaurants({
                 lat: 37.5509,
-                lng: 126.9410,
+                lng: 126.941,
               });
               setRestaurants(data.filter((r) => r.isActive));
             } catch (error) {
@@ -245,7 +245,7 @@ function Roulette({ onNavigateToMap }: RouletteProps) {
             {selectedRestaurant.imageUrl && (
               <div className="result-image-wrapper">
                 <img
-                  src={selectedRestaurant.imageUrl}
+                  src={"/api" + selectedRestaurant.imageUrl}
                   alt={selectedRestaurant.name}
                 />
               </div>
