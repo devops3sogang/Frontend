@@ -1,6 +1,6 @@
 .mypage-container {
   min-height: calc(100vh - 60px);
-  background-color: #f8f9fa;
+  background-color: var(--color-bg-light);
   padding: 40px 20px;
 }
 
@@ -12,28 +12,28 @@
 .mypage-content h1 {
   margin: 0 0 32px 0;
   font-size: 32px;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .user-info-section {
-  background: white;
-  border-radius: 12px;
+  background: var(--color-bg-white);
+  border-radius: var(--radius-lg);
   padding: 24px;
   margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .user-info-section h2 {
   margin: 0 0 16px 0;
   font-size: 20px;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .info-item {
   display: flex;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .info-item:last-child {
@@ -42,46 +42,46 @@
 
 .info-label {
   font-weight: 600;
-  color: #666;
+  color: var(--color-text-secondary);
   width: 100px;
 }
 
 .info-value {
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .message {
   padding: 16px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   margin-bottom: 24px;
   font-size: 14px;
   text-align: center;
 }
 
 .message.success {
-  background-color: #d4edda;
-  border: 1px solid #c3e6cb;
-  color: #155724;
+  background-color: var(--color-success-light);
+  border: 1px solid var(--color-success);
+  color: var(--color-success-dark);
 }
 
 .message.error {
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  color: #721c24;
+  background-color: var(--color-error-light);
+  border: 1px solid var(--color-error);
+  color: var(--color-error-dark);
 }
 
 .settings-section {
-  background: white;
-  border-radius: 12px;
+  background: var(--color-bg-white);
+  border-radius: var(--radius-lg);
   padding: 24px;
   margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .settings-section h2 {
   margin: 0 0 20px 0;
   font-size: 20px;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .settings-form {
@@ -99,52 +99,52 @@
 .form-group label {
   font-size: 14px;
   font-weight: 500;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .form-group input {
   padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-md);
   font-size: 14px;
-  transition: border-color 0.2s;
+  transition: border-color var(--transition-normal);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-primary);
 }
 
 .btn-primary {
   padding: 12px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
   align-self: flex-start;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: var(--shadow-primary);
 }
 
 .reviews-section {
-  background: white;
-  border-radius: 12px;
+  background: var(--color-bg-white);
+  border-radius: var(--radius-lg);
   padding: 24px;
   margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .reviews-section h2 {
   margin: 0 0 20px 0;
   font-size: 20px;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .reviews-list {
@@ -154,14 +154,14 @@
 }
 
 .review-card {
-  border: 1px solid #eee;
-  border-radius: 8px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
   padding: 16px;
-  transition: box-shadow 0.2s;
+  transition: box-shadow var(--transition-normal);
 }
 
 .review-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .review-header {
@@ -174,7 +174,7 @@
 .review-header h3 {
   margin: 0;
   font-size: 18px;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .review-rating {
@@ -185,7 +185,7 @@
 }
 
 .review-rating .star {
-  color: #ffd700;
+  color: var(--color-star);
 }
 
 .review-author-info {
@@ -194,7 +194,7 @@
 
 .review-author {
   font-size: 14px;
-  color: #666;
+  color: var(--color-text-secondary);
   font-weight: 500;
 }
 
@@ -207,15 +207,15 @@
 
 .menu-tag {
   padding: 4px 12px;
-  background-color: #f0f0f0;
-  border-radius: 16px;
+  background-color: var(--color-primary-light);
+  border-radius: var(--radius-xl);
   font-size: 12px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .review-content {
   margin: 0 0 12px 0;
-  color: #666;
+  color: var(--color-text-secondary);
   line-height: 1.6;
 }
 
@@ -224,16 +224,16 @@
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
-  color: #999;
+  color: var(--color-text-muted);
 }
 
 .review-likes {
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .no-reviews {
   text-align: center;
-  color: #999;
+  color: var(--color-text-muted);
   padding: 40px 0;
 }
 
@@ -245,18 +245,18 @@
 
 .btn-logout {
   padding: 12px 32px;
-  background-color: #dc3545;
-  color: white;
+  background-color: var(--color-error);
+  color: var(--color-text-on-dark);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color var(--transition-normal);
 }
 
 .btn-logout:hover {
-  background-color: #c82333;
+  background-color: var(--color-error-dark);
 }
 
 @media (max-width: 768px) {

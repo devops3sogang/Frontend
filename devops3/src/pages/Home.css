@@ -17,27 +17,28 @@
 }
 
 .section-container {
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
   padding: 1.5rem;
+  background-color: var(--color-bg-white);
 }
 
 .latest-reviews-section {
-  background-color: #f9f9f9;
+  background-color: var(--color-bg-white);
 }
 
 .roulette-section {
-  background-color: #fff8f0;
-  /* grid-column: 1 / -1; */
+  background-color: var(--color-primary-light);
 }
 
 .sogang-menu-section {
-  background-color: #f9f9f9;
+  background-color: var(--color-bg-white);
 }
 
 .section-title {
   margin-bottom: 1rem;
   font-size: 1.5rem;
+  color: var(--color-text-primary);
 }
 
 .reviews-list {
@@ -47,17 +48,18 @@
 }
 
 .review-card {
-  background-color: white;
+  background-color: var(--color-bg-white);
   padding: 1rem;
-  border-radius: 6px;
-  border: 1px solid #eee;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-normal);
 }
 
 .review-card:hover {
   transform: scale(1.02);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
 }
 
 .review-header {
@@ -69,22 +71,23 @@
 
 .restaurant-name {
   font-weight: bold;
+  color: var(--color-text-primary);
 }
 
 .menu-items {
   margin-left: 0.5rem;
-  color: #666;
+  color: var(--color-text-secondary);
   font-size: 0.9rem;
 }
 
 .rating {
-  color: #ff9800;
+  color: var(--color-star);
   font-weight: bold;
 }
 
 .review-content {
   margin: 0.5rem 0;
-  color: #333;
+  color: var(--color-text-primary);
   font-size: 0.95rem;
 }
 
@@ -92,14 +95,14 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.85rem;
-  color: #999;
+  color: var(--color-text-muted);
 }
 
 /* 메뉴 컨텐츠 스타일 */
 .menu-content {
-  background-color: white;
+  background-color: var(--color-bg-white);
   padding: 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   min-height: 200px;
 }
 
@@ -113,19 +116,19 @@
   gap: 0.75rem;
   margin-bottom: 1.25rem;
   padding-bottom: 0.75rem;
-  border-bottom: 2px solid #4CAF50;
+  border-bottom: 2px solid var(--color-primary);
 }
 
 .menu-date {
   font-size: 1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .menu-day {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #4CAF50;
+  color: var(--color-primary-hover);
 }
 
 .menu-meals-grid {
@@ -135,30 +138,30 @@
 }
 
 .menu-meal-card {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
   padding: 1rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all var(--transition-slow);
+  box-shadow: var(--shadow-sm);
 }
 
 .menu-meal-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-color: #4CAF50;
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
 }
 
 .menu-category-badge {
   display: inline-block;
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
   padding: 0.4rem 0.9rem;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   font-weight: 600;
   font-size: 0.9rem;
   margin-bottom: 0.75rem;
-  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+  box-shadow: var(--shadow-primary);
 }
 
 .menu-items-list {
@@ -170,11 +173,11 @@
 .menu-item {
   padding: 0.5rem 0;
   padding-left: 1.2rem;
-  color: #333;
+  color: var(--color-text-primary);
   font-size: 0.95rem;
   line-height: 1.5;
   position: relative;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .menu-item:last-child {
@@ -190,26 +193,26 @@
 
 .menu-item.clickable {
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 .menu-item.clickable:hover {
-  background-color: #f0f8ff;
+  background-color: var(--color-primary-light);
   padding-left: 1.5rem;
-  color: #007bff;
+  color: var(--color-primary-hover);
   font-weight: 500;
 }
 
 .menu-item.clickable:focus {
-  outline: 2px solid #007bff;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  background-color: #f0f8ff;
+  background-color: var(--color-primary-light);
 }
 
 .menu-empty {
   text-align: center;
   padding: 3rem 1rem;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .menu-empty p:first-child {
@@ -220,13 +223,13 @@
 
 .menu-empty-subtext {
   font-size: 0.9rem;
-  color: #999;
+  color: var(--color-text-muted);
 }
 
 .menu-loading {
   text-align: center;
   padding: 3rem 1rem;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .menu-loading p:first-child {
@@ -237,7 +240,7 @@
 
 .menu-loading-subtext {
   font-size: 0.9rem;
-  color: #999;
+  color: var(--color-text-muted);
   margin-top: 0.5rem;
 }
 

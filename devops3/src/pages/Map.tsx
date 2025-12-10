@@ -1,11 +1,28 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
+import { GoogleMap, Marker, InfoWindow, Circle } from "@react-google-maps/api";
 import { getRestaurants } from "../api";
 import RestaurantDetail from "../components/RestaurantDetail";
 import type { Restaurant } from "../data/places";
 import RestaurantForm from "../components/RestaurantForm";
 import { useAuth } from "../contexts/AuthContext";
+
+// Debounce hook
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 const containerStyle = {
   width: "100%",
@@ -16,6 +33,12 @@ const containerStyle = {
 const defaultCenter = {
   lat: 37.5665,
   lng: 126.978,
+};
+
+// 서강대학교 위치
+const sogangLocation = {
+  lat: 37.551105,
+  lng: 126.941053,
 };
 
 function Map() {
@@ -45,115 +68,63 @@ function Map() {
     "DISTANCE" | "RATING" | "POPULAR" | null
   >(null);
 
+  // Debounced 값 - 슬라이더 드래그 중에는 API 호출 지연
+  const debouncedFilterRadius = useDebounce(filterRadius, 300);
+
   // 토글 상태
   const [showFilters, setShowFilters] = useState(true);
   const [showRestaurantList, setShowRestaurantList] = useState(true);
 
-  // 맛집 목록 가져오기
-  const fetchRestaurants = async () => {
+  // 맛집 목록 가져오기 - 이미 저장된 currentPosition 사용
+  const fetchRestaurants = useCallback(async () => {
+    // 이미 저장된 위치 사용 (없으면 기본 위치)
+    const position = currentPosition || defaultCenter;
+
     try {
-      // 사용자 위치 가져오기
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          try {
-            const params: any = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            };
+      const params: any = {
+        lat: position.lat,
+        lng: position.lng,
+      };
 
-            // 거리 필터와 정렬 옵션을 백엔드에 전달
-            if (filterRadius !== null) params.radius = filterRadius;
-            if (sortBy !== null) params.sortBy = sortBy;
+      // 거리 필터와 정렬 옵션을 백엔드에 전달 (debounced 값 사용)
+      if (debouncedFilterRadius !== null) params.radius = debouncedFilterRadius;
+      if (sortBy !== null) params.sortBy = sortBy;
 
-            let data = await getRestaurants(params);
-            console.log("백엔드에서 받은 데이터:", data.length, "개");
+      let data = await getRestaurants(params);
+      console.log("백엔드에서 받은 데이터:", data.length, "개");
 
-            // 클라이언트 측에서 OR 조건으로 필터 적용
-            if (filterTypes.length > 0) {
-              data = data.filter((r) => filterTypes.includes(r.type as any));
-            }
-            if (filterCategories.length > 0) {
-              data = data.filter((r) => filterCategories.includes(r.category));
-            }
+      // 클라이언트 측에서 OR 조건으로 필터 적용
+      if (filterTypes.length > 0) {
+        data = data.filter((r) => filterTypes.includes(r.type as any));
+      }
+      if (filterCategories.length > 0) {
+        data = data.filter((r) => filterCategories.includes(r.category));
+      }
 
-            console.log("필터링 후 데이터:", data.length, "개");
+      console.log("필터링 후 데이터:", data.length, "개");
 
-            const validRestaurants = data.filter((r) => r.id || (r as any).id);
-            setRestaurants(validRestaurants);
-            if (validRestaurants.length < data.length) {
-              console.warn(
-                `${
-                  data.length - validRestaurants.length
-                }개의 레스토랑에 id가 없어 제외되었습니다.`
-              );
-            }
-          } catch (error) {
-            console.error("Failed to fetch restaurants:", error);
-            setRestaurants([]);
-          } finally {
-            setLoading(false);
-          }
-        },
-        async (error) => {
-          console.error("위치 정보를 가져올 수 없습니다:", error);
-          // 기본 위치 (서울) 사용
-          try {
-            const params: any = {
-              lat: defaultCenter.lat,
-              lng: defaultCenter.lng,
-            };
-
-            // 거리 필터와 정렬 옵션을 백엔드에 전달
-            if (filterRadius !== null) params.radius = filterRadius;
-            if (sortBy !== null) params.sortBy = sortBy;
-
-            let data = await getRestaurants(params);
-            console.log("백엔드에서 받은 데이터:", data.length, "개");
-
-            // 클라이언트 측에서 OR 조건으로 필터 적용
-            if (filterTypes.length > 0) {
-              data = data.filter((r) => filterTypes.includes(r.type as any));
-            }
-            if (filterCategories.length > 0) {
-              data = data.filter((r) => filterCategories.includes(r.category));
-            }
-
-            console.log("필터링 후 데이터:", data.length, "개");
-
-            const validRestaurants = data.filter((r) => r.id || (r as any).id);
-            setRestaurants(validRestaurants);
-            if (validRestaurants.length < data.length) {
-              console.warn(
-                `${
-                  data.length - validRestaurants.length
-                }개의 레스토랑에 id가 없어 제외되었습니다.`
-              );
-            }
-          } catch (error) {
-            console.error("Failed to fetch restaurants:", error);
-            setRestaurants([]);
-          } finally {
-            setLoading(false);
-          }
-        }
-      );
+      const validRestaurants = data.filter((r) => r.id || (r as any).id);
+      setRestaurants(validRestaurants);
+      if (validRestaurants.length < data.length) {
+        console.warn(
+          `${
+            data.length - validRestaurants.length
+          }개의 레스토랑에 id가 없어 제외되었습니다.`
+        );
+      }
     } catch (error) {
-      console.error("Failed to initialize geolocation:", error);
+      console.error("Failed to fetch restaurants:", error);
       setRestaurants([]);
+    } finally {
       setLoading(false);
     }
-  };
+  }, [currentPosition, debouncedFilterRadius, sortBy, filterTypes, filterCategories]);
 
-  // 초기 로딩
+  // 초기 로딩 및 필터 조건 변경 시 검색
   useEffect(() => {
     setLoading(true);
     fetchRestaurants();
-  }, []);
-
-  // 필터 조건이 변경되면 자동으로 검색
-  useEffect(() => {
-    fetchRestaurants();
-  }, [filterTypes, filterCategories, filterRadius, sortBy]);
+  }, [fetchRestaurants]);
 
   // 사용자 위치 가져오기 (항상 실행)
   useEffect(() => {
@@ -341,11 +312,11 @@ function Map() {
                     flex: 1,
                     padding: "8px",
                     border: filterTypes.includes("ON_CAMPUS")
-                      ? "2px solid #4CAF50"
+                      ? "2px solid #FFD600"
                       : "1px solid #ddd",
                     borderRadius: "4px",
                     backgroundColor: filterTypes.includes("ON_CAMPUS")
-                      ? "#e8f5e9"
+                      ? "#FFF8E1"
                       : "white",
                     cursor: "pointer",
                     fontSize: "13px",
@@ -353,7 +324,7 @@ function Map() {
                       ? "bold"
                       : "normal",
                     color: filterTypes.includes("ON_CAMPUS")
-                      ? "#2e7d32"
+                      ? "#333"
                       : "#666",
                   }}
                 >
@@ -365,11 +336,11 @@ function Map() {
                     flex: 1,
                     padding: "8px",
                     border: filterTypes.includes("OFF_CAMPUS")
-                      ? "2px solid #4CAF50"
+                      ? "2px solid #FFD600"
                       : "1px solid #ddd",
                     borderRadius: "4px",
                     backgroundColor: filterTypes.includes("OFF_CAMPUS")
-                      ? "#e8f5e9"
+                      ? "#FFF8E1"
                       : "white",
                     cursor: "pointer",
                     fontSize: "13px",
@@ -377,7 +348,7 @@ function Map() {
                       ? "bold"
                       : "normal",
                     color: filterTypes.includes("OFF_CAMPUS")
-                      ? "#2e7d32"
+                      ? "#333"
                       : "#666",
                   }}
                 >
@@ -396,11 +367,11 @@ function Map() {
                     style={{
                       padding: "6px 10px",
                       border: filterCategories.includes(cat)
-                        ? "2px solid #4CAF50"
+                        ? "2px solid #FFD600"
                         : "1px solid #ddd",
                       borderRadius: "16px",
                       backgroundColor: filterCategories.includes(cat)
-                        ? "#e8f5e9"
+                        ? "#FFF8E1"
                         : "white",
                       cursor: "pointer",
                       fontSize: "12px",
@@ -408,7 +379,7 @@ function Map() {
                         ? "bold"
                         : "normal",
                       color: filterCategories.includes(cat)
-                        ? "#2e7d32"
+                        ? "#333"
                         : "#666",
                     }}
                   >
@@ -777,6 +748,21 @@ function Map() {
           />
         ))}
 
+        {/* 거리 필터 동심원 오버레이 */}
+        {currentPosition && filterRadius !== null && (
+          <Circle
+            center={currentPosition}
+            radius={filterRadius}
+            options={{
+              fillColor: "transparent",
+              fillOpacity: 0,
+              strokeColor: "#FFD600",
+              strokeOpacity: 0.8,
+              strokeWeight: 2,
+            }}
+          />
+        )}
+
         {/* 간단한 정보 말풍선 (지도 위) */}
         {selectedRestaurant && (
           <InfoWindow
@@ -805,6 +791,72 @@ function Map() {
           </InfoWindow>
         )}
       </GoogleMap>
+
+      {/* 위치 이동 버튼들 */}
+      <div
+        style={{
+          position: "absolute",
+          right: selectedRestaurant ? 420 : 20,
+          bottom: 100,
+          zIndex: 5,
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          transition: "right 0.3s ease",
+        }}
+      >
+        {/* 내 위치로 이동 */}
+        <button
+          onClick={() => {
+            if (currentPosition) {
+              setMapCenter(currentPosition);
+              map?.panTo(currentPosition);
+            } else {
+              alert("현재 위치를 가져올 수 없습니다.");
+            }
+          }}
+          style={{
+            width: "44px",
+            height: "44px",
+            border: "none",
+            borderRadius: "50%",
+            backgroundColor: "white",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "20px",
+          }}
+          title="내 위치로 이동"
+        >
+          📍
+        </button>
+
+        {/* 서강대로 이동 */}
+        <button
+          onClick={() => {
+            setMapCenter(sogangLocation);
+            map?.panTo(sogangLocation);
+          }}
+          style={{
+            width: "44px",
+            height: "44px",
+            border: "none",
+            borderRadius: "50%",
+            backgroundColor: "white",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "20px",
+          }}
+          title="서강대로 이동"
+        >
+          🏫
+        </button>
+      </div>
 
       {/* 우측 상세 정보 패널 */}
       {selectedRestaurant && (

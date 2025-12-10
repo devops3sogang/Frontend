@@ -35,6 +35,7 @@ function RestaurantForm({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>(initialData?.imageUrl || "");
   const [uploading, setUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -43,26 +44,49 @@ function RestaurantForm({
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const processImageFile = (file: File) => {
+    if (file.size > 10 * 1024 * 1024) {
+      alert("이미지 파일 크기는 10MB를 초과할 수 없습니다.");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      alert("이미지 파일만 업로드 가능합니다.");
+      return;
+    }
+
+    setImageFile(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        alert("이미지 파일 크기는 10MB를 초과할 수 없습니다.");
-        return;
-      }
+      processImageFile(file);
+    }
+  };
 
-      if (!file.type.startsWith("image/")) {
-        alert("이미지 파일만 업로드 가능합니다.");
-        return;
-      }
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
 
-      setImageFile(file);
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processImageFile(file);
     }
   };
 
@@ -270,7 +294,12 @@ function RestaurantForm({
           <div style={styles.section}>
             <h3 style={styles.sectionTitle}>📷 식당 이미지</h3>
 
-            <div style={styles.imageUploadContainer}>
+            <div
+              style={styles.imageUploadContainer}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
               <input
                 type="file"
                 accept="image/*"
@@ -278,12 +307,18 @@ function RestaurantForm({
                 style={styles.fileInput}
                 id="imageUpload"
               />
-              <label htmlFor="imageUpload" style={styles.fileLabel}>
-                <span style={styles.uploadIcon}>📸</span>
+              <label
+                htmlFor="imageUpload"
+                style={{
+                  ...styles.fileLabel,
+                  ...(isDragging ? styles.fileLabelDragging : {}),
+                }}
+              >
+                <span style={styles.uploadIcon}>{isDragging ? "📥" : "📸"}</span>
                 <span style={styles.uploadText}>
-                  {imageFile ? imageFile.name : "이미지 파일 선택"}
+                  {isDragging ? "여기에 놓으세요" : imageFile ? imageFile.name : "이미지 파일 선택 또는 드래그"}
                 </span>
-                <span style={styles.uploadHint}>JPG, PNG, GIF (최대 10MB)</span>
+                <span style={styles.uploadHint}>JPG, PNG, GIF, WebP (최대 10MB)</span>
               </label>
             </div>
 
@@ -403,7 +438,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
   },
   header: {
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    background: "#FFD600",
     padding: "32px",
     borderRadius: "24px 24px 0 0",
     display: "flex",
@@ -418,12 +453,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: 28,
     fontWeight: 700,
     color: "#fff",
-    textShadow: "1px 1px 2px rgba(0,0,0,0.2)",
+    textShadow: "1px 1px 2px rgba(0,0,0,0.1)",
   },
   subtitle: {
     margin: "8px 0 0",
     fontSize: 14,
-    color: "rgba(255, 255, 255, 0.9)",
+    color: "rgba(255, 255, 255, 0.95)",
   },
   closeButton: {
     background: "rgba(255, 255, 255, 0.2)",
@@ -515,6 +550,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     transition: "all 0.2s ease",
     background: "#f9fafb",
   },
+  fileLabelDragging: {
+    border: "2px dashed #FFD600",
+    background: "#FFF8E1",
+    transform: "scale(1.02)",
+  },
   uploadIcon: {
     fontSize: 48,
     marginBottom: 12,
@@ -522,7 +562,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   uploadText: {
     fontSize: 15,
     fontWeight: 600,
-    color: "#667eea",
+    color: "#FFC107",
     marginBottom: 4,
   },
   uploadHint: {
@@ -559,7 +599,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: "8px 16px",
     borderRadius: 10,
     border: "none",
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    background: "#FFD600",
     color: "#fff",
     fontSize: 13,
     fontWeight: 600,
@@ -602,12 +642,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: "14px 32px",
     borderRadius: 12,
     border: "none",
-    background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+    background: "#FFD600",
     color: "#fff",
     fontSize: 15,
     fontWeight: 600,
     cursor: "pointer",
-    boxShadow: "0 4px 12px rgba(245, 87, 108, 0.4)",
+    boxShadow: "0 4px 12px rgba(255, 214, 0, 0.4)",
     transition: "all 0.2s ease",
   },
 };

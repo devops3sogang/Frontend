@@ -40,6 +40,8 @@ function ReviewModal({
   const [imageUrls, setImageUrls] = useState<string[]>(
     existingReview?.imageUrls || []
   );
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleMenuToggle = (menuName: string) => {
     setSelectedMenus((prev) => {
@@ -73,16 +75,9 @@ function ReviewModal({
     });
   };
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-
+  const processImageFiles = async (files: FileList | File[]) => {
     const maxImages = 6;
     const remainingSlots = maxImages - imageUrls.length;
-
-    console.log("Selected files:", files.length);
-    console.log("Current images:", imageUrls.length);
-    console.log("Remaining slots:", remainingSlots);
 
     if (remainingSlots <= 0) {
       alert("최대 6개의 이미지만 첨부할 수 있습니다.");
@@ -90,35 +85,50 @@ function ReviewModal({
     }
 
     const filesToProcess = Array.from(files).slice(0, remainingSlots);
-    console.log("Files to process:", filesToProcess.length);
 
     // 각 파일을 서버에 업로드하고 URL을 받아옴
+    setIsUploading(true);
     try {
       const uploadPromises = filesToProcess.map(async (file) => {
-        try {
-          const imageUrl = await uploadImage(file);
-          return imageUrl;
-        } catch (error) {
-          console.error("Failed to upload image:", error);
-          throw error;
-        }
+        const imageUrl = await uploadImage(file);
+        return imageUrl;
       });
 
       const uploadedUrls = await Promise.all(uploadPromises);
-      console.log("Uploaded image URLs:", uploadedUrls);
 
-      setImageUrls((prev) => {
-        const newUrls = [...prev, ...uploadedUrls];
-        console.log("New image URLs count:", newUrls.length);
-        return newUrls;
-      });
+      setImageUrls((prev) => [...prev, ...uploadedUrls]);
     } catch (error) {
       console.error("Image upload failed:", error);
       alert("이미지 업로드에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsUploading(false);
     }
+  };
 
-    // input 초기화
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    await processImageFiles(files);
     e.target.value = "";
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      await processImageFiles(files);
+    }
   };
 
   const handleRemoveImage = (index: number) => {
@@ -262,16 +272,28 @@ function ReviewModal({
 
           <div className="form-group">
             <label>사진 첨부</label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              className="image-input"
-              disabled={imageUrls.length >= 6}
-            />
-            <div className="image-count-info">
-              {imageUrls.length}/6개 첨부됨
+            <div
+              className={`image-drop-zone ${isDragging ? "dragging" : ""} ${isUploading ? "uploading" : ""}`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                className="image-input"
+                id="review-image-upload"
+                disabled={imageUrls.length >= 6 || isUploading}
+              />
+              <label htmlFor="review-image-upload" className="drop-zone-label">
+                <span className="drop-icon">{isDragging ? "📥" : isUploading ? "⏳" : "📷"}</span>
+                <span className="drop-text">
+                  {isUploading ? "업로드 중..." : isDragging ? "여기에 놓으세요" : "클릭 또는 드래그하여 이미지 추가"}
+                </span>
+                <span className="drop-hint">JPG, PNG, GIF, WebP (최대 10MB, {imageUrls.length}/6개)</span>
+              </label>
             </div>
             {imageUrls.length > 0 && (
               <div className="images-preview-grid">

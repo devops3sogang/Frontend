@@ -69,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     authAPI.removeToken();
     localStorage.removeItem("currentUser");
+    localStorage.removeItem("refreshToken");
   };
 
   const updateNickname = async (newNickname: string) => {

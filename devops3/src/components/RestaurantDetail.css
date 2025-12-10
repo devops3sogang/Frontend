@@ -5,7 +5,7 @@
   width: 400px;
   height: calc(100vh - 60px);
   height: -webkit-calc(100vh - 60px);
-  background-color: white;
+  background-color: var(--color-bg-white);
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -41,25 +41,25 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--color-border-default);
   position: -webkit-sticky;
   position: sticky;
   top: 0;
-  background-color: white;
+  background-color: var(--color-bg-white);
   z-index: 10;
 }
 
 .detail-header h2 {
   margin: 0;
   font-size: 24px;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .close-btn {
   background: none;
   border: none;
   font-size: 32px;
-  color: #999;
+  color: var(--color-text-muted);
   cursor: pointer;
   padding: 0;
   width: 32px;
@@ -70,7 +70,7 @@
 }
 
 .close-btn:hover {
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .rating-section {
@@ -78,52 +78,52 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #f9f9f9;
+  background-color: var(--color-primary-light);
 }
 
 .rating-section .star {
-  color: #ffa500;
+  color: var(--color-star);
   font-size: 24px;
 }
 
 .rating-value {
   font-size: 20px;
   font-weight: bold;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .review-count {
   font-size: 14px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .restaurant-status {
   font-size: 14px;
   font-weight: 600;
   padding: 4px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   margin-left: auto;
 }
 
 .restaurant-status.active {
-  background-color: #e8f5e9;
-  color: #2e7d32;
+  background-color: var(--color-success-light);
+  color: var(--color-success-dark);
 }
 
 .restaurant-status.inactive {
-  background-color: #ffebee;
-  color: #c62828;
+  background-color: var(--color-error-light);
+  color: var(--color-error-dark);
 }
 
 .menu-section {
   padding: 20px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--color-border-default);
 }
 
 .menu-section h3 {
   margin: 0 0 15px 0;
   font-size: 18px;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .restaurant-menu-list {
@@ -136,7 +136,7 @@
   display: flex;
   justify-content: space-between;
   padding: 10px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .restaurant-menu-list li:last-child {
@@ -145,13 +145,13 @@
 
 .menu-name {
   font-size: 15px;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .menu-price {
   font-size: 15px;
   font-weight: 500;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .reviews-section {
@@ -168,23 +168,24 @@
 .reviews-header h3 {
   margin: 0;
   font-size: 18px;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .btn-add-review {
   padding: 8px 16px;
-  background-color: #007bff;
-  color: white;
+  background-color: #FFD600 !important;
+  color: #fff !important;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all var(--transition-normal);
 }
 
 .btn-add-review:hover {
-  background-color: #0056b3;
+  box-shadow: 0 4px 12px rgba(255, 214, 0, 0.4);
+  transform: translateY(-1px);
 }
 
 .reviews-list {
@@ -195,8 +196,8 @@
 
 .review-item {
   padding: 15px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
+  background-color: var(--color-bg-light);
+  border-radius: var(--radius-md);
 }
 
 .review-header {
@@ -223,17 +224,17 @@
 }
 
 .review-rating .star {
-  color: #ffa500;
+  color: var(--color-star);
   font-size: 16px;
 }
 
 /* StarRatingDisplay 헬퍼 컴포넌트 내부의 별 스타일 */
 .star-rating-display-row .stars .star.filled {
-  color: #ffc107;
+  color: var(--color-star);
 }
 
 .star-rating-display-row .stars .star.empty {
-  color: #e0e0e0;
+  color: var(--color-star-empty);
 }
 
 .star-rating-display-row {
@@ -245,7 +246,7 @@
 .star-rating-display-row .rating-label {
   width: 70px;
   font-size: 0.85em;
-  color: #555;
+  color: var(--color-text-secondary);
   text-align: left;
 }
 
@@ -290,14 +291,14 @@
 
 .menu-ratings-section {
   padding: 5px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-md);
   pointer-events: none;
 }
 
 .menu-ratings-section h4 {
   font-size: 14px;
-  color: #666;
+  color: var(--color-text-secondary);
   margin: 0 0 10px 0;
   font-weight: 500;
 }
@@ -310,7 +311,7 @@
 
 .review-author {
   font-size: 14px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .review-edit-actions {
@@ -326,7 +327,7 @@
   cursor: pointer;
   padding: 4px;
   opacity: 0.6;
-  transition: opacity 0.2s;
+  transition: opacity var(--transition-normal);
 }
 
 .btn-edit:hover,
@@ -354,17 +355,17 @@
 .menu-tag {
   display: inline-block;
   padding: 4px 8px;
-  background-color: #e3f2fd;
-  color: #1976d2;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-hover);
   font-size: 12px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .review-content {
   margin: 8px 0;
   font-size: 14px;
   line-height: 1.6;
-  color: #333;
+  color: var(--color-text-primary);
   text-align: left;
 }
 
@@ -376,10 +377,10 @@
   position: relative;
   width: 100%;
   height: 250px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   overflow: hidden;
-  background-color: #f0f0f0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-bg-gray);
+  box-shadow: var(--shadow-md);
 }
 
 .review-image {
@@ -406,7 +407,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all var(--transition-normal);
   z-index: 2;
 }
 
@@ -447,7 +448,7 @@
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-normal);
 }
 
 .image-indicators .indicator:hover {
@@ -458,7 +459,7 @@
 .image-indicators .indicator.active {
   background-color: white;
   width: 24px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .review-footer {
@@ -467,7 +468,7 @@
   align-items: center;
   margin-top: 10px;
   font-size: 12px;
-  color: #999;
+  color: var(--color-text-muted);
 }
 
 .review-actions {
@@ -477,33 +478,33 @@
 
 .btn-like {
   background: none;
-  border: 2px solid #007bff00;
+  border: 2px solid transparent;
   font-size: 14px;
   cursor: pointer;
   padding: 4px 8px;
   display: flex;
   align-items: center;
   gap: 4px;
-  color: #666;
-  transition: all 0.2s;
-  border-radius: 4px;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-normal);
+  border-radius: var(--radius-sm);
 }
 
 .btn-like:hover {
-  background-color: #f0f0f0;
-  border: 2px solid #007bff37;
+  background-color: var(--color-primary-light);
+  border: 2px solid var(--color-primary);
 }
 
 .btn-like.liked {
-  background-color: #007bff15;
-  border: 2px solid #007bff7d;
-  color: #007bff;
+  background-color: var(--color-primary-light);
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary-hover);
   font-weight: 500;
 }
 
 .no-reviews {
   text-align: center;
-  color: #999;
+  color: var(--color-text-muted);
   padding: 20px;
 }
 
@@ -553,7 +554,7 @@
   align-items: center;
   justify-content: center;
   opacity: 0.8;
-  transition: opacity 0.2s;
+  transition: opacity var(--transition-normal);
 }
 
 .image-modal-close:hover {
@@ -580,7 +581,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all var(--transition-normal);
   z-index: 2;
 }
 
@@ -617,7 +618,7 @@
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-normal);
 }
 
 .image-modal-content .image-indicators .indicator:hover {
@@ -640,9 +641,9 @@
   width: 100%;
   height: 250px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: opacity var(--transition-normal);
 }
 
 .restaurant-main-image:hover {
@@ -664,20 +665,20 @@
 }
 
 .restaurant-form {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--color-bg-white);
+  border-radius: var(--radius-lg);
   padding: 24px;
   max-width: 600px;
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-lg);
 }
 
 .restaurant-form h2 {
   margin: 0 0 20px 0;
   font-size: 24px;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .restaurant-form form {
@@ -692,22 +693,22 @@
   gap: 6px;
   font-size: 14px;
   font-weight: 500;
-  color: #555;
+  color: var(--color-text-secondary);
 }
 
 .restaurant-form input,
 .restaurant-form select {
   padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-md);
   font-size: 14px;
-  transition: border-color 0.2s;
+  transition: border-color var(--transition-normal);
 }
 
 .restaurant-form input:focus,
 .restaurant-form select:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--color-primary);
 }
 
 .restaurant-form .form-row {
@@ -727,29 +728,29 @@
 .restaurant-form .btn-cancel {
   padding: 10px 20px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-normal);
 }
 
 .restaurant-form .btn-submit {
-  background: #111827;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
 }
 
 .restaurant-form .btn-submit:hover {
-  background: #374151;
+  box-shadow: var(--shadow-primary);
 }
 
 .restaurant-form .btn-cancel {
-  background: #6b7280;
-  color: #fff;
+  background: var(--color-bg-gray);
+  color: var(--color-text-secondary);
 }
 
 .restaurant-form .btn-cancel:hover {
-  background: #9ca3af;
+  background: var(--color-border-default);
 }
 
 /* 모바일 대응 */
