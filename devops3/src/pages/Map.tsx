@@ -42,7 +42,7 @@ function Map() {
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [filterRadius, setFilterRadius] = useState<number | null>(null); // null = 전체 거리
   const [sortBy, setSortBy] = useState<
-    "DISTANCE" | "RATING" | "REVIEW_COUNT" | null
+    "DISTANCE" | "RATING" | "POPULAR" | null
   >(null);
 
   // 토글 상태
@@ -568,14 +568,13 @@ function Map() {
                     padding: "8px",
                     border: "1px solid #ddd",
                     borderRadius: "4px",
-                    backgroundColor:
-                      sortBy === "REVIEW_COUNT" ? "#f0f0f0" : "white",
+                    backgroundColor: sortBy === "POPULAR" ? "#f0f0f0" : "white",
                   }}
                 >
                   <input
                     type="radio"
-                    value="REVIEW_COUNT"
-                    checked={sortBy === "REVIEW_COUNT"}
+                    value="POPULAR"
+                    checked={sortBy === "POPULAR"}
                     onChange={(e) => setSortBy(e.target.value as any)}
                   />
                   <span style={{ fontSize: "13px", wordBreak: "keep-all" }}>
